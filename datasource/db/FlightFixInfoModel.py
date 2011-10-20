@@ -9,14 +9,18 @@ class FlightFixInfo(DBBase.Base):
     __tablename__ = 'flight_fix_info_table'    
     flight_no = Column(VARCHAR(50), primary_key = True, index = True, nullable = False)
     company = Column(VARCHAR(50), index = True, nullable = False)
-    schedule_takeoff_time = Column(VARCHAR(50), nullable = False)
-    schedule_arrival_time = Column(VARCHAR(50), nullable = False)
-    takeoff_city = Column(VARCHAR(50), primary_key = True, index = True, nullable = False)
+    schedule_takeoff_time = Column(VARCHAR(50), primary_key = True, index = True, nullable = False)
+    schedule_arrival_time = Column(VARCHAR(50), primary_key = True, index = True, nullable = False)
+    takeoff_city = Column(VARCHAR(50), index = True, nullable = False)
     takeoff_airport = Column(VARCHAR(50), index = True, nullable = False)
-    arrival_city = Column(VARCHAR(50), primary_key = True, index = True, nullable = False)
+    takeoff_airport_building = Column(VARCHAR(50))
+    arrival_city = Column(VARCHAR(50), index = True, nullable = False)
     arrival_airport = Column(VARCHAR(50), index = True, nullable = False)
+    arrival_airport_building = Column(VARCHAR(50))
     plane_model = Column(VARCHAR(50), nullable = False)
-    schedule = Column(VARCHAR(50), nullable = False)
+    mileage = Column(VARCHAR(50))
+    stopover = Column(VARCHAR(50))
+    schedule = Column(VARCHAR(50), primary_key = True, nullable = False)
     date = Column(VARCHAR(20))
        
     

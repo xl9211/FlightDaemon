@@ -132,13 +132,15 @@ class FlightDaemon:
             data_list = []
             for flight in flight_list:
                 # fix data
-                fix_data_list = self.data_source.getFlightFixInfoByUniq(flight['flight_no'], flight['takeoff_city'], flight['arrival_city'])
+                fix_data_list = self.data_source.getFlightFixInfoByUniq(flight['flight_no'], flight['takeoff_city'], flight['arrival_city'], flight['schedule_takeoff_date'])
                 self.logger.info("fix data %s" %(json.dumps(fix_data_list)))
  
                 if len(fix_data_list) == 0:
-                    return json.dumps([])
+                    self.logger.info("fix data not exist")
+                    continue
                 if fix_data_list == None:
-                    return json.dumps(None)
+                    self.logger.error("get fix data error")
+                    continue
                 
                 self.data_source.completeFlightInfo(data_list, fix_data_list, flight['schedule_takeoff_date'])
             
@@ -175,6 +177,21 @@ class FlightDaemon:
             data = self.data_source.spiderAirline()
             
             return json.dumps(data)
+        except:
+            msg = traceback.format_exc()
+            self.logger.error(msg)
+            
+            return json.dumps(None)
+
+    
+    @cherrypy.expose     
+    def spiderFlightFixInfo(self):
+        try:
+            self.logger.info("get request")
+                      
+            data = self.data_source.spiderFlightFixInfo()
+            
+            return json.dumps('OK')
         except:
             msg = traceback.format_exc()
             self.logger.error(msg)

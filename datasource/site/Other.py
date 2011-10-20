@@ -1,13 +1,13 @@
 # coding=utf-8
 
-
+'''
 import os
 import sys
 current_path = os.getcwd()
 base_path = os.path.abspath(os.path.join(current_path, "../../"))
 sys.path.append(base_path)
+'''
 
- 
 
 from Spider import Spider
 import lxml.html.soupparser 

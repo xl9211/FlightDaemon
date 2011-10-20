@@ -12,6 +12,8 @@ from AirlineInfoModel import AirlineInfo
 from CityInfoModel import CityInfo
 
 import random
+import time
+import json
 
 
 def init(db_user, db_passwd, db_host, db_name):
@@ -28,49 +30,59 @@ class DB:
     
     def getFlightFixInfoByUniq(self, flight_no, takeoff_city, arrival_city, schedule_takeoff_date):
         ret = FlightFixInfo.find(flight_no = flight_no, takeoff_city = takeoff_city, arrival_city = arrival_city)
+        week = time.strftime("%w", time.strptime(schedule_takeoff_date, "%Y-%m-%d"))
         flight_info_list = []
         for one in ret:
-            one_hash = {}
-            
-            one_hash['flight_no'] = one.flight_no
-            one_hash['company'] = one.company
-            one_hash['schedule_takeoff_time'] = one.schedule_takeoff_time
-            one_hash['schedule_arrival_time'] = one.schedule_arrival_time
-            one_hash['takeoff_city'] = one.takeoff_city
-            one_hash['takeoff_airport'] = one.takeoff_airport
-            one_hash['arrival_city'] = one.arrival_city
-            one_hash['arrival_airport'] = one.arrival_airport
-            one_hash['plane_model'] = one.plane_model
-            one_hash['schedule'] = one.schedule
-            
-            flight_info_list.append(one_hash)
+            if week in json.loads(one.schedule):
+                one_hash = {}
+                
+                one_hash['flight_no'] = one.flight_no
+                one_hash['company'] = one.company
+                one_hash['schedule_takeoff_time'] = one.schedule_takeoff_time
+                one_hash['schedule_arrival_time'] = one.schedule_arrival_time
+                one_hash['takeoff_city'] = one.takeoff_city
+                one_hash['takeoff_airport'] = one.takeoff_airport
+                one_hash['takeoff_airport_building'] = one.takeoff_airport_building
+                one_hash['arrival_city'] = one.arrival_city
+                one_hash['arrival_airport'] = one.arrival_airport
+                one_hash['arrival_airport_building'] = one.arrival_airport_building
+                one_hash['plane_model'] = one.plane_model
+                one_hash['mileage'] = one.mileage
+                
+                flight_info_list.append(one_hash)
+                break
         
         return flight_info_list
     
      
     def getFlightFixInfoByFlightNO(self, flight_no, schedule_takeoff_date):
         ret = FlightFixInfo.find(flight_no = flight_no)
+        week = time.strftime("%w", time.strptime(schedule_takeoff_date, "%Y-%m-%d"))
         flight_info_list = []
         for one in ret:
-            one_hash = {}
-            
-            one_hash['flight_no'] = one.flight_no
-            one_hash['company'] = one.company
-            one_hash['schedule_takeoff_time'] = one.schedule_takeoff_time
-            one_hash['schedule_arrival_time'] = one.schedule_arrival_time
-            one_hash['takeoff_city'] = one.takeoff_city
-            one_hash['takeoff_airport'] = one.takeoff_airport
-            one_hash['arrival_city'] = one.arrival_city
-            one_hash['arrival_airport'] = one.arrival_airport
-            one_hash['plane_model'] = one.plane_model
-            one_hash['schedule'] = one.schedule
-            
-            flight_info_list.append(one_hash)
+            if week in json.loads(one.schedule):
+                one_hash = {}
+                
+                one_hash['flight_no'] = one.flight_no
+                one_hash['company'] = one.company
+                one_hash['schedule_takeoff_time'] = one.schedule_takeoff_time
+                one_hash['schedule_arrival_time'] = one.schedule_arrival_time
+                one_hash['takeoff_city'] = one.takeoff_city
+                one_hash['takeoff_airport'] = one.takeoff_airport
+                one_hash['takeoff_airport_building'] = one.takeoff_airport_building
+                one_hash['arrival_city'] = one.arrival_city
+                one_hash['arrival_airport'] = one.arrival_airport
+                one_hash['arrival_airport_building'] = one.arrival_airport_building
+                one_hash['plane_model'] = one.plane_model
+                one_hash['mileage'] = one.mileage
+                
+                flight_info_list.append(one_hash)
         
         return flight_info_list
     
     
     def getFlightFixInfoByAirLine(self, takeoff_airport, arrival_airport, schedule_takeoff_date, company):
+        week = time.strftime("%w", time.strptime(schedule_takeoff_date, "%Y-%m-%d"))
         ret = []
         if company == 'all':
             ret = FlightFixInfo.find(takeoff_airport = takeoff_airport, arrival_airport = arrival_airport)
@@ -79,40 +91,68 @@ class DB:
         
         flight_info_list = []
         for one in ret:
-            one_hash = {}
-            
-            one_hash['flight_no'] = one.flight_no
-            one_hash['company'] = one.company
-            one_hash['schedule_takeoff_time'] = one.schedule_takeoff_time
-            one_hash['schedule_arrival_time'] = one.schedule_arrival_time
-            one_hash['takeoff_city'] = one.takeoff_city
-            one_hash['takeoff_airport'] = one.takeoff_airport
-            one_hash['arrival_city'] = one.arrival_city
-            one_hash['arrival_airport'] = one.arrival_airport
-            one_hash['plane_model'] = one.plane_model
-            one_hash['schedule'] = one.schedule
-            
-            flight_info_list.append(one_hash)
+            if week in json.loads(one.schedule):
+                one_hash = {}
+                
+                one_hash['flight_no'] = one.flight_no
+                one_hash['company'] = one.company
+                one_hash['schedule_takeoff_time'] = one.schedule_takeoff_time
+                one_hash['schedule_arrival_time'] = one.schedule_arrival_time
+                one_hash['takeoff_city'] = one.takeoff_city
+                one_hash['takeoff_airport'] = one.takeoff_airport
+                one_hash['takeoff_airport_building'] = one.takeoff_airport_building
+                one_hash['arrival_city'] = one.arrival_city
+                one_hash['arrival_airport'] = one.arrival_airport
+                one_hash['arrival_airport_building'] = one.arrival_airport_building
+                one_hash['plane_model'] = one.plane_model
+                one_hash['mileage'] = one.mileage
+                
+                flight_info_list.append(one_hash)
+                break
         
         return flight_info_list
     
     
     def putFlightFixInfo(self, flight_info_list):
         for one in flight_info_list:
-            flight_info = FlightFixInfo()
+            ret = FlightFixInfo.find(flight_no = one['flight_no'], schedule_takeoff_time = one['schedule_takeoff_time'], schedule_arrival_time = one['schedule_arrival_time'], schedule = one['schedule'])
             
-            flight_info.flight_no = one['flight_no']
-            flight_info.company = one['company']
-            flight_info.schedule_takeoff_time = one['schedule_takeoff_time']
-            flight_info.schedule_arrival_time = one['schedule_arrival_time']
-            flight_info.takeoff_city = one['takeoff_city']
-            flight_info.takeoff_airport = one['takeoff_airport']
-            flight_info.arrival_city = one['arrival_city']
-            flight_info.arrival_airport = one['arrival_airport']
-            flight_info.plane_model = one['plane_model']
-            flight_info.schedule = one['schedule']
+            if len(ret) == 0:
+                flight_info = FlightFixInfo()
+                
+                flight_info.flight_no = one['flight_no']
+                flight_info.company = one['company']
+                flight_info.schedule_takeoff_time = one['schedule_takeoff_time']
+                flight_info.schedule_arrival_time = one['schedule_arrival_time']
+                flight_info.takeoff_city = one['takeoff_city']
+                flight_info.takeoff_airport = one['takeoff_airport']
+                flight_info.takeoff_airport_building = one['takeoff_airport_building']
+                flight_info.arrival_city = one['arrival_city']
+                flight_info.arrival_airport = one['arrival_airport']
+                flight_info.arrival_airport_building = one['arrival_airport_building']
+                flight_info.plane_model = one['plane_model']
+                flight_info.mileage = one['mileage']
+                flight_info.stopover = one['stopover']
+                flight_info.schedule = one['schedule']
+            
+                flight_info.add()
+            
         
-            flight_info.add()
+    def putAirportInfo(self, flight_info_list):
+        for one in flight_info_list:
+            ret = AirportInfo.find(airport_short = one['takeoff_airport_short'])
+            if len(ret) == 0:
+                airport_info = AirportInfo()
+                airport_info.airport_short = one['takeoff_airport_short']
+                airport_info.airport_zh = one['takeoff_airport']
+                airport_info.add()
+                
+            ret = AirportInfo.find(airport_short = one['arrival_airport_short'])
+            if len(ret) == 0:
+                airport_info = AirportInfo()
+                airport_info.airport_short = one['arrival_airport_short']
+                airport_info.airport_zh = one['arrival_airport']
+                airport_info.add()
             
             
     def getFlightRealtimeInfo(self, flight_no, schedule_takeoff_time, schedule_arrival_time, schedule_takeoff_date):
@@ -154,12 +194,14 @@ class DB:
 
     
     def putFlightRealtimeInfo(self, flight_info_list):
-        for one in flight_info_list:    
+        for one in flight_info_list: 
             flight_info = FlightRealtimeInfo.find(flight_no = one['flight_no'], schedule_takeoff_time = one['schedule_takeoff_time'], schedule_arrival_time = one['schedule_arrival_time'], schedule_takeoff_date = one['schedule_takeoff_date'])
             
             if len(flight_info) == 0:
-                flight_info = FlightRealtimeInfo()      
-            
+                flight_info = FlightRealtimeInfo()
+            else:
+                flight_info = flight_info[0]   
+
             flight_info.flight_no = one['flight_no']
             flight_info.flight_state = one['flight_state']
             flight_info.company = one['company']
@@ -242,6 +284,19 @@ class DB:
             city_list.append(one.city_zh)
         
         return city_list
+    
+    
+    def getAirlineList(self, lang = 'zh'):
+        ret = AirlineInfo.find()
+        
+        airline_list = []
+        for one in ret:
+            hash = {}
+            hash['takeoff_city'] = one.takeoff_city
+            hash['arrival_city'] = one.arrival_city
+            airline_list.append(hash)
+        
+        return airline_list
             
       
     def putAirport(self, company_list):
