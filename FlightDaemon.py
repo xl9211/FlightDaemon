@@ -101,7 +101,7 @@ class FlightDaemon:
             flight_no = self.data_source.getRandomFlight()
             
             schedule_takeoff_date = time.strftime("%Y-%m-%d", time.localtime())
-            flights = json.loads(self.data_source.queryFlightInfoByFlightNO(flight_no, schedule_takeoff_date))
+            flights = json.loads(self.queryFlightInfoByFlightNO(flight_no, schedule_takeoff_date))
             
             if len(flights) > 1:
                 self.logger.info("random more than one")
@@ -157,7 +157,7 @@ class FlightDaemon:
     @cherrypy.expose     
     def getCompanyList(self, lang = 'zh'):
         try:
-            self.logger.info("get request %s %s" % (lang, source))
+            self.logger.info("get request %s" % (lang))
                       
             data = self.data_source.getCompanyList(lang)
             

@@ -1326,3 +1326,123 @@ ChannelFailures: IOError("Port 10001 not free on '0.0.0.0'",)
 [20/Oct/2011:16:31:33] ENGINE Bus EXITING
 [20/Oct/2011:16:31:33] ENGINE Bus EXITED
 [20/Oct/2011:16:31:33] ENGINE Waiting for child threads to terminate...
+[20/Oct/2011:16:56:45] ENGINE Listening for SIGHUP.
+[20/Oct/2011:16:56:45] ENGINE Listening for SIGTERM.
+[20/Oct/2011:16:56:45] ENGINE Listening for SIGUSR1.
+[20/Oct/2011:16:56:45] ENGINE Bus STARTING
+[20/Oct/2011:16:56:45] ENGINE Started monitor thread '_TimeoutMonitor'.
+[20/Oct/2011:16:56:45] ENGINE Serving on 0.0.0.0:10001
+[20/Oct/2011:16:56:45] ENGINE Bus STARTED
+[20/Oct/2011:16:56:59] ENGINE Caught signal SIGTERM.
+[20/Oct/2011:16:56:59] ENGINE Bus STOPPING
+[20/Oct/2011:16:57:04] ENGINE HTTP Server cherrypy._cpwsgi_server.CPWSGIServer(('0.0.0.0', 10001)) shut down
+[20/Oct/2011:16:57:04] ENGINE Stopped thread '_TimeoutMonitor'.
+[20/Oct/2011:16:57:04] ENGINE Bus STOPPED
+[20/Oct/2011:16:57:04] ENGINE Bus EXITING
+[20/Oct/2011:16:57:04] ENGINE Bus EXITED
+[20/Oct/2011:16:57:04] ENGINE Waiting for child threads to terminate...
+[20/Oct/2011:16:57:06] ENGINE Listening for SIGHUP.
+[20/Oct/2011:16:57:06] ENGINE Listening for SIGTERM.
+[20/Oct/2011:16:57:06] ENGINE Listening for SIGUSR1.
+[20/Oct/2011:16:57:06] ENGINE Bus STARTING
+[20/Oct/2011:16:57:06] ENGINE Started monitor thread '_TimeoutMonitor'.
+[20/Oct/2011:16:57:06] ENGINE Serving on 0.0.0.0:10001
+[20/Oct/2011:16:57:06] ENGINE Bus STARTED
+[20/Oct/2011:16:58:19] ENGINE Caught signal SIGTERM.
+[20/Oct/2011:16:58:19] ENGINE Bus STOPPING
+[20/Oct/2011:16:58:24] ENGINE HTTP Server cherrypy._cpwsgi_server.CPWSGIServer(('0.0.0.0', 10001)) shut down
+[20/Oct/2011:16:58:24] ENGINE Stopped thread '_TimeoutMonitor'.
+[20/Oct/2011:16:58:24] ENGINE Bus STOPPED
+[20/Oct/2011:16:58:24] ENGINE Bus EXITING
+[20/Oct/2011:16:58:24] ENGINE Bus EXITED
+[20/Oct/2011:16:58:24] ENGINE Waiting for child threads to terminate...
+[20/Oct/2011:16:58:32] ENGINE Listening for SIGHUP.
+[20/Oct/2011:16:58:32] ENGINE Listening for SIGTERM.
+[20/Oct/2011:16:58:32] ENGINE Listening for SIGUSR1.
+[20/Oct/2011:16:58:32] ENGINE Bus STARTING
+[20/Oct/2011:16:58:32] ENGINE Started monitor thread '_TimeoutMonitor'.
+[20/Oct/2011:16:58:32] ENGINE Serving on 0.0.0.0:10001
+[20/Oct/2011:16:58:32] ENGINE Bus STARTED
+[20/Oct/2011:16:59:23] ENGINE Caught signal SIGTERM.
+[20/Oct/2011:16:59:23] ENGINE Bus STOPPING
+[20/Oct/2011:16:59:26] ENGINE Listening for SIGHUP.
+[20/Oct/2011:16:59:26] ENGINE Listening for SIGTERM.
+[20/Oct/2011:16:59:26] ENGINE Listening for SIGUSR1.
+[20/Oct/2011:16:59:26] ENGINE Bus STARTING
+[20/Oct/2011:16:59:26] ENGINE Started monitor thread '_TimeoutMonitor'.
+[20/Oct/2011:16:59:26] ENGINE Serving on 0.0.0.0:10001
+[20/Oct/2011:16:59:26] ENGINE Bus STARTED
+[20/Oct/2011:16:59:28] ENGINE Caught signal SIGTERM.
+[20/Oct/2011:16:59:28] ENGINE Bus STOPPING
+[20/Oct/2011:16:59:28] ENGINE HTTP Server cherrypy._cpwsgi_server.CPWSGIServer(('0.0.0.0', 10001)) shut down
+[20/Oct/2011:16:59:28] ENGINE Stopped thread '_TimeoutMonitor'.
+[20/Oct/2011:16:59:28] ENGINE Bus STOPPED
+[20/Oct/2011:16:59:28] ENGINE Bus EXITING
+[20/Oct/2011:16:59:28] ENGINE Bus EXITED
+[20/Oct/2011:16:59:28] ENGINE Waiting for child threads to terminate...
+[20/Oct/2011:16:59:28] ENGINE HTTP Server cherrypy._cpwsgi_server.CPWSGIServer(('0.0.0.0', 10001)) shut down
+[20/Oct/2011:16:59:28] ENGINE Stopped thread '_TimeoutMonitor'.
+[20/Oct/2011:16:59:28] ENGINE Bus STOPPED
+[20/Oct/2011:16:59:28] ENGINE Bus EXITING
+[20/Oct/2011:16:59:28] ENGINE Bus EXITED
+[20/Oct/2011:16:59:28] ENGINE Waiting for child threads to terminate...
+[20/Oct/2011:16:59:42] ENGINE Listening for SIGHUP.
+[20/Oct/2011:16:59:42] ENGINE Listening for SIGTERM.
+[20/Oct/2011:16:59:42] ENGINE Listening for SIGUSR1.
+[20/Oct/2011:16:59:42] ENGINE Bus STARTING
+[20/Oct/2011:16:59:42] ENGINE Started monitor thread '_TimeoutMonitor'.
+[20/Oct/2011:16:59:42] ENGINE Serving on 0.0.0.0:10001
+[20/Oct/2011:16:59:42] ENGINE Bus STARTED
+[20/Oct/2011:17:00:27] ENGINE Caught signal SIGTERM.
+[20/Oct/2011:17:00:27] ENGINE Bus STOPPING
+[20/Oct/2011:17:00:32] ENGINE HTTP Server cherrypy._cpwsgi_server.CPWSGIServer(('0.0.0.0', 10001)) shut down
+[20/Oct/2011:17:00:32] ENGINE Stopped thread '_TimeoutMonitor'.
+[20/Oct/2011:17:00:32] ENGINE Bus STOPPED
+[20/Oct/2011:17:00:32] ENGINE Bus EXITING
+[20/Oct/2011:17:00:32] ENGINE Bus EXITED
+[20/Oct/2011:17:00:32] ENGINE Waiting for child threads to terminate...
+[20/Oct/2011:17:00:34] ENGINE Listening for SIGHUP.
+[20/Oct/2011:17:00:34] ENGINE Listening for SIGTERM.
+[20/Oct/2011:17:00:34] ENGINE Listening for SIGUSR1.
+[20/Oct/2011:17:00:34] ENGINE Bus STARTING
+[20/Oct/2011:17:00:34] ENGINE Started monitor thread '_TimeoutMonitor'.
+[20/Oct/2011:17:00:34] ENGINE Serving on 0.0.0.0:10001
+[20/Oct/2011:17:00:34] ENGINE Bus STARTED
+[20/Oct/2011:17:01:41] ENGINE Caught signal SIGTERM.
+[20/Oct/2011:17:01:41] ENGINE Bus STOPPING
+[20/Oct/2011:17:01:46] ENGINE HTTP Server cherrypy._cpwsgi_server.CPWSGIServer(('0.0.0.0', 10001)) shut down
+[20/Oct/2011:17:01:46] ENGINE Stopped thread '_TimeoutMonitor'.
+[20/Oct/2011:17:01:46] ENGINE Bus STOPPED
+[20/Oct/2011:17:01:46] ENGINE Bus EXITING
+[20/Oct/2011:17:01:46] ENGINE Bus EXITED
+[20/Oct/2011:17:01:46] ENGINE Waiting for child threads to terminate...
+[20/Oct/2011:17:01:49] ENGINE Listening for SIGHUP.
+[20/Oct/2011:17:01:49] ENGINE Listening for SIGTERM.
+[20/Oct/2011:17:01:49] ENGINE Listening for SIGUSR1.
+[20/Oct/2011:17:01:49] ENGINE Bus STARTING
+[20/Oct/2011:17:01:49] ENGINE Started monitor thread '_TimeoutMonitor'.
+[20/Oct/2011:17:01:49] ENGINE Serving on 0.0.0.0:10001
+[20/Oct/2011:17:01:49] ENGINE Bus STARTED
+[20/Oct/2011:17:02:25] ENGINE Caught signal SIGTERM.
+[20/Oct/2011:17:02:25] ENGINE Bus STOPPING
+[20/Oct/2011:17:02:30] ENGINE HTTP Server cherrypy._cpwsgi_server.CPWSGIServer(('0.0.0.0', 10001)) shut down
+[20/Oct/2011:17:02:30] ENGINE Stopped thread '_TimeoutMonitor'.
+[20/Oct/2011:17:02:30] ENGINE Bus STOPPED
+[20/Oct/2011:17:02:30] ENGINE Bus EXITING
+[20/Oct/2011:17:02:30] ENGINE Bus EXITED
+[20/Oct/2011:17:02:30] ENGINE Waiting for child threads to terminate...
+[20/Oct/2011:17:02:34] ENGINE Listening for SIGHUP.
+[20/Oct/2011:17:02:34] ENGINE Listening for SIGTERM.
+[20/Oct/2011:17:02:34] ENGINE Listening for SIGUSR1.
+[20/Oct/2011:17:02:34] ENGINE Bus STARTING
+[20/Oct/2011:17:02:34] ENGINE Started monitor thread '_TimeoutMonitor'.
+[20/Oct/2011:17:02:34] ENGINE Serving on 0.0.0.0:10001
+[20/Oct/2011:17:02:34] ENGINE Bus STARTED
+[20/Oct/2011:17:02:47] ENGINE Caught signal SIGTERM.
+[20/Oct/2011:17:02:47] ENGINE Bus STOPPING
+[20/Oct/2011:17:02:52] ENGINE HTTP Server cherrypy._cpwsgi_server.CPWSGIServer(('0.0.0.0', 10001)) shut down
+[20/Oct/2011:17:02:52] ENGINE Stopped thread '_TimeoutMonitor'.
+[20/Oct/2011:17:02:52] ENGINE Bus STOPPED
+[20/Oct/2011:17:02:52] ENGINE Bus EXITING
+[20/Oct/2011:17:02:52] ENGINE Bus EXITED
+[20/Oct/2011:17:02:52] ENGINE Waiting for child threads to terminate...

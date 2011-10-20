@@ -169,7 +169,7 @@ class DataSource:
         
     def getRandomFlight(self):
         try:
-            db_data_source = self.data_source_factory.createDataSource('db')
+            db_data_source = self.createDataSource('db')
             flight_no = db_data_source.getRandomFlight()
             
             return flight_no
@@ -182,8 +182,8 @@ class DataSource:
     
     def getCompanyList(self, lang):
         try:
-            db_data_source = self.data_source_factory.createDataSource('db')
-            data = db_data_source.getComanyList(lang)
+            db_data_source = self.createDataSource('db')
+            data = db_data_source.getCompanyList(lang)
             
             return data
         except:
