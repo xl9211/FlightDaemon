@@ -17,6 +17,7 @@ class FlightScan:
     
     def do(self):
         pass
+    
         
         
     
