@@ -164,7 +164,7 @@ class DB:
         flight['schedule_takeoff_time'] = schedule_takeoff_time
         flight['schedule_arrival_time'] = schedule_arrival_time
         flight['schedule_takeoff_date'] = schedule_takeoff_date
-        flight['flight_state'] = ""
+        flight['flight_state'] = "计划航班"
         flight['plane_model'] = ""
         flight['takeoff_airport_building'] = ""
         flight['estimate_takeoff_time'] = "--:--"
