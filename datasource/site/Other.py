@@ -15,8 +15,8 @@ import lxml.html.soupparser
 
 class Other(Spider):
     
-    def __init__(self):
-        Spider.__init__(self)
+    def __init__(self, config):
+        Spider.__init__(self, config)
         
         self.ret_val = None
         

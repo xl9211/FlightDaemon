@@ -25,4 +25,5 @@ class Config:
         self.db_name = cf.get("DB", "DBName")
         
         self.scan_interval = int(cf.get("Task", "ScanInterval"))
+        self.spider_timeout = int(cf.get("Task", "SpiderTimeout"))
         

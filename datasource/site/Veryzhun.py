@@ -17,8 +17,8 @@ import traceback
 
 class Veryzhun(Spider):
     
-    def __init__(self):
-        Spider.__init__(self)
+    def __init__(self, config):
+        Spider.__init__(self, config)
         self.logger = LogUtil.Logging.getLogger()
         self.ret_val = None
         
