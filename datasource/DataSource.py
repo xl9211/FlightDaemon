@@ -117,46 +117,47 @@ class DataSource:
             return None
         
     
-    def completeFlightInfo(self, data_list, fix_data_list, schedule_takeoff_date, lang):
+    def completeFlightInfo(self, data_list, fix_data_list, schedule_takeoff_date, lang, realtime_data_only = False):
         try:
             for fix_data in fix_data_list:
                 realtime_data = self.getFlightRealtimeInfo(fix_data['flight_no'], fix_data['schedule_takeoff_time'], fix_data['schedule_arrival_time'], schedule_takeoff_date)
 
                 data = {}
                 
-                data['flight_no'] = fix_data['flight_no']
-                data['company'] = self.getCompanyName(fix_data['company'], lang)
-                data['takeoff_airport_entrance_exit'] = ""
-                data['takeoff_airport'] = self.getAirportName(fix_data['takeoff_airport'], lang)
-                data['takeoff_city'] = fix_data['takeoff_city']
-                data['arrival_airport_entrance_exit'] = ""
-                data['arrival_airport'] = self.getAirportName(fix_data['arrival_airport'], lang)
-                data['arrival_city'] = fix_data['arrival_city']
+                if not realtime_data_only: 
+                    data['flight_no'] = fix_data['flight_no']
+                    data['company'] = self.getCompanyName(fix_data['company'], lang)
+                    data['takeoff_airport_entrance_exit'] = ""
+                    data['takeoff_airport'] = self.getAirportName(fix_data['takeoff_airport'], lang)
+                    data['takeoff_city'] = fix_data['takeoff_city']
+                    data['arrival_airport_entrance_exit'] = ""
+                    data['arrival_airport'] = self.getAirportName(fix_data['arrival_airport'], lang)
+                    data['arrival_city'] = fix_data['arrival_city']
+                    data['mileage'] = fix_data['mileage']
+                    data['schedule_takeoff_date'] = schedule_takeoff_date
+                    
+                    if realtime_data['plane_model'] == "":
+                        data['plane_model'] = fix_data['plane_model']
+                    else:
+                        data['plane_model'] = realtime_data['plane_model']
+                    if realtime_data['takeoff_airport_building'] == "":
+                        data['takeoff_airport_building'] = fix_data['takeoff_airport_building']
+                    else:  
+                        data['takeoff_airport_building'] = realtime_data['takeoff_airport_building']
+                    if realtime_data['arrival_airport_building']:
+                        data['arrival_airport_building'] = fix_data['arrival_airport_building']
+                    else:
+                        data['arrival_airport_building'] = realtime_data['arrival_airport_building']
+                
                 data['schedule_takeoff_time'] = fix_data['schedule_takeoff_time']
                 data['schedule_arrival_time'] = fix_data['schedule_arrival_time']
-                data['mileage'] = fix_data['mileage']
-                
-                if realtime_data['plane_model'] == "":
-                    data['plane_model'] = fix_data['plane_model']
-                else:
-                    data['plane_model'] = realtime_data['plane_model']
-                if realtime_data['takeoff_airport_building'] == "":
-                    data['takeoff_airport_building'] = fix_data['takeoff_airport_building']
-                else:  
-                    data['takeoff_airport_building'] = realtime_data['takeoff_airport_building']
-                if realtime_data['arrival_airport_building']:
-                    data['arrival_airport_building'] = fix_data['arrival_airport_building']
-                else:
-                    data['arrival_airport_building'] = realtime_data['arrival_airport_building']
-                
                 data['flight_state'] = realtime_data['flight_state'] 
                 data['estimate_takeoff_time'] = realtime_data['estimate_takeoff_time']
                 data['actual_takeoff_time'] = realtime_data['actual_takeoff_time']        
                 data['estimate_arrival_time'] = realtime_data['estimate_arrival_time']
                 data['actual_arrival_time'] = realtime_data['actual_arrival_time']
                 data['flight_location'] = realtime_data['flight_location']
-                data['schedule_takeoff_date'] = schedule_takeoff_date
-    
+                
                 data_list.append(data)
             
             return 0

@@ -164,7 +164,7 @@ class FlightDaemon:
                     self.logger.error("get fix data error")
                     continue
                 
-                self.data_source.completeFlightInfo(data_list, fix_data_list, flight['schedule_takeoff_date'], lang)
+                self.data_source.completeFlightInfo(data_list, fix_data_list, flight['schedule_takeoff_date'], lang, True)
             
             ret = json.dumps(data_list)
             self.logger.info(ret) 
