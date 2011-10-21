@@ -10,14 +10,16 @@ sys.path.append(base_path)
  
 
 from Spider import Spider
-import lxml.html.soupparser 
+import lxml.html.soupparser
+from tools import LogUtil
+import traceback 
 
 
 class Veryzhun(Spider):
     
     def __init__(self):
         Spider.__init__(self)
-        
+        self.logger = LogUtil.Logging.getLogger()
         self.ret_val = None
         
         
@@ -72,11 +74,17 @@ class Veryzhun(Spider):
 
     
     def getFlightRealTimeInfo(self, flight_no, schedule_takeoff_date):
-        self.url = "http://www.veryzhun.com/searchnum.asp?flightnum=%s" % (flight_no)
-        self.fetch()
-        self.parse(schedule_takeoff_date)
-        
-        return self.ret_val
+        try:
+            self.url = "http://www.veryzhun.com/searchnum.asp?flightnum=%s" % (flight_no)
+            self.fetch()
+            self.parse(schedule_takeoff_date)
+            
+            return self.ret_val
+        except:
+            msg = traceback.format_exc()
+            self.logger.error(msg)
+            
+            return None
     
     
     def computeIntervalTime(self, start_time, end_time):
@@ -117,6 +125,7 @@ class Veryzhun(Spider):
 
     
 if __name__ == '__main__':     
-    pass
+    v = Veryzhun()
+    print "xxx"
 
     

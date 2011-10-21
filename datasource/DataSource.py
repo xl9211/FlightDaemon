@@ -87,12 +87,17 @@ class DataSource:
             data = db_data_source.getFlightRealtimeInfo(flight_no, schedule_takeoff_time, schedule_arrival_time, schedule_takeoff_date)
             
             if data['full_info'] != 1:
+                if data['full_info'] == -1:
+                    data_list = []
+                    data_list.append(data)
+                    db_data_source.putFlightRealtimeInfo(data_list)
+
                 cur_date = time.strftime("%Y-%m-%d", time.localtime())
                 if cur_date == schedule_takeoff_date:
                     data_source = self.createDataSource('veryzhun')          
                     data = data_source.getFlightRealTimeInfo(flight_no, schedule_takeoff_date)
 
-                    if len(data) == 0:
+                    if data is None or len(data) == 0:
                         self.logger.error("get %s realtime info error" % (flight_no))
                     else:
                         db_data_source.putFlightRealtimeInfo(data)
@@ -103,11 +108,6 @@ class DataSource:
                         for one in data:
                             if one['schedule_takeoff_time'] == schedule_takeoff_time and one['schedule_arrival_time'] == schedule_arrival_time:
                                 return one
-
-                elif data['full_info'] == -1:
-                    data_list = []
-                    data_list.append(data)
-                    db_data_source.putFlightRealtimeInfo(data_list)
 
             return data
         except:
