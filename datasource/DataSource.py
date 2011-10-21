@@ -117,7 +117,7 @@ class DataSource:
             return None
         
     
-    def completeFlightInfo(self, data_list, fix_data_list, schedule_takeoff_date):
+    def completeFlightInfo(self, data_list, fix_data_list, schedule_takeoff_date, lang):
         try:
             for fix_data in fix_data_list:
                 realtime_data = self.getFlightRealtimeInfo(fix_data['flight_no'], fix_data['schedule_takeoff_time'], fix_data['schedule_arrival_time'], schedule_takeoff_date)
@@ -125,12 +125,12 @@ class DataSource:
                 data = {}
                 
                 data['flight_no'] = fix_data['flight_no']
-                data['company'] = fix_data['company']
+                data['company'] = self.getCompanyName(fix_data['company'], lang)
                 data['takeoff_airport_entrance_exit'] = ""
-                data['takeoff_airport'] = fix_data['takeoff_airport']
+                data['takeoff_airport'] = self.getAirportName(fix_data['takeoff_airport'], lang)
                 data['takeoff_city'] = fix_data['takeoff_city']
                 data['arrival_airport_entrance_exit'] = ""
-                data['arrival_airport'] = fix_data['arrival_airport']
+                data['arrival_airport'] = self.getAirportName(fix_data['arrival_airport'], lang)
                 data['arrival_city'] = fix_data['arrival_city']
                 data['schedule_takeoff_time'] = fix_data['schedule_takeoff_time']
                 data['schedule_arrival_time'] = fix_data['schedule_arrival_time']
@@ -197,6 +197,32 @@ class DataSource:
         try:
             db_data_source = self.createDataSource('db')
             data = db_data_source.getAirportList(lang)
+            
+            return data
+        except:
+            msg = traceback.format_exc()
+            self.logger.error(msg)
+            
+            return json.dumps(None)
+        
+    
+    def getCompanyName(self, short, lang):
+        try:
+            db_data_source = self.createDataSource('db')
+            data = db_data_source.getCompanyName(short, lang)
+            
+            return data
+        except:
+            msg = traceback.format_exc()
+            self.logger.error(msg)
+            
+            return json.dumps(None)
+        
+    
+    def getAirportName(self, short, lang):
+        try:
+            db_data_source = self.createDataSource('db')
+            data = db_data_source.getAirportName(short, lang)
             
             return data
         except:

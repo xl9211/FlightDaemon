@@ -62,12 +62,12 @@ class FlightDaemon:
         
 
     @cherrypy.expose
-    def queryFlightInfoByRoute(self, takeoff_airport, arrival_airport, schedule_takeoff_date, company = 'all'):
+    def queryFlightInfoByRoute(self, takeoff_airport, arrival_airport, schedule_takeoff_date, company = 'all', lang = 'zh'):
         pass
     
     
     @cherrypy.expose
-    def queryFlightInfoByFlightNO(self, flight_no, schedule_takeoff_date):
+    def queryFlightInfoByFlightNO(self, flight_no, schedule_takeoff_date, lang = 'zh'):
         try:
             self.logger.info("get request %s %s" % (flight_no, schedule_takeoff_date))
             
@@ -80,7 +80,7 @@ class FlightDaemon:
                 return json.dumps(None)
             
             data_list = []
-            self.data_source.completeFlightInfo(data_list, fix_data_list, schedule_takeoff_date)
+            self.data_source.completeFlightInfo(data_list, fix_data_list, schedule_takeoff_date, lang)
   
             ret = json.dumps(data_list)
             self.logger.info(ret) 
@@ -94,14 +94,14 @@ class FlightDaemon:
     
     
     @cherrypy.expose   
-    def queryFlightInfoByRandom(self):
+    def queryFlightInfoByRandom(self, lang = 'zh'):
         try:
             self.logger.info("get request")
             
             flight_no = self.data_source.getRandomFlight()
             
             schedule_takeoff_date = time.strftime("%Y-%m-%d", time.localtime())
-            flights = json.loads(self.queryFlightInfoByFlightNO(flight_no, schedule_takeoff_date))
+            flights = json.loads(self.queryFlightInfoByFlightNO(flight_no, schedule_takeoff_date, lang))
             
             if len(flights) > 1:
                 self.logger.info("random more than one")
@@ -123,7 +123,7 @@ class FlightDaemon:
 
     
     @cherrypy.expose
-    def updateFollowedFlightInfo(self, query_string):
+    def updateFollowedFlightInfo(self, query_string, lang = 'zh'):
         try:
             self.logger.info("get request %s" % (query_string))
             
@@ -142,7 +142,7 @@ class FlightDaemon:
                     self.logger.error("get fix data error")
                     continue
                 
-                self.data_source.completeFlightInfo(data_list, fix_data_list, flight['schedule_takeoff_date'])
+                self.data_source.completeFlightInfo(data_list, fix_data_list, flight['schedule_takeoff_date'], lang)
             
             ret = json.dumps(data_list)
             self.logger.info(ret) 

@@ -83,7 +83,7 @@ class DB:
         return flight_info_list
     
     
-    def getFlightFixInfoByAirLine(self, takeoff_airport, arrival_airport, schedule_takeoff_date, company):
+    def getFlightFixInfoByRoute(self, takeoff_airport, arrival_airport, schedule_takeoff_date, company):
         week = time.strftime("%w", time.strptime(schedule_takeoff_date, "%Y-%m-%d"))
         ret = []
         if company == 'all':
@@ -218,6 +218,26 @@ class DB:
             airport_info_list.append(one_hash)
         
         return airport_info_list
+    
+    
+    def getCompanyName(self, short, lang):
+        ret = CompanyInfo.find(company_short = short)
+        
+        if len(ret) == 1:
+            if lang == 'zh':
+                return ret[0].company_zh
+        else:
+            return ""
+        
+    
+    def getAirportName(self, short, lang):
+        ret = AirportInfo.find(airport_short = short)
+        
+        if len(ret) == 1:
+            if lang == 'zh':
+                return ret[0].airport_zh
+        else:
+            return ""
 
 
     def putFlightFixInfo(self, flight_info_list):
@@ -319,16 +339,51 @@ class DB:
     def adjustFlightFixInfo(self):
         ret = FlightFixInfo.find()
         
+
+        data = AirportInfo.find()
+        hash = {}
+        for d in data:
+            hash[d.airport_zh] = d.airport_short
+        
+        count = 0
+        for one in ret:
+            count += 1
+            print count
+            
+            one.company = one.flight_no[:2]
+            one.takeoff_airport = hash[one.takeoff_airport]
+            one.arrival_airport = hash[one.arrival_airport]
+            
+            one.add()
+
+        
         '''
         count = 0
         for one in ret:
-            num = FlightFixInfo.count(flight_no = one.flight_no, takeoff_city = one.takeoff_city, arrival_city = one.arrival_city)
-            if num > 1:
-                print num
-                one.delete()
             count += 1
-            print count           
-        '''    
+            print count
+            index = one.takeoff_airport.find('A')
+            if index != -1:
+                one.takeoff_airport = one.takeoff_airport[:index]
+                one.takeoff_airport_building = 'A'
+            
+            index = one.takeoff_airport.find('B')
+            if index != -1:
+                one.takeoff_airport = one.takeoff_airport[:index]
+                one.takeoff_airport_building = 'B'
+            
+            index = one.arrival_airport.find('A')
+            if index != -1:
+                one.arrival_airport = one.arrival_airport[:index]
+                one.arrival_airport_building = 'A'
+            
+            index = one.arrival_airport.find('B')
+            if index != -1:
+                one.arrival_airport = one.arrival_airport[:index]
+                one.arrival_airport_building = 'B'
+            
+            one.add()
+        '''
     
             
 if __name__ == "__main__":
