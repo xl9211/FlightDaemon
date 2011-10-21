@@ -34,7 +34,7 @@ class DataSource:
             return Qunar.Qunar()
         
         
-    def getFlightFixInfoByFlightNO(self, flight_no, schedule_takeoff_date = None):
+    def getFlightFixInfoByFlightNO(self, flight_no, schedule_takeoff_date):
         try:
             self.logger.info("%s %s" % (flight_no, schedule_takeoff_date))
            
@@ -49,7 +49,7 @@ class DataSource:
             return None
     
 
-    def getFlightFixInfoByRoute(self, takeoff_airport, arrival_airport, schedule_takeoff_date = None, company):
+    def getFlightFixInfoByRoute(self, takeoff_airport, arrival_airport, schedule_takeoff_date, company):
         try:
             self.logger.info("%s %s %s %s %s" % (takeoff_airport, arrival_airport, schedule_takeoff_date, company))
             
