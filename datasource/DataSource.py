@@ -99,6 +99,16 @@ class DataSource:
 
                     if data is None or len(data) == 0:
                         self.logger.error("get %s realtime info error" % (flight_no))
+                        
+                        data['plane_model'] = ""
+                        data['takeoff_airport_building'] = ""
+                        data['arrival_airport_building'] = ""
+                        data['flight_state'] = "" 
+                        data['estimate_takeoff_time'] = "--:--"
+                        data['actual_takeoff_time'] = "--:--"      
+                        data['estimate_arrival_time'] = "--:--"
+                        data['actual_arrival_time'] = "--:--"
+                        data['flight_location'] = ""
                     else:
                         db_data_source.putFlightRealtimeInfo(data)
                         
