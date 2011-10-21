@@ -350,9 +350,13 @@ class DB:
             count += 1
             print count
             
-            one.company = one.flight_no[:2]
-            one.takeoff_airport = hash[one.takeoff_airport]
-            one.arrival_airport = hash[one.arrival_airport]
+            list = json.loads(one.schedule)
+            
+            if '7' in list:
+                list.remove('7')
+                list.append('0')
+            
+            one.schedule = json.dumps(list)
             
             one.add()
 

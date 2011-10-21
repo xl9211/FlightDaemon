@@ -51,10 +51,10 @@ class DataSource:
 
     def getFlightFixInfoByRoute(self, takeoff_airport, arrival_airport, schedule_takeoff_date, company):
         try:
-            self.logger.info("%s %s %s %s %s" % (takeoff_airport, arrival_airport, schedule_takeoff_date, company))
+            self.logger.info("%s %s %s %s" % (takeoff_airport, arrival_airport, schedule_takeoff_date, company))
             
             db_data_source = self.createDataSource('db')
-            data = db_data_source.getFlightFixInfoByAirLine(takeoff_airport, arrival_airport, schedule_takeoff_date, company)
+            data = db_data_source.getFlightFixInfoByRoute(takeoff_airport, arrival_airport, schedule_takeoff_date, company)
             
             return data
         except:

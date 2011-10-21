@@ -63,16 +63,38 @@ class FlightDaemon:
 
     @cherrypy.expose
     def queryFlightInfoByRoute(self, takeoff_airport, arrival_airport, schedule_takeoff_date, company = 'all', lang = 'zh'):
-        pass
+        try:
+            self.logger.info("get request %s %s %s %s %s" % (takeoff_airport, arrival_airport, schedule_takeoff_date, company, lang))
+            
+            fix_data_list = self.data_source.getFlightFixInfoByRoute(takeoff_airport, arrival_airport, schedule_takeoff_date, company)
+            self.logger.info("fix data %s" %(json.dumps(fix_data_list)))
+ 
+            if len(fix_data_list) == 0:
+                return json.dumps([])
+            if fix_data_list == None:
+                return json.dumps(None)
+            
+            data_list = []
+            self.data_source.completeFlightInfo(data_list, fix_data_list, schedule_takeoff_date, lang)
+  
+            ret = json.dumps(data_list)
+            self.logger.info(ret) 
+            return ret
+        
+        except:
+            msg = traceback.format_exc()
+            self.logger.error(msg)
+            
+            return json.dumps(None)
     
     
     @cherrypy.expose
     def queryFlightInfoByFlightNO(self, flight_no, schedule_takeoff_date, lang = 'zh'):
         try:
-            self.logger.info("get request %s %s" % (flight_no, schedule_takeoff_date))
+            self.logger.info("get request %s %s %s" % (flight_no, schedule_takeoff_date, lang))
             
             fix_data_list = self.data_source.getFlightFixInfoByFlightNO(flight_no, schedule_takeoff_date)
-            self.logger.info("realtime data %s" %(json.dumps(fix_data_list)))
+            self.logger.info("fix data %s" %(json.dumps(fix_data_list)))
  
             if len(fix_data_list) == 0:
                 return json.dumps([])
@@ -96,7 +118,7 @@ class FlightDaemon:
     @cherrypy.expose   
     def queryFlightInfoByRandom(self, lang = 'zh'):
         try:
-            self.logger.info("get request")
+            self.logger.info("get request %s" % (lang))
             
             flight_no = self.data_source.getRandomFlight()
             
@@ -125,7 +147,7 @@ class FlightDaemon:
     @cherrypy.expose
     def updateFollowedFlightInfo(self, query_string, lang = 'zh'):
         try:
-            self.logger.info("get request %s" % (query_string))
+            self.logger.info("get request %s %s" % (query_string, lang))
             
             flight_list = json.loads(query_string)
             
