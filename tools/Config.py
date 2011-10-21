@@ -23,3 +23,6 @@ class Config:
         self.db_user = cf.get("DB", "DBUser")
         self.db_passwd = cf.get("DB", "DBPasswd")
         self.db_name = cf.get("DB", "DBName")
+        
+        self.scan_interval = int(cf.get("Task", "ScanInterval"))
+        

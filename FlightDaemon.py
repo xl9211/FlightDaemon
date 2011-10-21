@@ -34,7 +34,7 @@ class FlightDaemon:
            
         self.data_source = DataSource(self.config)
         
-        self.flight_scan = FlightScan(self.config)
+        self.flight_scan = FlightScan(self.config, self.data_source)
         self.flight_scan.start()
         
         self.logger.info("Flight Daemon Started...")
@@ -262,10 +262,12 @@ def main():
     }
     
     cherrypy.quickstart(FlightDaemon(config), '/', config = global_cfg)
-        
+      
 
 #Start AppManager
 if __name__ == '__main__':
     main()
+    
+    
 
 

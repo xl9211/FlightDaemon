@@ -176,10 +176,17 @@ class DB:
     
     
     def getAllLivedFlight(self, date):
-        flights = FlightRealtime.find(full_info = 0, schedule_takeoff_date = date)
+        flights = FlightRealtimeInfo.find(full_info = 0, schedule_takeoff_date = date)
         
+        lived_flight_list = []
         for flight in flights:
-            flight.schedule_arrival_time
+            lived_flight = {}
+            lived_flight['flight_no'] = flight.flight_no
+            lived_flight['schedule_takeoff_time'] = flight.schedule_takeoff_time
+            lived_flight['schedule_arrival_time'] = flight.schedule_arrival_time
+            lived_flight_list.append(lived_flight)
+        
+        return lived_flight_list
             
             
     def getCityList(self, lang):
