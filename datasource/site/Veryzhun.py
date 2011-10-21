@@ -76,8 +76,8 @@ class Veryzhun(Spider):
     def getFlightRealTimeInfo(self, flight_no, schedule_takeoff_date):
         try:
             self.url = "http://www.veryzhun.com/searchnum.asp?flightnum=%s" % (flight_no)
-            self.fetch()
-            self.parse(schedule_takeoff_date)
+            if self.fetch() != -1:
+                self.parse(schedule_takeoff_date)
             
             return self.ret_val
         except:
