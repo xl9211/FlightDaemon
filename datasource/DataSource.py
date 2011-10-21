@@ -23,15 +23,15 @@ class DataSource:
     
     def createDataSource(self, source):
         if source == 'ctrip':
-            return Ctrip.Ctrip()
+            return Ctrip.Ctrip(self.config)
         if source == 'veryzhun':
-            return Veryzhun.Veryzhun()
+            return Veryzhun.Veryzhun(self.config)
         if source == 'db':
             return DBUtility.DB()
         if source == 'other':
-            return Other.Other()
+            return Other.Other(self.config)
         if source == 'qunar':
-            return Qunar.Qunar()
+            return Qunar.Qunar(self.config)
         
         
     def getFlightFixInfoByFlightNO(self, flight_no, schedule_takeoff_date):
