@@ -124,26 +124,18 @@ class DB:
         flight['schedule_takeoff_time'] = schedule_takeoff_time
         flight['schedule_arrival_time'] = schedule_arrival_time
         flight['schedule_takeoff_date'] = schedule_takeoff_date
-        flight['flight_state'] = "计划航班"
-        flight['plane_model'] = ""
-        flight['takeoff_airport_building'] = ""
+        flight['flight_state'] = "计划"
         flight['estimate_takeoff_time'] = "--:--"
         flight['actual_takeoff_time'] = "--:--"
-        flight['arrival_airport_building'] = ""
         flight['estimate_arrival_time'] = "--:--"
         flight['actual_arrival_time'] = "--:--"
         flight['flight_location'] = ""
-        flight['company'] = ""
         flight['full_info'] = -1
         
         if len(ret) == 1:
             one = ret[0]
             
             flight['flight_state'] = one.flight_state
-            flight['company'] = one.company
-            flight['plane_model'] = one.plane_model
-            flight['takeoff_airport_building'] = one.takeoff_airport_building
-            flight['arrival_airport_building'] = one.arrival_airport_building
             flight['estimate_takeoff_time'] = one.estimate_takeoff_time
             flight['actual_takeoff_time'] = one.actual_takeoff_time
             flight['estimate_arrival_time'] = one.estimate_arrival_time
@@ -289,33 +281,28 @@ class DB:
                 airport_info.add()
 
     
-    def putFlightRealtimeInfo(self, flight_info_list):
-        for one in flight_info_list: 
-            flight_info = FlightRealtimeInfo.find(flight_no = one['flight_no'], schedule_takeoff_time = one['schedule_takeoff_time'], schedule_arrival_time = one['schedule_arrival_time'], schedule_takeoff_date = one['schedule_takeoff_date'])
-            
-            if len(flight_info) == 0:
-                flight_info = FlightRealtimeInfo()
-            else:
-                flight_info = flight_info[0]   
-
-            flight_info.flight_no = one['flight_no']
-            flight_info.flight_state = one['flight_state']
-            flight_info.company = one['company']
-            flight_info.plane_model = one['plane_model'] 
-            flight_info.takeoff_airport_building = one['takeoff_airport_building']
-            flight_info.arrival_airport_building = one['arrival_airport_building']
-            flight_info.schedule_takeoff_time = one['schedule_takeoff_time']
-            flight_info.estimate_takeoff_time = one['estimate_takeoff_time']
-            flight_info.actual_takeoff_time = one['actual_takeoff_time']
-            flight_info.schedule_arrival_time = one['schedule_arrival_time']
-            flight_info.estimate_arrival_time = one['estimate_arrival_time']
-            flight_info.actual_arrival_time = one['actual_arrival_time']
-            flight_info.schedule_takeoff_date = one['schedule_takeoff_date']
-            
-            if one['actual_arrival_time'] != '--:--':
-                flight_info.full_info = 1
+    def putFlightRealtimeInfo(self, one): 
+        flight_info = FlightRealtimeInfo.find(flight_no = one['flight_no'], schedule_takeoff_time = one['schedule_takeoff_time'], schedule_arrival_time = one['schedule_arrival_time'], schedule_takeoff_date = one['schedule_takeoff_date'])
         
-            flight_info.add()
+        if len(flight_info) == 0:
+            flight_info = FlightRealtimeInfo()
+        else:
+            flight_info = flight_info[0]   
+
+        flight_info.flight_no = one['flight_no']
+        flight_info.flight_state = one['flight_state']
+        flight_info.schedule_takeoff_time = one['schedule_takeoff_time']
+        flight_info.estimate_takeoff_time = one['estimate_takeoff_time']
+        flight_info.actual_takeoff_time = one['actual_takeoff_time']
+        flight_info.schedule_arrival_time = one['schedule_arrival_time']
+        flight_info.estimate_arrival_time = one['estimate_arrival_time']
+        flight_info.actual_arrival_time = one['actual_arrival_time']
+        flight_info.schedule_takeoff_date = one['schedule_takeoff_date']
+        
+        if one['actual_arrival_time'] != '--:--':
+            flight_info.full_info = 1
+    
+        flight_info.add()
     
     
     def putCompany(self, company_list):

@@ -79,45 +79,45 @@ class DataSource:
             return None
         
 
-    def getFlightRealtimeInfo(self, flight_no, schedule_takeoff_time, schedule_arrival_time, schedule_takeoff_date):
+    def getFlightRealtimeInfo(self, fix_data, schedule_takeoff_date):
         try:
-            self.logger.info("%s %s %s %s" % (flight_no, schedule_takeoff_time, schedule_arrival_time, schedule_takeoff_date))
+            self.logger.info("%s %s" % (fix_data['flight_no'], schedule_takeoff_date))
             
             db_data_source = self.createDataSource('db')
-            data = db_data_source.getFlightRealtimeInfo(flight_no, schedule_takeoff_time, schedule_arrival_time, schedule_takeoff_date)
+            data = db_data_source.getFlightRealtimeInfo(fix_data['flight_no'], fix_data['schedule_takeoff_time'], fix_data['schedule_arrival_time'], schedule_takeoff_date)
             
             if data['full_info'] != 1:
                 if data['full_info'] == -1:
-                    data_list = []
-                    data_list.append(data)
-                    db_data_source.putFlightRealtimeInfo(data_list)
+                    db_data_source.putFlightRealtimeInfo(data)
 
                 cur_date = time.strftime("%Y-%m-%d", time.localtime())
-                if cur_date == schedule_takeoff_date:
-                    data_source = self.createDataSource('veryzhun')          
-                    data = data_source.getFlightRealTimeInfo(flight_no, schedule_takeoff_date)
-
+                cur_time = time.strftime("%H:%M", time.localtime())
+                cur_hour = int(cur_time[:2])
+                cur_minute = int(cur_time[3:])
+                cur_second = cur_hour * 60 * 60 + cur_minute * 60
+            
+                hour = int(fix_data['schedule_takeoff_time'][:2])
+                minute = int(fix_data['schedule_takeoff_time'][3:])
+                second = hour * 60 * 60 + minute * 60
+                
+                # 暂时不考虑红眼航班
+                if cur_second > second:
+                    data_source = self.createDataSource('qunar')          
+                    spider_data = data_source.getFlightRealTimeInfo(fix_data['flight_no'], fix_data['takeoff_airport'], fix_data['arrival_airport'], schedule_takeoff_date)
+    
                     if data is None or len(data) == 0:
-                        self.logger.error("get %s realtime info error" % (flight_no))
-                        
-                        data['plane_model'] = ""
-                        data['takeoff_airport_building'] = ""
-                        data['arrival_airport_building'] = ""
-                        data['flight_state'] = "" 
-                        data['estimate_takeoff_time'] = "--:--"
-                        data['actual_takeoff_time'] = "--:--"      
-                        data['estimate_arrival_time'] = "--:--"
-                        data['actual_arrival_time'] = "--:--"
-                        data['flight_location'] = ""
+                        self.logger.error("get %s realtime info error" % (fix_data['flight_no']))
                     else:
+                        data['flight_state'] = spider_data['flight_state']
+                        if spider_data['estimate_takeoff_time'] != "":
+                            data['estimate_takeoff_time'] = spider_data['estimate_takeoff_time']
+                        if spider_data['actual_takeoff_time'] != "":
+                            data['actual_takeoff_time'] = spider_data['actual_takeoff_time']
+                        if spider_data['estimate_arrival_time'] != "":
+                            data['estimate_arrival_time'] = spider_data['estimate_arrival_time']
+                        if spider_data['actual_arrival_time'] != "":
+                            data['actual_arrival_time'] = spider_data['actual_arrival_time']
                         db_data_source.putFlightRealtimeInfo(data)
-                        
-                        if len(data) == 1:
-                            return data[0]
-                        
-                        for one in data:
-                            if one['schedule_takeoff_time'] == schedule_takeoff_time and one['schedule_arrival_time'] == schedule_arrival_time:
-                                return one
 
             return data
         except:
@@ -130,7 +130,7 @@ class DataSource:
     def completeFlightInfo(self, data_list, fix_data_list, schedule_takeoff_date, lang, realtime_data_only = False):
         try:
             for fix_data in fix_data_list:
-                realtime_data = self.getFlightRealtimeInfo(fix_data['flight_no'], fix_data['schedule_takeoff_time'], fix_data['schedule_arrival_time'], schedule_takeoff_date)
+                realtime_data = self.getFlightRealtimeInfo(fix_data, schedule_takeoff_date)
 
                 data = {}
                 
@@ -145,19 +145,9 @@ class DataSource:
                     data['arrival_city'] = fix_data['arrival_city']
                     data['mileage'] = fix_data['mileage']
                     data['schedule_takeoff_date'] = schedule_takeoff_date
-                    
-                    if realtime_data['plane_model'] == "":
-                        data['plane_model'] = fix_data['plane_model']
-                    else:
-                        data['plane_model'] = realtime_data['plane_model']
-                    if realtime_data['takeoff_airport_building'] == "":
-                        data['takeoff_airport_building'] = fix_data['takeoff_airport_building']
-                    else:  
-                        data['takeoff_airport_building'] = realtime_data['takeoff_airport_building']
-                    if realtime_data['arrival_airport_building']:
-                        data['arrival_airport_building'] = fix_data['arrival_airport_building']
-                    else:
-                        data['arrival_airport_building'] = realtime_data['arrival_airport_building']
+                    data['plane_model'] = fix_data['plane_model']
+                    data['takeoff_airport_building'] = fix_data['takeoff_airport_building']
+                    data['arrival_airport_building'] = fix_data['arrival_airport_building']
                 
                 data['schedule_takeoff_time'] = fix_data['schedule_takeoff_time']
                 data['schedule_arrival_time'] = fix_data['schedule_arrival_time']

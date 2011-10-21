@@ -38,7 +38,7 @@ class FlightScan:
             second = hour * 60 * 60 + minute * 60
             
             # 暂时不考虑红眼航班
-            if cur_second > second and lived_flight['schedule_arrival_time'] > lived_flight['schedule_takeoff_time']:
+            if cur_second > second:
                 self.data_source.getFlightRealtimeInfo(lived_flight['flight_no'], lived_flight['schedule_takeoff_time'], lived_flight['schedule_arrival_time'], cur_date)
         
         self.logger.info("lived flight realtime info spider end...")

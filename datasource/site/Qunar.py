@@ -12,6 +12,9 @@ sys.path.append(base_path)
 from Spider import Spider
 import lxml.html.soupparser 
 import json
+from tools import LogUtil
+import traceback 
+
 
 class Qunar(Spider):
     
@@ -19,9 +22,27 @@ class Qunar(Spider):
         Spider.__init__(self, config)
         
         self.ret_val = None
+        
+    
+    def parseRealtimeInfo(self, schedule_takeoff_date):
+        doc = lxml.html.soupparser.fromstring(self.content)
+        content = doc.xpath("//div[@class='search_result']/dl[@class='state_detail']//span[@class='sd_2']/b/text()")
+        
+        flight_info = {}    
+        flight_info['flight_state'] = content[0]
+        estimate_time = content[1].split('-')
+        if len(estimate_time) == 2:
+            flight_info['estimate_takeoff_time'] = estimate_time[0].strip()
+            flight_info['estimate_arrival_time'] = estimate_time[1].strip()
+        actual_time = content[2].split('-')
+        flight_info['actual_takeoff_time'] = actual_time[0].strip()
+        flight_info['actual_arrival_time'] = actual_time[1].strip()
+        flight_info['schedule_takeoff_date'] = schedule_takeoff_date
+        
+        self.ret_val = flight_info
                 
                 
-    def parse(self, takeoff_city, arrival_city):
+    def parseFixInfo(self, takeoff_city, arrival_city):
         doc = lxml.html.soupparser.fromstring(self.content)
         rows = doc.xpath("//div[@class='result_content']/ul/li")
         self.ret_val = []
@@ -67,14 +88,20 @@ class Qunar(Spider):
             #print flight_info['arrival_airport_short']
             
             self.ret_val.append(flight_info)
+    
+    
+    def getFlightRealTimeInfo(self, flight_no, takeoff_airport, arrival_airport, schedule_takeoff_date):
+        try:
+            self.url = "http://flight.qunar.com/schedule/fquery.jsp?flightCode=%s&d=%s&a=%s" % (flight_no, takeoff_airport, arrival_airport)
+            if self.fetch() != -1:
+                self.parseRealtimeInfo(schedule_takeoff_date)
             
-                
-    def getFlightFixInfoByFlightNO(self, flight_no):
-        self.url = "http://flights.ctrip.com/schedule/%s.html" % (flight_no)
-        self.fetch()
-        self.parse()
-        
-        return self.ret_val
+            return self.ret_val
+        except:
+            msg = traceback.format_exc()
+            self.logger.error(msg)
+            
+            return None
     
     
     def parseAirline(self):
@@ -84,7 +111,6 @@ class Qunar(Spider):
         self.ret_val = []
         for airline in airlines:
             self.ret_val.append(airline.text_content().strip())
-        
         
 
     def getAirline(self, city):
@@ -100,15 +126,15 @@ class Qunar(Spider):
         #self.content = open("fsearch_list.jsp.html")
         self.logger.info("fetch %s" % (self.url))
         self.fetch()
-        self.parse(takeoff_city, arrival_city)
+        self.parseFixInfo(takeoff_city, arrival_city)
         
         return self.ret_val
     
     
 if __name__ == '__main__':     
-    q = Qunar()
+    q = Qunar(None)
     
-    flights = q.getFlightFixInfoByAirline('北京', '上海')
+    flights = q.getFlightRealTimeInfo('ZH8091', 'KMG', 'CTU', '2011-10-21')
     print len(flights)
     for flight in flights:
         print flight

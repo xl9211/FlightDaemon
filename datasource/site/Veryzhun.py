@@ -23,7 +23,7 @@ class Veryzhun(Spider):
         self.ret_val = None
         
         
-    def parse(self, schedule_takeoff_date):
+    def parseRealtimeInfo(self, schedule_takeoff_date):
         doc = lxml.html.soupparser.fromstring(self.content)
         
         self.ret_val = []
@@ -77,7 +77,7 @@ class Veryzhun(Spider):
         try:
             self.url = "http://www.veryzhun.com/searchnum.asp?flightnum=%s" % (flight_no)
             if self.fetch() != -1:
-                self.parse(schedule_takeoff_date)
+                self.parseRealtimeInfo(schedule_takeoff_date)
             
             return self.ret_val
         except:

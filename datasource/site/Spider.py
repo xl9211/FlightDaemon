@@ -8,8 +8,10 @@ class Spider:
     def __init__(self, config):
         self.url = None
         self.content = None
-        self.config = config
-          
+        self.timeout = 10
+        if config is not None:
+            self.timeout = config.spider_timeout
+        
         # Logger
         self.logger = LogUtil.Logging.getLogger()
     
@@ -18,7 +20,7 @@ class Spider:
         try:
             self.logger.info("fetch url start %s" % (self.url))
             if self.url is not None:
-                response = urllib2.urlopen(self.url, timeout = self.config.spider_timeout)
+                response = urllib2.urlopen(self.url, timeout = self.timeout)
                 self.logger.info("fetch url succ %s" % (self.url))
                 self.content = response.read()
                 return 0
