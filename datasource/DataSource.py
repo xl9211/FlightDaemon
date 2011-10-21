@@ -49,7 +49,7 @@ class DataSource:
             return None
     
 
-    def getFlightFixInfoByAirline(self, takeoff_airport, arrival_airport, schedule_takeoff_date = None, company = 'all'):
+    def getFlightFixInfoByRoute(self, takeoff_airport, arrival_airport, schedule_takeoff_date = None, company):
         try:
             self.logger.info("%s %s %s %s %s" % (takeoff_airport, arrival_airport, schedule_takeoff_date, company))
             
@@ -191,6 +191,19 @@ class DataSource:
             self.logger.error(msg)
             
             return json.dumps(None)
+        
+    
+    def getAirportList(self, lang):
+        try:
+            db_data_source = self.createDataSource('db')
+            data = db_data_source.getAirportList(lang)
+            
+            return data
+        except:
+            msg = traceback.format_exc()
+            self.logger.error(msg)
+            
+            return json.dumps(None)
     
 
     #########################################################################################
@@ -214,7 +227,7 @@ class DataSource:
     def spiderAirline(self):
         try:
             db_data_source = self.createDataSource('db')
-            city_list = db_data_source.getCityList()
+            city_list = db_data_source.getCityList('zh')
 
             data_source = self.createDataSource('qunar')
             for city in city_list:

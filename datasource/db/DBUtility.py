@@ -113,8 +113,113 @@ class DB:
                 break
         
         return flight_info_list
+            
+            
+    def getFlightRealtimeInfo(self, flight_no, schedule_takeoff_time, schedule_arrival_time, schedule_takeoff_date):
+        ret = FlightRealtimeInfo.find(flight_no = flight_no, schedule_takeoff_time = schedule_takeoff_time, schedule_arrival_time = schedule_arrival_time, schedule_takeoff_date = schedule_takeoff_date)
+        
+        flight = {}
+            
+        flight['flight_no'] = flight_no
+        flight['schedule_takeoff_time'] = schedule_takeoff_time
+        flight['schedule_arrival_time'] = schedule_arrival_time
+        flight['schedule_takeoff_date'] = schedule_takeoff_date
+        flight['flight_state'] = "计划航班"
+        flight['plane_model'] = ""
+        flight['takeoff_airport_building'] = ""
+        flight['estimate_takeoff_time'] = "--:--"
+        flight['actual_takeoff_time'] = "--:--"
+        flight['arrival_airport_building'] = ""
+        flight['estimate_arrival_time'] = "--:--"
+        flight['actual_arrival_time'] = "--:--"
+        flight['flight_location'] = ""
+        flight['company'] = ""
+        flight['full_info'] = -1
+        
+        if len(ret) == 1:
+            one = ret[0]
+            
+            flight['flight_state'] = one.flight_state
+            flight['company'] = one.company
+            flight['plane_model'] = one.plane_model
+            flight['takeoff_airport_building'] = one.takeoff_airport_building
+            flight['arrival_airport_building'] = one.arrival_airport_building
+            flight['estimate_takeoff_time'] = one.estimate_takeoff_time
+            flight['actual_takeoff_time'] = one.actual_takeoff_time
+            flight['estimate_arrival_time'] = one.estimate_arrival_time
+            flight['actual_arrival_time'] = one.actual_arrival_time
+            flight['full_info'] = one.full_info
+    
+        return flight
     
     
+    def getCompanyList(self, lang):
+        ret = CompanyInfo.find()
+        
+        company_info_list = []
+        for one in ret:
+            one_hash = {}
+            one_hash['short'] = one.company_short
+            if lang == 'zh':
+                one_hash['full'] = one.company_zh
+            
+            company_info_list.append(one_hash)
+        
+        return company_info_list
+    
+    
+    def getRandomFlight(self):
+        flight_list = FlightFixInfo.getAllFlightNO()
+        flight_no = flight_list[random.randint(0, len(flight_list))][0]
+        
+        return flight_no
+    
+    
+    def getAllLivedFlight(self, date):
+        flights = FlightRealtime.find(full_info = 0, schedule_takeoff_date = date)
+        
+        for flight in flights:
+            flight.schedule_arrival_time
+            
+            
+    def getCityList(self, lang):
+        ret = CityInfo.find()
+        
+        city_list = []
+        for one in ret:            
+            city_list.append(one.city_zh)
+        
+        return city_list
+    
+    
+    def getAirlineList(self, lang):
+        ret = AirlineInfo.find()
+        
+        airline_list = []
+        for one in ret:
+            hash = {}
+            hash['takeoff_city'] = one.takeoff_city
+            hash['arrival_city'] = one.arrival_city
+            airline_list.append(hash)
+        
+        return airline_list
+    
+    
+    def getAirportList(self, lang):
+        ret = AirportInfo.find()
+        
+        airport_info_list = []
+        for one in ret:
+            one_hash = {}
+            one_hash['short'] = one.airport_short
+            if lang == 'zh':
+                one_hash['full'] = one.airport_zh
+            
+            airport_info_list.append(one_hash)
+        
+        return airport_info_list
+
+
     def putFlightFixInfo(self, flight_info_list):
         for one in flight_info_list:
             ret = FlightFixInfo.find(flight_no = one['flight_no'], schedule_takeoff_time = one['schedule_takeoff_time'], schedule_arrival_time = one['schedule_arrival_time'], schedule = one['schedule'])
@@ -155,44 +260,6 @@ class DB:
                 airport_info.airport_short = one['arrival_airport_short']
                 airport_info.airport_zh = one['arrival_airport']
                 airport_info.add()
-            
-            
-    def getFlightRealtimeInfo(self, flight_no, schedule_takeoff_time, schedule_arrival_time, schedule_takeoff_date):
-        ret = FlightRealtimeInfo.find(flight_no = flight_no, schedule_takeoff_time = schedule_takeoff_time, schedule_arrival_time = schedule_arrival_time, schedule_takeoff_date = schedule_takeoff_date)
-        
-        flight = {}
-            
-        flight['flight_no'] = flight_no
-        flight['schedule_takeoff_time'] = schedule_takeoff_time
-        flight['schedule_arrival_time'] = schedule_arrival_time
-        flight['schedule_takeoff_date'] = schedule_takeoff_date
-        flight['flight_state'] = "计划航班"
-        flight['plane_model'] = ""
-        flight['takeoff_airport_building'] = ""
-        flight['estimate_takeoff_time'] = "--:--"
-        flight['actual_takeoff_time'] = "--:--"
-        flight['arrival_airport_building'] = ""
-        flight['estimate_arrival_time'] = "--:--"
-        flight['actual_arrival_time'] = "--:--"
-        flight['flight_location'] = ""
-        flight['company'] = ""
-        flight['full_info'] = -1
-        
-        if len(ret) == 1:
-            one = ret[0]
-            
-            flight['flight_state'] = one.flight_state
-            flight['company'] = one.company
-            flight['plane_model'] = one.plane_model
-            flight['takeoff_airport_building'] = one.takeoff_airport_building
-            flight['arrival_airport_building'] = one.arrival_airport_building
-            flight['estimate_takeoff_time'] = one.estimate_takeoff_time
-            flight['actual_takeoff_time'] = one.actual_takeoff_time
-            flight['estimate_arrival_time'] = one.estimate_arrival_time
-            flight['actual_arrival_time'] = one.actual_arrival_time
-            flight['full_info'] = one.full_info
-    
-        return flight  
 
     
     def putFlightRealtimeInfo(self, flight_info_list):
@@ -222,35 +289,6 @@ class DB:
                 flight_info.full_info = 1
         
             flight_info.add()
-            
-            
-    def getCompanyList(self, lang):
-        ret = CompanyInfo.find()
-        
-        company_info_list = []
-        for one in ret:
-            one_hash = {}
-            one_hash['short'] = one.company_short
-            if lang == 'zh':
-                one_hash['full'] = one.company_zh
-            
-            company_info_list.append(one_hash)
-        
-        return company_info_list
-    
-    
-    def getRandomFlight(self):
-        flight_list = FlightFixInfo.getAllFlightNO()
-        flight_no = flight_list[random.randint(0, len(flight_list))][0]
-        
-        return flight_no
-    
-    
-    def getAllLivedFlight(self, date):
-        flights = FlightRealtime.find(full_info = 0, schedule_takeoff_date = date)
-        
-        for flight in flights:
-            flight.schedule_arrival_time
     
     
     def putCompany(self, company_list):
@@ -276,33 +314,6 @@ class DB:
             airline.takeoff_city = ret[0]
             airline.arrival_city = ret[1]
             airline.add()
-    
-    
-    def getCityList(self, lang = 'zh'):
-        ret = CityInfo.find()
-        
-        city_list = []
-        for one in ret:            
-            city_list.append(one.city_zh)
-        
-        return city_list
-    
-    
-    def getAirlineList(self, lang = 'zh'):
-        ret = AirlineInfo.find()
-        
-        airline_list = []
-        for one in ret:
-            hash = {}
-            hash['takeoff_city'] = one.takeoff_city
-            hash['arrival_city'] = one.arrival_city
-            airline_list.append(hash)
-        
-        return airline_list
-            
-      
-    def putAirport(self, company_list):
-        pass
     
     
     def adjustFlightFixInfo(self):

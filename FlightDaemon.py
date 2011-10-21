@@ -62,7 +62,7 @@ class FlightDaemon:
         
 
     @cherrypy.expose
-    def queryFlightInfoByAirline(self, takeoff_airport, arrival_airport, schedule_takeoff_date, company):
+    def queryFlightInfoByRoute(self, takeoff_airport, arrival_airport, schedule_takeoff_date, company = 'all'):
         pass
     
     
@@ -167,6 +167,22 @@ class FlightDaemon:
             self.logger.error(msg)
             
             return json.dumps(None)
+        
+        
+    @cherrypy.expose     
+    def getAirportList(self, lang = 'zh'):
+        try:
+            self.logger.info("get request %s" % (lang))
+                      
+            data = self.data_source.getAirportList(lang)
+            
+            return json.dumps(data)
+        except:
+            msg = traceback.format_exc()
+            self.logger.error(msg)
+            
+            return json.dumps(None)
+        
     
     '''
     @cherrypy.expose     
