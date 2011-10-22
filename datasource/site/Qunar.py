@@ -33,15 +33,15 @@ class Qunar(Spider):
             if estimate_time[1].strip() != "":
                 flight['estimate_arrival_time'] = estimate_time[1].strip()
         
-        flight['flight_state'] = "计划航班"
+        flight['flight_state'] = u"计划航班"
         actual_time = content[2].split('-')
         if len(actual_time) == 2:
             if actual_time[0].strip() != "":
                 flight['actual_takeoff_time'] = actual_time[0].strip()
-                flight['flight_state'] = "已经起飞"
+                flight['flight_state'] = u"已经起飞"
             if actual_time[1].strip() != "":
                 flight['actual_arrival_time'] = actual_time[1].strip()
-                flight['flight_state'] = "已经到达"
+                flight['flight_state'] = u"已经到达"
                 flight['full_info'] = 1
             
        

@@ -307,7 +307,7 @@ class DB:
         flight_info.actual_arrival_time = one['actual_arrival_time']
         flight_info.schedule_takeoff_date = one['schedule_takeoff_date']
         
-        if one['actual_arrival_time'] != '--:--':
+        if one['actual_arrival_time'] != "--:--":
             flight_info.full_info = 1
     
         flight_info.add()

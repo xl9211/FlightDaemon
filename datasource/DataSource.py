@@ -94,7 +94,7 @@ class DataSource:
             flight['arrival_airport'] = fix_data['arrival_airport']
             flight['schedule_takeoff_date'] = fix_data['schedule_takeoff_date']
              
-            flight['flight_state'] = "计划航班"
+            flight['flight_state'] = u"计划航班"
             flight['estimate_takeoff_time'] = "--:--"
             flight['actual_takeoff_time'] = "--:--"
             flight['estimate_arrival_time'] = "--:--"
