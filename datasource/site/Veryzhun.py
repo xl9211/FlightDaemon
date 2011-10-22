@@ -20,13 +20,10 @@ class Veryzhun(Spider):
     def __init__(self, config):
         Spider.__init__(self, config)
         self.logger = LogUtil.Logging.getLogger()
-        self.ret_val = None
         
         
-    def parseRealtimeInfo(self, schedule_takeoff_date):
+    def parseRealtimeInfo(self, flight):
         doc = lxml.html.soupparser.fromstring(self.content)
-        
-        self.ret_val = []
         
         numinfo = doc.xpath("//div[@class='numinfo']")
         numdap = doc.xpath("//div[@class='numdap']")
@@ -34,59 +31,47 @@ class Veryzhun(Spider):
         
         flight_info_num = len(numinfo)
         for index in range(0, flight_info_num):
-            flight_info = {}
+            schedule_takeoff_time = numdap[index].xpath("div[@class='numtime']//p")[0].text_content().strip()[-5:]
+            schedule_arrival_time = numarr[index].xpath("div[@class='numtime']//p")[0].text_content().strip()[-5:]
             
-            flight_info['flight_no'] = numinfo[index].xpath("ul//li[@class='num_here']")[0].text_content().strip()
-            flight_info['flight_state'] = numinfo[index].xpath("div[@class='numtimestate']//span")[0].text_content().strip()
-            flight_info['company'] = numinfo[index].xpath("ul//td[@class='airname']//a")[0].text_content().strip()
-            flight_info['plane_model'] = numinfo[index].xpath("ul//td[@class='airname']//a")[1].text_content().strip()
+            if schedule_takeoff_time != flight['schedule_takeoff_time'] or schedule_arrival_time != flight['schedule_arrival_time']:
+                continue
+            
+            flight['flight_state'] = numinfo[index].xpath("div[@class='numtimestate']//span")[0].text_content().strip()
             
             flight_location = numinfo[index].xpath("ul//p[@class='planestate']//strong")
             if len(flight_location) != 0:
-                flight_info['flight_location'] = flight_location[0].text_content().strip()
+                flight['flight_location'] = flight_location[0].text_content().strip()
             else:
-                flight_info['flight_location'] = ""
+                flight['flight_location'] = ""
+
+            flight['estimate_takeoff_time'] = numdap[index].xpath("div[@class='numtime']//p")[1].text_content().strip()[-5:]
+            flight['actual_takeoff_time'] = numdap[index].xpath("div[@class='numtime']//p")[2].text_content().strip()[-5:]
             
-            temp_text = numdap[index].xpath("ul//li[@class='num_here']")[0].text_content().strip()
-            find_index = temp_text.find('T')
-            if find_index != -1:
-                flight_info['takeoff_airport_building'] = temp_text[find_index:]
-            else:
-                flight_info['takeoff_airport_building'] = ""
-            flight_info['schedule_takeoff_time'] = numdap[index].xpath("div[@class='numtime']//p")[0].text_content().strip()[-5:]
-            flight_info['estimate_takeoff_time'] = numdap[index].xpath("div[@class='numtime']//p")[1].text_content().strip()[-5:]
-            flight_info['actual_takeoff_time'] = numdap[index].xpath("div[@class='numtime']//p")[2].text_content().strip()[-5:]
-            #flight_info['takeoff_delay_advance_time'] = self.computeIntervalTime(flight_info['schedule_takeoff_time'], flight_info['actual_takeoff_time'])
             
-            temp_text = numarr[index].xpath("ul//li[@class='num_here']")[0].text_content().strip()
-            find_index = temp_text.find('T')
-            if find_index != -1:
-                flight_info['arrival_airport_building'] = temp_text[find_index:]
-            else:
-                flight_info['arrival_airport_building'] = ""  
-            flight_info['schedule_arrival_time'] = numarr[index].xpath("div[@class='numtime']//p")[0].text_content().strip()[-5:]
-            flight_info['estimate_arrival_time'] = numarr[index].xpath("div[@class='numtime']//p")[1].text_content().strip()[-5:]
-            flight_info['actual_arrival_time'] = numarr[index].xpath("div[@class='numtime']//p")[2].text_content().strip()[-5:]
-            #flight_info['arrival_delay_advance_time'] = self.computeIntervalTime(flight_info['schedule_arrival_time'], flight_info['actual_arrival_time'])
-            flight_info['schedule_takeoff_date'] = schedule_takeoff_date
+            flight['estimate_arrival_time'] = numarr[index].xpath("div[@class='numtime']//p")[1].text_content().strip()[-5:]
+            flight['actual_arrival_time'] = numarr[index].xpath("div[@class='numtime']//p")[2].text_content().strip()[-5:]
             
-            self.ret_val.append(flight_info)
+            if flight['actual_arrival_time'] != '--:--':
+                flight['full_info'] = 1
 
     
-    def getFlightRealTimeInfo(self, flight_no, schedule_takeoff_date):
+    def getFlightRealTimeInfo(self, flight):
         try:
-            self.url = "http://www.veryzhun.com/searchnum.asp?flightnum=%s" % (flight_no)
-            if self.fetch() != -1:
-                self.parseRealtimeInfo(schedule_takeoff_date)
+            self.url = "http://www.veryzhun.com/searchnum.asp?flightnum=%s" % (flight['flight_no'])
+            if self.fetch() == 0:
+                self.parseRealtimeInfo(flight)
+            else:
+                return None
             
-            return self.ret_val
+            return 0
         except:
             msg = traceback.format_exc()
             self.logger.error(msg)
             
             return None
     
-    
+    '''
     def computeIntervalTime(self, start_time, end_time):
         interval_time = "+00：00"
         
@@ -122,6 +107,7 @@ class Veryzhun(Spider):
                     interval_time = "+%02d:%02d" % (interval_time_high, interval_time_low)
             
         return interval_time
+    '''
 
     
 if __name__ == '__main__':     

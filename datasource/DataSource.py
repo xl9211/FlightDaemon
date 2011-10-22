@@ -19,6 +19,11 @@ class DataSource:
         self.logger = LogUtil.Logging.getLogger()
 
         DBUtility.init(self.config.db_user, self.config.db_passwd, self.config.db_host, self.config.db_name)
+        
+        self.db_data_source = self.createDataSource('db')
+        self.realtime_data_source = []
+        self.realtime_data_source.append(self.createDataSource('qunar'))
+        self.realtime_data_source.append(self.createDataSource('veryzhun'))
     
     
     def createDataSource(self, source):
@@ -37,9 +42,8 @@ class DataSource:
     def getFlightFixInfoByFlightNO(self, flight_no, schedule_takeoff_date):
         try:
             self.logger.info("%s %s" % (flight_no, schedule_takeoff_date))
-           
-            db_data_source = self.createDataSource('db')
-            data = db_data_source.getFlightFixInfoByFlightNO(flight_no, schedule_takeoff_date)
+                       
+            data = self.db_data_source.getFlightFixInfoByFlightNO(flight_no, schedule_takeoff_date)
             
             return data
         except:
@@ -53,8 +57,7 @@ class DataSource:
         try:
             self.logger.info("%s %s %s %s" % (takeoff_airport, arrival_airport, schedule_takeoff_date, company))
             
-            db_data_source = self.createDataSource('db')
-            data = db_data_source.getFlightFixInfoByRoute(takeoff_airport, arrival_airport, schedule_takeoff_date, company)
+            data = self.db_data_source.getFlightFixInfoByRoute(takeoff_airport, arrival_airport, schedule_takeoff_date, company)
             
             return data
         except:
@@ -67,9 +70,8 @@ class DataSource:
     def getFlightFixInfoByUniq(self, flight_no, takeoff_city, arrival_city, schedule_takeoff_date):
         try:
             self.logger.info("%s %s %s %s %s" % (flight_no, takeoff_city, arrival_city, schedule_takeoff_date, 'ctrip'))
-           
-            db_data_source = self.createDataSource('db')
-            data = db_data_source.getFlightFixInfoByUniq(flight_no, takeoff_city, arrival_city, schedule_takeoff_date)
+
+            data = self.db_data_source.getFlightFixInfoByUniq(flight_no, takeoff_city, arrival_city, schedule_takeoff_date)
             
             return data
         except:
@@ -79,58 +81,68 @@ class DataSource:
             return None
         
 
-    def getFlightRealtimeInfo(self, fix_data, schedule_takeoff_date):
+    def getFlightRealtimeInfo(self, fix_data):
         try:
-            self.logger.info("%s %s" % (fix_data['flight_no'], schedule_takeoff_date))
+            self.logger.info("%s %s" % (fix_data['flight_no'], fix_data['schedule_takeoff_date']))
             
-            db_data_source = self.createDataSource('db')
-            data = db_data_source.getFlightRealtimeInfo(fix_data['flight_no'], fix_data['schedule_takeoff_time'], fix_data['schedule_arrival_time'], schedule_takeoff_date)
+            flight = {}
             
-            if data['full_info'] != 1:
-                if data['full_info'] == -1:
-                    db_data_source.putFlightRealtimeInfo(data)
-
-                cur_date = time.strftime("%Y-%m-%d", time.localtime())
-                cur_time = time.strftime("%H:%M", time.localtime())
-                cur_hour = int(cur_time[:2])
-                cur_minute = int(cur_time[3:])
-                cur_second = cur_hour * 60 * 60 + cur_minute * 60
+            flight['flight_no'] = fix_data['flight_no']
+            flight['schedule_takeoff_time'] = fix_data['schedule_takeoff_time']
+            flight['schedule_arrival_time'] = fix_data['schedule_arrival_time']
+            flight['takeoff_airport'] = fix_data['takeoff_airport']
+            flight['arrival_airport'] = fix_data['arrival_airport']
+            flight['schedule_takeoff_date'] = fix_data['schedule_takeoff_date']
+             
+            flight['flight_state'] = "计划航班"
+            flight['estimate_takeoff_time'] = "--:--"
+            flight['actual_takeoff_time'] = "--:--"
+            flight['estimate_arrival_time'] = "--:--"
+            flight['actual_arrival_time'] = "--:--"
+            flight['full_info'] = 0
             
-                hour = int(fix_data['schedule_takeoff_time'][:2])
-                minute = int(fix_data['schedule_takeoff_time'][3:])
-                second = hour * 60 * 60 + minute * 60
-                
-                # 暂时不考虑红眼航班
-                if cur_second > second:
-                    data_source = self.createDataSource('qunar')          
-                    spider_data = data_source.getFlightRealTimeInfo(fix_data['flight_no'], fix_data['takeoff_airport'], fix_data['arrival_airport'], schedule_takeoff_date)
+            flight['flight_location'] = ""
+        
+            self.db_data_source.getFlightRealtimeInfo(flight)
+            
+            if flight['full_info'] == 0 and self.allow2Spider(flight): 
+                for source in self.realtime_data_source:     
+                    ret = source.getFlightRealTimeInfo(flight)
     
-                    if data is None or len(data) == 0:
-                        self.logger.error("get %s realtime info error" % (fix_data['flight_no']))
+                    if ret is None:
+                        self.logger.error("get %s realtime info error" % (flight['flight_no']))
                     else:
-                        data['flight_state'] = spider_data['flight_state']
-                        if spider_data['estimate_takeoff_time'] != "":
-                            data['estimate_takeoff_time'] = spider_data['estimate_takeoff_time']
-                        if spider_data['actual_takeoff_time'] != "":
-                            data['actual_takeoff_time'] = spider_data['actual_takeoff_time']
-                        if spider_data['estimate_arrival_time'] != "":
-                            data['estimate_arrival_time'] = spider_data['estimate_arrival_time']
-                        if spider_data['actual_arrival_time'] != "":
-                            data['actual_arrival_time'] = spider_data['actual_arrival_time']
-                        db_data_source.putFlightRealtimeInfo(data)
+                        self.db_data_source.putFlightRealtimeInfo(flight)
+                        break
 
-            return data
+            return flight
         except:
             msg = traceback.format_exc()
             self.logger.error(msg)
             
             return None
+        
+        
+    def allow2Spider(self, flight):
+        cur_date_str = time.strftime("%Y-%m-%d", time.localtime())
+        cur_date = time.strptime(cur_date_str, "%Y-%m-%d")
+        schedule_takeoff_date = time.strptime(flight['schedule_takeoff_date'], "%Y-%m-%d")
+        s1 = time.mktime(cur_date)
+        s2 = time.mktime(schedule_takeoff_date)
+        
+        if cur_date_str == flight['schedule_takeoff_date'] or (int((s1 - s2) / 3600 / 24) == 1 and flight['schedule_takeoff_time'] > flight['schedule_arrival_time']):
+            self.logger.info("%s %s allow to spider" %(flight['flight_no'], flight['schedule_takeoff_date']))
+            return True
+        else:
+            self.logger.info("%s %s not allow to spider" %(flight['flight_no'], flight['schedule_takeoff_date']))
+            return False
         
     
     def completeFlightInfo(self, data_list, fix_data_list, schedule_takeoff_date, lang, realtime_data_only = False):
         try:
             for fix_data in fix_data_list:
-                realtime_data = self.getFlightRealtimeInfo(fix_data, schedule_takeoff_date)
+                fix_data['schedule_takeoff_date'] = schedule_takeoff_date
+                realtime_data = self.getFlightRealtimeInfo(fix_data)
 
                 data = {}
                 
@@ -144,7 +156,7 @@ class DataSource:
                     data['arrival_airport'] = self.getAirportName(fix_data['arrival_airport'], lang)
                     data['arrival_city'] = fix_data['arrival_city']
                     data['mileage'] = fix_data['mileage']
-                    data['schedule_takeoff_date'] = schedule_takeoff_date
+                    data['schedule_takeoff_date'] = fix_data['schedule_takeoff_date']
                     data['plane_model'] = fix_data['plane_model']
                     data['takeoff_airport_building'] = fix_data['takeoff_airport_building']
                     data['arrival_airport_building'] = fix_data['arrival_airport_building']
@@ -170,8 +182,7 @@ class DataSource:
         
     def getRandomFlight(self):
         try:
-            db_data_source = self.createDataSource('db')
-            flight_no = db_data_source.getRandomFlight()
+            flight_no = self.db_data_source.getRandomFlight()
             
             return flight_no
         except:
@@ -183,8 +194,7 @@ class DataSource:
     
     def getCompanyList(self, lang):
         try:
-            db_data_source = self.createDataSource('db')
-            data = db_data_source.getCompanyList(lang)
+            data = self.db_data_source.getCompanyList(lang)
             
             return data
         except:
@@ -196,8 +206,7 @@ class DataSource:
     
     def getAirportList(self, lang):
         try:
-            db_data_source = self.createDataSource('db')
-            data = db_data_source.getAirportList(lang)
+            data = self.db_data_source.getAirportList(lang)
             
             return data
         except:
@@ -209,8 +218,7 @@ class DataSource:
     
     def getCompanyName(self, short, lang):
         try:
-            db_data_source = self.createDataSource('db')
-            data = db_data_source.getCompanyName(short, lang)
+            data = self.db_data_source.getCompanyName(short, lang)
             
             return data
         except:
@@ -222,8 +230,19 @@ class DataSource:
     
     def getAirportName(self, short, lang):
         try:
-            db_data_source = self.createDataSource('db')
-            data = db_data_source.getAirportName(short, lang)
+            data = self.db_data_source.getAirportName(short, lang)
+            
+            return data
+        except:
+            msg = traceback.format_exc()
+            self.logger.error(msg)
+            
+            return json.dumps(None)
+        
+    
+    def getAllLivedFlight(self, cur_date):
+        try:
+            data = self.db_data_source.getAllLivedFlight(cur_date)
             
             return data
         except:

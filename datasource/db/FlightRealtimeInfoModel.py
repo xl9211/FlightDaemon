@@ -6,16 +6,19 @@ import DBBase
 
 
 class FlightRealtimeInfo(DBBase.Base):
-    __tablename__ = 'flight_realtime_info_table'    
-    flight_no = Column(VARCHAR(50), primary_key = True, index = True, nullable = False)
+    __tablename__ = 'flight_realtime_info_table'
+    id = Column(INTEGER, primary_key = True)    
+    flight_no = Column(VARCHAR(50), index = True, nullable = False)
     flight_state = Column(VARCHAR(50))
-    schedule_takeoff_time = Column(VARCHAR(50), primary_key = True, index = True, nullable = False)
     estimate_takeoff_time = Column(VARCHAR(50))
-    actual_takeoff_time = Column(VARCHAR(50))
-    schedule_arrival_time = Column(VARCHAR(50), primary_key = True, index = True, nullable = False)
+    actual_takeoff_time = Column(VARCHAR(50))   
     estimate_arrival_time = Column(VARCHAR(50))
     actual_arrival_time = Column(VARCHAR(50))
-    schedule_takeoff_date = Column(VARCHAR(50), primary_key = True, index = True, nullable = False)
+    schedule_takeoff_time = Column(VARCHAR(50), index = True, nullable = False)
+    schedule_arrival_time = Column(VARCHAR(50), index = True, nullable = False)
+    takeoff_airport = Column(VARCHAR(50), index = True, nullable = False)
+    arrival_airport = Column(VARCHAR(50), index = True, nullable = False)
+    schedule_takeoff_date = Column(VARCHAR(50), index = True, nullable = False)
     full_info = Column(INTEGER, index = True, default = 0, nullable = False)
     date = Column(VARCHAR(20))
 

@@ -21,27 +21,53 @@ class Qunar(Spider):
     def __init__(self, config):
         Spider.__init__(self, config)
         
-        self.ret_val = None
-        
     
-    def parseRealtimeInfo(self, schedule_takeoff_date):
+    def parseRealtimeInfo(self, flight):
         doc = lxml.html.soupparser.fromstring(self.content)
         content = doc.xpath("//div[@class='search_result']/dl[@class='state_detail']//span[@class='sd_2']/b/text()")
+
+        if content[0] == "计划":
+            flight['flight_state'] = "计划航班"
+        elif content[0] == "起飞":
+            flight['flight_state'] = "已经起飞"
+        elif content[0] == "到达":
+            flight['flight_state'] = "已经到达"
         
-        flight_info = {}    
-        flight_info['flight_state'] = content[0]
         estimate_time = content[1].split('-')
         if len(estimate_time) == 2:
-            flight_info['estimate_takeoff_time'] = estimate_time[0].strip()
-            flight_info['estimate_arrival_time'] = estimate_time[1].strip()
-        actual_time = content[2].split('-')
-        flight_info['actual_takeoff_time'] = actual_time[0].strip()
-        flight_info['actual_arrival_time'] = actual_time[1].strip()
-        flight_info['schedule_takeoff_date'] = schedule_takeoff_date
+            if estimate_time[0].strip() != "":
+                flight['estimate_takeoff_time'] = estimate_time[0].strip()
+            if estimate_time[1].strip() != "":
+                flight['estimate_arrival_time'] = estimate_time[1].strip()
         
-        self.ret_val = flight_info
-                
-                
+        actual_time = content[2].split('-')
+        if len(actual_time) == 2:
+            if actual_time[0].strip() != "":
+                flight['actual_takeoff_time'] = actual_time[0].strip()
+            if actual_time[1].strip() != "":
+                flight['actual_arrival_time'] = actual_time[1].strip()
+            
+        if flight['actual_arrival_time'] != '--:--':
+            flight['full_info'] = 1
+    
+    
+    def getFlightRealTimeInfo(self, flight):
+        try:
+            self.url = "http://flight.qunar.com/schedule/fquery.jsp?flightCode=%s&d=%s&a=%s" % (flight['flight_no'], flight['takeoff_airport'], flight['arrival_airport'])
+            if self.fetch() == 0:
+                self.parseRealtimeInfo(flight)
+            else:
+                return None
+            
+            return 0
+        except:
+            msg = traceback.format_exc()
+            self.logger.error(msg)
+            
+            return None
+                   
+    
+    '''            
     def parseFixInfo(self, takeoff_city, arrival_city):
         doc = lxml.html.soupparser.fromstring(self.content)
         rows = doc.xpath("//div[@class='result_content']/ul/li")
@@ -88,22 +114,16 @@ class Qunar(Spider):
             #print flight_info['arrival_airport_short']
             
             self.ret_val.append(flight_info)
+
     
+    def getFlightFixInfoByAirline(self, takeoff_city, arrival_city):
+        self.url = "http://flight.qunar.com/schedule/fsearch_list.jsp?departure=%s&arrival=%s" % (takeoff_city, arrival_city)
+        #self.content = open("fsearch_list.jsp.html")
+        self.logger.info("fetch %s" % (self.url))
+        self.fetch()
+        self.parseFixInfo(takeoff_city, arrival_city)
     
-    def getFlightRealTimeInfo(self, flight_no, takeoff_airport, arrival_airport, schedule_takeoff_date):
-        try:
-            self.url = "http://flight.qunar.com/schedule/fquery.jsp?flightCode=%s&d=%s&a=%s" % (flight_no, takeoff_airport, arrival_airport)
-            if self.fetch() != -1:
-                self.parseRealtimeInfo(schedule_takeoff_date)
-            
-            return self.ret_val
-        except:
-            msg = traceback.format_exc()
-            self.logger.error(msg)
-            
-            return None
-    
-    
+
     def parseAirline(self):
         doc = lxml.html.soupparser.fromstring(self.content)
         airlines = doc.xpath("//ul[@class='apl_citylist fix']/li")
@@ -121,14 +141,10 @@ class Qunar(Spider):
         return self.ret_val
     
     
-    def getFlightFixInfoByAirline(self, takeoff_city, arrival_city):
-        self.url = "http://flight.qunar.com/schedule/fsearch_list.jsp?departure=%s&arrival=%s" % (takeoff_city, arrival_city)
-        #self.content = open("fsearch_list.jsp.html")
-        self.logger.info("fetch %s" % (self.url))
-        self.fetch()
-        self.parseFixInfo(takeoff_city, arrival_city)
+    
         
         return self.ret_val
+    '''
     
     
 if __name__ == '__main__':     

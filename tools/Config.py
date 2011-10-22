@@ -18,6 +18,7 @@ class Config:
             log_output = True
         self.log_error_file = cf.get('CherryPy', 'LogErrorFile')
         self.log_access_file = cf.get('CherryPy', 'LogAccessFile')
+        self.environment = cf.get('CherryPy', 'Environment')
         
         self.db_host = cf.get("DB", "DBHost")
         self.db_user = cf.get("DB", "DBUser")

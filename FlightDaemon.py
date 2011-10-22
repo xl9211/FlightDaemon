@@ -33,7 +33,7 @@ class FlightDaemon:
         self.logger = LogUtil.Logging.getLogger()    
            
         self.data_source = DataSource(self.config)
-        
+
         self.flight_scan = FlightScan(self.config, self.data_source)
         self.flight_scan.start()
         
@@ -257,7 +257,8 @@ def main():
             'engine.autoreload_on' : False,
             'log.screen': config.log_output,
             'log.error_file': config.log_error_file,
-            'log.access_file': config.log_access_file
+            'log.access_file': config.log_access_file,
+            'environment': config.environment
         }
     }
     

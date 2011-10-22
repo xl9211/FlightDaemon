@@ -115,24 +115,13 @@ class DB:
         return flight_info_list
             
             
-    def getFlightRealtimeInfo(self, flight_no, schedule_takeoff_time, schedule_arrival_time, schedule_takeoff_date):
-        ret = FlightRealtimeInfo.find(flight_no = flight_no, schedule_takeoff_time = schedule_takeoff_time, schedule_arrival_time = schedule_arrival_time, schedule_takeoff_date = schedule_takeoff_date)
+    def getFlightRealtimeInfo(self, flight):
+        ret = FlightRealtimeInfo.find(flight_no = flight['flight_no'], 
+                                      schedule_takeoff_time = flight['schedule_takeoff_time'], 
+                                      schedule_arrival_time = flight['schedule_arrival_time'], 
+                                      schedule_takeoff_date = flight['schedule_takeoff_date'])
         
-        flight = {}
-            
-        flight['flight_no'] = flight_no
-        flight['schedule_takeoff_time'] = schedule_takeoff_time
-        flight['schedule_arrival_time'] = schedule_arrival_time
-        flight['schedule_takeoff_date'] = schedule_takeoff_date
-        flight['flight_state'] = "计划"
-        flight['estimate_takeoff_time'] = "--:--"
-        flight['actual_takeoff_time'] = "--:--"
-        flight['estimate_arrival_time'] = "--:--"
-        flight['actual_arrival_time'] = "--:--"
-        flight['flight_location'] = ""
-        flight['full_info'] = -1
-        
-        if len(ret) == 1:
+        if len(ret) >= 1:
             one = ret[0]
             
             flight['flight_state'] = one.flight_state
@@ -141,6 +130,22 @@ class DB:
             flight['estimate_arrival_time'] = one.estimate_arrival_time
             flight['actual_arrival_time'] = one.actual_arrival_time
             flight['full_info'] = one.full_info
+        else:
+            one  = FlightRealtimeInfo()
+            
+            one.flight_no = flight['flight_no']
+            one.flight_state = flight['flight_state']
+            one.estimate_takeoff_time = flight['estimate_takeoff_time']
+            one.actual_takeoff_time = flight['actual_takeoff_time'] 
+            one.estimate_arrival_time = flight['estimate_arrival_time']
+            one.actual_arrival_time = flight['actual_arrival_time']
+            one.schedule_takeoff_time = flight['schedule_takeoff_time']
+            one.schedule_arrival_time = flight['schedule_arrival_time']
+            one.takeoff_airport = flight['takeoff_airport']
+            one.arrival_airport = flight['arrival_airport']
+            one.schedule_takeoff_date = flight['schedule_takeoff_date']
+            one.full_info = 0    
+            one.add()
     
         return flight
     
@@ -176,6 +181,9 @@ class DB:
             lived_flight['flight_no'] = flight.flight_no
             lived_flight['schedule_takeoff_time'] = flight.schedule_takeoff_time
             lived_flight['schedule_arrival_time'] = flight.schedule_arrival_time
+            lived_flight['takeoff_airport'] = flight.takeoff_airport
+            lived_flight['arrival_airport'] = flight.arrival_airport
+            lived_flight['schedule_takeoff_date'] = flight.schedule_takeoff_date
             lived_flight_list.append(lived_flight)
         
         return lived_flight_list
