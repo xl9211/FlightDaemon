@@ -25,14 +25,7 @@ class Qunar(Spider):
     def parseRealtimeInfo(self, flight):
         doc = lxml.html.soupparser.fromstring(self.content)
         content = doc.xpath("//div[@class='search_result']/dl[@class='state_detail']//span[@class='sd_2']/b/text()")
-
-        if content[0] == "计划":
-            flight['flight_state'] = "计划航班"
-        elif content[0] == "起飞":
-            flight['flight_state'] = "已经起飞"
-        elif content[0] == "到达":
-            flight['flight_state'] = "已经到达"
-        
+             
         estimate_time = content[1].split('-')
         if len(estimate_time) == 2:
             if estimate_time[0].strip() != "":
@@ -40,17 +33,18 @@ class Qunar(Spider):
             if estimate_time[1].strip() != "":
                 flight['estimate_arrival_time'] = estimate_time[1].strip()
         
+        flight['flight_state'] = "计划航班"
         actual_time = content[2].split('-')
         if len(actual_time) == 2:
             if actual_time[0].strip() != "":
                 flight['actual_takeoff_time'] = actual_time[0].strip()
+                flight['flight_state'] = "已经起飞"
             if actual_time[1].strip() != "":
                 flight['actual_arrival_time'] = actual_time[1].strip()
+                flight['flight_state'] = "已经到达"
+                flight['full_info'] = 1
             
-        if flight['actual_arrival_time'] != '--:--':
-            flight['full_info'] = 1
-    
-    
+       
     def getFlightRealTimeInfo(self, flight):
         try:
             self.url = "http://flight.qunar.com/schedule/fquery.jsp?flightCode=%s&d=%s&a=%s" % (flight['flight_no'], flight['takeoff_airport'], flight['arrival_airport'])
