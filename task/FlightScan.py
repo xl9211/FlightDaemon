@@ -26,7 +26,7 @@ class FlightScan:
         self.logger.info("lived flight %s" % (json.dumps(lived_flight_list)))
         
         for lived_flight in lived_flight_list:
-            self.data_source.getFlightRealtimeInfo(lived_flight)
+            self.data_source.getFlightRealtimeInfo(lived_flight, True)
         
         self.logger.info("lived flight realtime info spider end...")
     

@@ -81,7 +81,7 @@ class DataSource:
             return None
         
 
-    def getFlightRealtimeInfo(self, fix_data):
+    def getFlightRealtimeInfo(self, fix_data, auto = False):
         try:
             self.logger.info("%s %s" % (fix_data['flight_no'], fix_data['schedule_takeoff_date']))
             
@@ -105,7 +105,7 @@ class DataSource:
         
             self.db_data_source.getFlightRealtimeInfo(flight)
             
-            if flight['full_info'] == 0 and self.allow2Spider(flight): 
+            if flight['full_info'] == 0 and (not auto or self.allow2Spider(flight)): 
                 for source in self.realtime_data_source:     
                     ret = source.getFlightRealTimeInfo(flight)
     
@@ -135,7 +135,7 @@ class DataSource:
             cur_second += 60 * 60 * 24
         
         hour = int(flight['schedule_arrival_time'][:2])
-        minute = int(['schedule_arrival_time'][3:])
+        minute = int(flight['schedule_arrival_time'][3:])
         second = hour * 60 * 60 + minute * 60
         
         if cur_second > second:
@@ -171,6 +171,7 @@ class DataSource:
                 
                 data['schedule_takeoff_time'] = fix_data['schedule_takeoff_time']
                 data['schedule_arrival_time'] = fix_data['schedule_arrival_time']
+                
                 data['flight_state'] = realtime_data['flight_state'] 
                 data['estimate_takeoff_time'] = realtime_data['estimate_takeoff_time']
                 data['actual_takeoff_time'] = realtime_data['actual_takeoff_time']        
