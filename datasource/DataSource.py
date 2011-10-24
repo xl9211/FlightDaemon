@@ -88,6 +88,7 @@ class DataSource:
             flight = {}
             
             flight['flight_no'] = fix_data['flight_no']
+            flight['plane_model'] = fix_data['plane_model']
             flight['schedule_takeoff_time'] = fix_data['schedule_takeoff_time']
             flight['schedule_arrival_time'] = fix_data['schedule_arrival_time']
             flight['takeoff_airport'] = fix_data['takeoff_airport']
@@ -135,6 +136,7 @@ class DataSource:
         cur_second = cur_hour * 60 * 60 + cur_minute * 60
         
         if cur_date < flight['schedule_takeoff_date']:
+            self.logger.info("%s %s not allow to spider" %(flight['flight_no'], flight['schedule_takeoff_date']))
             return False
         elif cur_date > flight['schedule_takeoff_date']:
             cur_second += 60 * 60 * 24
