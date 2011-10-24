@@ -67,11 +67,11 @@ class DataSource:
             return None
         
         
-    def getFlightFixInfoByUniq(self, flight_no, takeoff_city, arrival_city, schedule_takeoff_date):
+    def getFlightFixInfoByUniq(self, flight_no, takeoff_city, arrival_city, schedule_takeoff_date, lang):
         try:
-            self.logger.info("%s %s %s %s %s" % (flight_no, takeoff_city, arrival_city, schedule_takeoff_date, 'ctrip'))
+            self.logger.info("%s %s %s %s" % (flight_no, takeoff_city, arrival_city, schedule_takeoff_date))
 
-            data = self.db_data_source.getFlightFixInfoByUniq(flight_no, takeoff_city, arrival_city, schedule_takeoff_date)
+            data = self.db_data_source.getFlightFixInfoByUniq(flight_no, takeoff_city, arrival_city, schedule_takeoff_date, lang)
             
             return data
         except:

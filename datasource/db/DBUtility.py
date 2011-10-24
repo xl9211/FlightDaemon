@@ -30,8 +30,10 @@ class DB:
         pass
     
     
-    def getFlightFixInfoByUniq(self, flight_no, takeoff_city, arrival_city, schedule_takeoff_date):
-        ret = FlightFixInfo.find(flight_no = flight_no, takeoff_city = takeoff_city, arrival_city = arrival_city)
+    def getFlightFixInfoByUniq(self, flight_no, takeoff_city, arrival_city, schedule_takeoff_date, lang):
+        takeoff_city_short = self.getCityCode(takeoff_city, lang)
+        arrival_city_short = self.getCityCode(arrival_city, lang)
+        ret = FlightFixInfo.find(flight_no = flight_no, takeoff_city = takeoff_city_short, arrival_city = arrival_city_short)
         week = time.strftime("%w", time.strptime(schedule_takeoff_date, "%Y-%m-%d"))
         flight_info_list = []
         for one in ret:
@@ -233,8 +235,7 @@ class DB:
         
         if len(ret) == 1:
             if lang == 'zh':
-                return ret[0].company_zh
-            
+                return ret[0].company_zh   
         else:
             return ""
         
@@ -245,7 +246,17 @@ class DB:
         if len(ret) == 1:
             if lang == 'zh':
                 return ret[0].city_zh
-            
+        else:
+            return ""
+        
+    
+    def getCityCode(self, name, lang):
+        ret = None
+        if lang == 'zh':
+            ret = CityInfo.find(city_zh = name)
+        
+        if len(ret) == 1:
+            return ret[0].city_short
         else:
             return ""
         

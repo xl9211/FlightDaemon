@@ -154,7 +154,7 @@ class FlightDaemon:
             data_list = []
             for flight in flight_list:
                 # fix data
-                fix_data_list = self.data_source.getFlightFixInfoByUniq(flight['flight_no'], flight['takeoff_city'], flight['arrival_city'], flight['schedule_takeoff_date'])
+                fix_data_list = self.data_source.getFlightFixInfoByUniq(flight['flight_no'], flight['takeoff_city'], flight['arrival_city'], flight['schedule_takeoff_date'], lang)
                 self.logger.info("fix data %s" %(json.dumps(fix_data_list)))
  
                 if len(fix_data_list) == 0:
