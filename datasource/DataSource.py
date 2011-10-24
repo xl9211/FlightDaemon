@@ -130,7 +130,16 @@ class DataSource:
         s1 = time.mktime(cur_date)
         s2 = time.mktime(schedule_takeoff_date)
         
-        if cur_date_str == flight['schedule_takeoff_date'] or (int((s1 - s2) / 3600 / 24) == 1 and flight['schedule_takeoff_time'] > flight['schedule_arrival_time']):
+        cur_time = time.strftime("%H:%M", time.localtime())
+        cur_hour = int(cur_time[:2])
+        cur_minute = int(cur_time[3:])
+        cur_second = cur_hour * 60 * 60 + cur_minute * 60
+        
+        hour = int(flight['schedule_arrival_time'][:2])
+        minute = int(['schedule_arrival_time'][3:])
+        second = hour * 60 * 60 + minute * 60
+        
+        if cur_second > second and (cur_date_str == flight['schedule_takeoff_date'] or (int((s1 - s2) / 3600 / 24) == 1 and flight['schedule_takeoff_time'] > flight['schedule_arrival_time'])):
             self.logger.info("%s %s allow to spider" %(flight['flight_no'], flight['schedule_takeoff_date']))
             return True
         else:
@@ -151,10 +160,10 @@ class DataSource:
                     data['company'] = self.getCompanyName(fix_data['company'], lang)
                     data['takeoff_airport_entrance_exit'] = ""
                     data['takeoff_airport'] = self.getAirportName(fix_data['takeoff_airport'], lang)
-                    data['takeoff_city'] = fix_data['takeoff_city']
+                    data['takeoff_city'] = self.getCityName(fix_data['takeoff_city'],lang)
                     data['arrival_airport_entrance_exit'] = ""
                     data['arrival_airport'] = self.getAirportName(fix_data['arrival_airport'], lang)
-                    data['arrival_city'] = fix_data['arrival_city']
+                    data['arrival_city'] = self.getCityName(fix_data['arrival_city'], lang)
                     data['mileage'] = fix_data['mileage']
                     data['schedule_takeoff_date'] = fix_data['schedule_takeoff_date']
                     data['plane_model'] = fix_data['plane_model']
@@ -228,6 +237,18 @@ class DataSource:
             return json.dumps(None)
         
     
+    def getCityName(self, short, lang):
+        try:
+            data = self.db_data_source.getCityName(short, lang)
+            
+            return data
+        except:
+            msg = traceback.format_exc()
+            self.logger.error(msg)
+            
+            return json.dumps(None)
+        
+    
     def getAirportName(self, short, lang):
         try:
             data = self.db_data_source.getAirportName(short, lang)
@@ -240,9 +261,9 @@ class DataSource:
             return json.dumps(None)
         
     
-    def getAllLivedFlight(self, cur_date):
+    def getAllLivedFlight(self):
         try:
-            data = self.db_data_source.getAllLivedFlight(cur_date)
+            data = self.db_data_source.getAllLivedFlight()
             
             return data
         except:

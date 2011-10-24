@@ -8,8 +8,9 @@ import DBBase
 class AirportInfo(DBBase.Base):
     __tablename__ = 'airport_info_table'
     airport_short = Column(VARCHAR(50), primary_key = True, index = True)  
-    airport_zh = Column(VARCHAR(100))
+    airport_zh = Column(VARCHAR(100), nullable = False)
     airport_en = Column(VARCHAR(100))
+    city = Column(VARCHAR(50), nullable = False)
     date = Column(VARCHAR(20))
        
     

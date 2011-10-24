@@ -172,8 +172,8 @@ class DB:
         return flight_no
     
     
-    def getAllLivedFlight(self, date):
-        flights = FlightRealtimeInfo.find(full_info = 0, schedule_takeoff_date = date)
+    def getAllLivedFlight(self):
+        flights = FlightRealtimeInfo.find(full_info = 0)
         
         lived_flight_list = []
         for flight in flights:
@@ -221,6 +221,7 @@ class DB:
             one_hash['short'] = one.airport_short
             if lang == 'zh':
                 one_hash['full'] = one.airport_zh
+            one_hash['city'] = self.getCityName(one.city, lang)
             
             airport_info_list.append(one_hash)
         
@@ -233,6 +234,18 @@ class DB:
         if len(ret) == 1:
             if lang == 'zh':
                 return ret[0].company_zh
+            
+        else:
+            return ""
+        
+        
+    def getCityName(self, short, lang):
+        ret = CityInfo.find(city_short = short)
+        
+        if len(ret) == 1:
+            if lang == 'zh':
+                return ret[0].city_zh
+            
         else:
             return ""
         
@@ -339,26 +352,16 @@ class DB:
     
     
     def adjustFlightFixInfo(self):
-        ret = FlightFixInfo.find()
-        
-
         data = AirportInfo.find()
-        hash = {}
-        for d in data:
-            hash[d.airport_zh] = d.airport_short
         
         count = 0
-        for one in ret:
+        for one in data:
             count += 1
             print count
             
-            list = json.loads(one.schedule)
-            
-            if '7' in list:
-                list.remove('7')
-                list.append('0')
-            
-            one.schedule = json.dumps(list)
+            ret = FlightFixInfo.find(True, arrival_airport = one.airport_short)
+            if ret is not None:
+                one.city = ret.arrival_city
             
             one.add()
 

@@ -7,7 +7,9 @@ import DBBase
 
 class CityInfo(DBBase.Base):
     __tablename__ = 'city_info_table'
-    city_zh = Column(VARCHAR(100), primary_key = True, index = True)
+    city_short = Column(VARCHAR(50), primary_key = True, index = True)
+    city_zh = Column(VARCHAR(100), nullable = False)
+    city_en = Column(VARCHAR(100))
     date = Column(VARCHAR(20))
        
     
