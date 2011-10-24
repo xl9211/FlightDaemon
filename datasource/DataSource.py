@@ -88,7 +88,6 @@ class DataSource:
             flight = {}
             
             flight['flight_no'] = fix_data['flight_no']
-            flight['plane_model'] = fix_data['plane_model']
             flight['schedule_takeoff_time'] = fix_data['schedule_takeoff_time']
             flight['schedule_arrival_time'] = fix_data['schedule_arrival_time']
             flight['takeoff_airport'] = fix_data['takeoff_airport']
@@ -176,7 +175,7 @@ class DataSource:
                     data['arrival_city'] = self.getCityName(fix_data['arrival_city'], lang)
                     data['mileage'] = fix_data['mileage']
                     data['schedule_takeoff_date'] = fix_data['schedule_takeoff_date']
-                    data['plane_model'] = realtime_data['plane_model']
+                    data['plane_model'] = fix_data['plane_model']
                     data['takeoff_airport_building'] = fix_data['takeoff_airport_building']
                     data['arrival_airport_building'] = fix_data['arrival_airport_building']
                 
