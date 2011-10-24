@@ -124,22 +124,21 @@ class DataSource:
         
         
     def allow2Spider(self, flight):
-        cur_date_str = time.strftime("%Y-%m-%d", time.localtime())
-        cur_date = time.strptime(cur_date_str, "%Y-%m-%d")
-        schedule_takeoff_date = time.strptime(flight['schedule_takeoff_date'], "%Y-%m-%d")
-        s1 = time.mktime(cur_date)
-        s2 = time.mktime(schedule_takeoff_date)
+        cur_date = time.strftime("%Y-%m-%d", time.localtime())
         
         cur_time = time.strftime("%H:%M", time.localtime())
         cur_hour = int(cur_time[:2])
         cur_minute = int(cur_time[3:])
         cur_second = cur_hour * 60 * 60 + cur_minute * 60
         
+        if cur_date > flight['schedule_takeoff_date']:
+            cur_second += 60 * 60 * 24
+        
         hour = int(flight['schedule_arrival_time'][:2])
         minute = int(['schedule_arrival_time'][3:])
         second = hour * 60 * 60 + minute * 60
         
-        if cur_second > second and (cur_date_str == flight['schedule_takeoff_date'] or (int((s1 - s2) / 3600 / 24) == 1 and flight['schedule_takeoff_time'] > flight['schedule_arrival_time'])):
+        if cur_second > second:
             self.logger.info("%s %s allow to spider" %(flight['flight_no'], flight['schedule_takeoff_date']))
             return True
         else:
