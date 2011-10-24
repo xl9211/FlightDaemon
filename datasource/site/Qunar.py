@@ -14,6 +14,7 @@ import lxml.html.soupparser
 import json
 from tools import LogUtil
 import traceback 
+import time
 
 
 class Qunar(Spider):
@@ -43,17 +44,41 @@ class Qunar(Spider):
                 flight['actual_arrival_time'] = actual_time[1].strip()
                 flight['flight_state'] = u"已经到达"
                 flight['full_info'] = 1
+                
+        rows = doc.xpath("//div[@class='search_result']/div[@class='result_list']/div[@class='state_list']/ul/li")
+        
+        week = time.strftime("%w", time.strptime(flight['schedule_takeoff_date'], "%Y-%m-%d"))
+        if week == '0':
+            week = '7'
+        
+        find = False
+        for row in rows:
+            schedule = row.xpath("span[@class='ctime5']/span[@class='circular_blue']/text()")
+            if week not in schedule:
+                continue
+            
+            find = True
+             
+            flight['schedule'] = json.dumps(schedule)
+            flight['schedule_takeoff_time'] = row.xpath("span[@class='ctime2']/text()")[0]
+            flight['schedule_arrival_time'] = row.xpath("span[@class='ctime2']/em/text()")[0]
+                
+            flight['plane_model'] = row.xpath("span[@class='ctime4']/text()")[0]
+            flight['stopover'] = row.xpath("span[@class='ctime6']/text()")[0]
+            
+        if find:
+            return 0
+        else:
+            return -1
             
        
     def getFlightRealTimeInfo(self, flight):
         try:
             self.url = "http://flight.qunar.com/schedule/fquery.jsp?flightCode=%s&d=%s&a=%s" % (flight['flight_no'], flight['takeoff_airport'], flight['arrival_airport'])
             if self.fetch() == 0:
-                self.parseRealtimeInfo(flight)
+                return self.parseRealtimeInfo(flight)
             else:
                 return None
-            
-            return 0
         except:
             msg = traceback.format_exc()
             self.logger.error(msg)

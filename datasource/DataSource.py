@@ -111,6 +111,9 @@ class DataSource:
     
                     if ret is None:
                         self.logger.error("get %s realtime info error" % (flight['flight_no']))
+                    elif ret == -1:
+                        self.logger.info("today %s there is no such flight" % (flight['schedule_takeoff_date']))
+                        return -1
                     else:
                         self.db_data_source.putFlightRealtimeInfo(flight)
                         break
@@ -151,6 +154,9 @@ class DataSource:
             for fix_data in fix_data_list:
                 fix_data['schedule_takeoff_date'] = schedule_takeoff_date
                 realtime_data = self.getFlightRealtimeInfo(fix_data)
+                
+                if realtime_data == -1:
+                    continue
 
                 data = {}
                 
@@ -165,12 +171,12 @@ class DataSource:
                     data['arrival_city'] = self.getCityName(fix_data['arrival_city'], lang)
                     data['mileage'] = fix_data['mileage']
                     data['schedule_takeoff_date'] = fix_data['schedule_takeoff_date']
-                    data['plane_model'] = fix_data['plane_model']
+                    data['plane_model'] = realtime_data['plane_model']
                     data['takeoff_airport_building'] = fix_data['takeoff_airport_building']
                     data['arrival_airport_building'] = fix_data['arrival_airport_building']
                 
-                data['schedule_takeoff_time'] = fix_data['schedule_takeoff_time']
-                data['schedule_arrival_time'] = fix_data['schedule_arrival_time']
+                data['schedule_takeoff_time'] = realtime_data['schedule_takeoff_time']
+                data['schedule_arrival_time'] = realtime_data['schedule_arrival_time']
                 
                 data['flight_state'] = realtime_data['flight_state'] 
                 data['estimate_takeoff_time'] = realtime_data['estimate_takeoff_time']

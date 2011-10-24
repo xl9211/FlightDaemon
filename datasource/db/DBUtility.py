@@ -35,24 +35,24 @@ class DB:
         week = time.strftime("%w", time.strptime(schedule_takeoff_date, "%Y-%m-%d"))
         flight_info_list = []
         for one in ret:
-            if week in json.loads(one.schedule):
-                one_hash = {}
-                
-                one_hash['flight_no'] = one.flight_no
-                one_hash['company'] = one.company
-                one_hash['schedule_takeoff_time'] = one.schedule_takeoff_time
-                one_hash['schedule_arrival_time'] = one.schedule_arrival_time
-                one_hash['takeoff_city'] = one.takeoff_city
-                one_hash['takeoff_airport'] = one.takeoff_airport
-                one_hash['takeoff_airport_building'] = one.takeoff_airport_building
-                one_hash['arrival_city'] = one.arrival_city
-                one_hash['arrival_airport'] = one.arrival_airport
-                one_hash['arrival_airport_building'] = one.arrival_airport_building
-                one_hash['plane_model'] = one.plane_model
-                one_hash['mileage'] = one.mileage
-                
-                flight_info_list.append(one_hash)
-                break
+            #if week in json.loads(one.schedule):
+            one_hash = {}
+            
+            one_hash['flight_no'] = one.flight_no
+            one_hash['company'] = one.company
+            one_hash['schedule_takeoff_time'] = one.schedule_takeoff_time
+            one_hash['schedule_arrival_time'] = one.schedule_arrival_time
+            one_hash['takeoff_city'] = one.takeoff_city
+            one_hash['takeoff_airport'] = one.takeoff_airport
+            one_hash['takeoff_airport_building'] = one.takeoff_airport_building
+            one_hash['arrival_city'] = one.arrival_city
+            one_hash['arrival_airport'] = one.arrival_airport
+            one_hash['arrival_airport_building'] = one.arrival_airport_building
+            one_hash['plane_model'] = one.plane_model
+            one_hash['mileage'] = one.mileage
+            
+            flight_info_list.append(one_hash)
+            break
         
         return flight_info_list
     
@@ -62,23 +62,23 @@ class DB:
         week = time.strftime("%w", time.strptime(schedule_takeoff_date, "%Y-%m-%d"))
         flight_info_list = []
         for one in ret:
-            if week in json.loads(one.schedule):
-                one_hash = {}
-                
-                one_hash['flight_no'] = one.flight_no
-                one_hash['company'] = one.company
-                one_hash['schedule_takeoff_time'] = one.schedule_takeoff_time
-                one_hash['schedule_arrival_time'] = one.schedule_arrival_time
-                one_hash['takeoff_city'] = one.takeoff_city
-                one_hash['takeoff_airport'] = one.takeoff_airport
-                one_hash['takeoff_airport_building'] = one.takeoff_airport_building
-                one_hash['arrival_city'] = one.arrival_city
-                one_hash['arrival_airport'] = one.arrival_airport
-                one_hash['arrival_airport_building'] = one.arrival_airport_building
-                one_hash['plane_model'] = one.plane_model
-                one_hash['mileage'] = one.mileage
-                
-                flight_info_list.append(one_hash)
+            #if week in json.loads(one.schedule):
+            one_hash = {}
+            
+            one_hash['flight_no'] = one.flight_no
+            one_hash['company'] = one.company
+            one_hash['schedule_takeoff_time'] = one.schedule_takeoff_time
+            one_hash['schedule_arrival_time'] = one.schedule_arrival_time
+            one_hash['takeoff_city'] = one.takeoff_city
+            one_hash['takeoff_airport'] = one.takeoff_airport
+            one_hash['takeoff_airport_building'] = one.takeoff_airport_building
+            one_hash['arrival_city'] = one.arrival_city
+            one_hash['arrival_airport'] = one.arrival_airport
+            one_hash['arrival_airport_building'] = one.arrival_airport_building
+            one_hash['plane_model'] = one.plane_model
+            one_hash['mileage'] = one.mileage
+            
+            flight_info_list.append(one_hash)
         
         return flight_info_list
     
@@ -93,24 +93,24 @@ class DB:
         
         flight_info_list = []
         for one in ret:
-            if week in json.loads(one.schedule):
-                one_hash = {}
-                
-                one_hash['flight_no'] = one.flight_no
-                one_hash['company'] = one.company
-                one_hash['schedule_takeoff_time'] = one.schedule_takeoff_time
-                one_hash['schedule_arrival_time'] = one.schedule_arrival_time
-                one_hash['takeoff_city'] = one.takeoff_city
-                one_hash['takeoff_airport'] = one.takeoff_airport
-                one_hash['takeoff_airport_building'] = one.takeoff_airport_building
-                one_hash['arrival_city'] = one.arrival_city
-                one_hash['arrival_airport'] = one.arrival_airport
-                one_hash['arrival_airport_building'] = one.arrival_airport_building
-                one_hash['plane_model'] = one.plane_model
-                one_hash['mileage'] = one.mileage
-                
-                flight_info_list.append(one_hash)
-                break
+            #if week in json.loads(one.schedule):
+            one_hash = {}
+            
+            one_hash['flight_no'] = one.flight_no
+            one_hash['company'] = one.company
+            one_hash['schedule_takeoff_time'] = one.schedule_takeoff_time
+            one_hash['schedule_arrival_time'] = one.schedule_arrival_time
+            one_hash['takeoff_city'] = one.takeoff_city
+            one_hash['takeoff_airport'] = one.takeoff_airport
+            one_hash['takeoff_airport_building'] = one.takeoff_airport_building
+            one_hash['arrival_city'] = one.arrival_city
+            one_hash['arrival_airport'] = one.arrival_airport
+            one_hash['arrival_airport_building'] = one.arrival_airport_building
+            one_hash['plane_model'] = one.plane_model
+            one_hash['mileage'] = one.mileage
+            
+            flight_info_list.append(one_hash)
+            break
         
         return flight_info_list
             
@@ -302,8 +302,8 @@ class DB:
                 airport_info.add()
 
     
-    def putFlightRealtimeInfo(self, one): 
-        flight_info = FlightRealtimeInfo.find(flight_no = one['flight_no'], schedule_takeoff_time = one['schedule_takeoff_time'], schedule_arrival_time = one['schedule_arrival_time'], schedule_takeoff_date = one['schedule_takeoff_date'])
+    def putFlightRealtimeInfo(self, one):
+        flight_info = FlightRealtimeInfo.find(flight_no = one['flight_no'], takeoff_airport = one['takeoff_airport'], arrival_airport = one['arrival_airport'], schedule_takeoff_date = one['schedule_takeoff_date'])
         
         if len(flight_info) == 0:
             flight_info = FlightRealtimeInfo()
@@ -319,6 +319,8 @@ class DB:
         flight_info.estimate_arrival_time = one['estimate_arrival_time']
         flight_info.actual_arrival_time = one['actual_arrival_time']
         flight_info.schedule_takeoff_date = one['schedule_takeoff_date']
+        flight_info.takeoff_airport = one['takeoff_airport']
+        flight_info.arrival_airport = one['arrival_airport']
         
         if one['actual_arrival_time'] != "--:--":
             flight_info.full_info = 1
@@ -352,18 +354,21 @@ class DB:
     
     
     def adjustFlightFixInfo(self):
-        data = AirportInfo.find()
+        data = FlightFixInfo.find()
+        
+        set = []
         
         count = 0
         for one in data:
             count += 1
             print count
             
-            ret = FlightFixInfo.find(True, arrival_airport = one.airport_short)
-            if ret is not None:
-                one.city = ret.arrival_city
+            key = one.flight_no + one.takeoff_airport + one.arrival_airport
             
-            one.add()
+            if key in set:
+                one.delete()
+            else:
+                set.append(key)
 
         
         '''
