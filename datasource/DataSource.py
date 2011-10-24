@@ -134,8 +134,11 @@ class DataSource:
         cur_minute = int(cur_time[3:])
         cur_second = cur_hour * 60 * 60 + cur_minute * 60
         
-        if cur_date > flight['schedule_takeoff_date']:
+        if cur_date < flight['schedule_takeoff_date']:
+            return False
+        elif cur_date > flight['schedule_takeoff_date']:
             cur_second += 60 * 60 * 24
+        
         
         hour = int(flight['schedule_arrival_time'][:2])
         minute = int(flight['schedule_arrival_time'][3:])
