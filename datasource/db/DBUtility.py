@@ -12,6 +12,7 @@ from FlightRealtimeInfoModel import FlightRealtimeInfo
 from AirportInfoModel import AirportInfo
 from AirlineInfoModel import AirlineInfo
 from CityInfoModel import CityInfo
+from PunctualityInfoModel import PunctualityInfo
 
 import random
 import time
@@ -112,7 +113,6 @@ class DB:
             one_hash['mileage'] = one.mileage
             
             flight_info_list.append(one_hash)
-            break
         
         return flight_info_list
             
@@ -152,6 +152,22 @@ class DB:
         return flight
     
     
+    def getFlightList(self):
+        ret = FlightFixInfo.find()
+        
+        flight_info_list = []
+        for one in ret:
+            one_hash = {}
+            
+            one_hash['flight_no'] = one.flight_no
+            one_hash['takeoff_airport'] = one.takeoff_airport
+            one_hash['arrival_airport'] = one.arrival_airport
+            
+            flight_info_list.append(one_hash)
+        
+        return flight_info_list
+            
+
     def getCompanyList(self, lang):
         ret = CompanyInfo.find()
         
@@ -269,6 +285,39 @@ class DB:
                 return ret[0].airport_zh
         else:
             return ""
+       
+        
+    def getPunctualityInfo(self, flight_no, takeoff_airport,  arrival_airport):
+        ret = PunctualityInfo.find(flight_no = flight_no, takeoff_airport = takeoff_airport, arrival_airport = arrival_airport)
+        
+        punctuality_info = None
+        if len(ret) == 1:
+            punctuality_info = {}
+            punctuality_info['on_time'] = ret[0].on_time
+            punctuality_info['half_hour_late'] = ret[0].half_hour_late
+            punctuality_info['one_hour_late'] = ret[0].one_hour_late
+            punctuality_info['more_than_one_hour_late'] = ret[0].more_than_one_hour_late
+            punctuality_info['cancel'] = ret[0].cancel
+        
+        return punctuality_info
+    
+    
+    def putPunctualityInfo(self, flight, punctualit_info):
+        ret = PunctualityInfo.find(flight_no = flight['flight_no'], takeoff_airport = flight['takeoff_airport'], arrival_airport = flight['arrival_airport'])
+        
+        if len(ret) == 0:
+            info = PunctualityInfo()
+            
+            info.flight_no = flight['flight_no']
+            info.takeoff_airport = flight['takeoff_airport']
+            info.arrival_airport = flight['arrival_airport']
+            info.on_time = punctualit_info['on_time']
+            info.half_hour_late = punctualit_info['half_hour_late']
+            info.one_hour_late = punctualit_info['one_hour_late']
+            info.more_than_one_hour_late = punctualit_info['more_than_one_hour_late']
+            info.cancel = punctualit_info['cancel']
+        
+        info.add()
 
 
     def putFlightFixInfo(self, flight_info_list):

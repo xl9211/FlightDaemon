@@ -35,7 +35,7 @@ class FlightDaemon:
         self.data_source = DataSource(self.config)
 
         self.flight_scan = FlightScan(self.config, self.data_source)
-        self.flight_scan.start()
+        #self.flight_scan.start()
         
         self.logger.info("Flight Daemon Started...")
 
@@ -75,7 +75,7 @@ class FlightDaemon:
                 return json.dumps(None)
             
             data_list = []
-            self.data_source.completeFlightInfo(data_list, fix_data_list, schedule_takeoff_date, lang)
+            self.data_source.completeFlightInfo(data_list, fix_data_list, schedule_takeoff_date, lang, False, False)
   
             ret = json.dumps(data_list)
             self.logger.info(ret) 
@@ -102,7 +102,7 @@ class FlightDaemon:
                 return json.dumps(None)
             
             data_list = []
-            self.data_source.completeFlightInfo(data_list, fix_data_list, schedule_takeoff_date, lang)
+            self.data_source.completeFlightInfo(data_list, fix_data_list, schedule_takeoff_date, lang, False, True)
   
             ret = json.dumps(data_list)
             self.logger.info(ret) 
@@ -164,7 +164,7 @@ class FlightDaemon:
                     self.logger.error("get fix data error")
                     continue
                 
-                self.data_source.completeFlightInfo(data_list, fix_data_list, flight['schedule_takeoff_date'], lang, True)
+                self.data_source.completeFlightInfo(data_list, fix_data_list, flight['schedule_takeoff_date'], lang, True, False)
             
             ret = json.dumps(data_list)
             self.logger.info(ret) 
@@ -205,6 +205,21 @@ class FlightDaemon:
             
             return json.dumps(None)
         
+
+    
+    @cherrypy.expose     
+    def spiderPunctuality(self):
+        try:
+            self.logger.info("get request")
+                      
+            data = self.data_source.spiderPunctuality()
+            
+            return json.dumps(data)
+        except:
+            msg = traceback.format_exc()
+            self.logger.error(msg)
+            
+            return json.dumps(None)
     
     '''
     @cherrypy.expose     

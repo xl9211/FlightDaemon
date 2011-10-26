@@ -41,7 +41,7 @@ class FlightFixInfo(DBBase.Base):
         return key_item
  
 
-    @staticmethod    
+    @staticmethod
     def getAllFlightNO():
         session = DBBase.getSession()
         key_item = session.query(FlightFixInfo.flight_no).all()

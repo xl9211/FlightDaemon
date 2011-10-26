@@ -26,50 +26,53 @@ class Qunar(Spider):
     def parseRealtimeInfo(self, flight):
         doc = lxml.html.soupparser.fromstring(self.content)
         content = doc.xpath("//div[@class='search_result']/dl[@class='state_detail']//span[@class='sd_2']/b/text()")
-             
-        estimate_time = content[1].split('-')
-        if len(estimate_time) == 2:
-            if estimate_time[0].strip() != "":
-                flight['estimate_takeoff_time'] = estimate_time[0].strip()
-            if estimate_time[1].strip() != "":
-                flight['estimate_arrival_time'] = estimate_time[1].strip()
         
-        flight['flight_state'] = u"计划航班"
-        actual_time = content[2].split('-')
-        if len(actual_time) == 2:
-            if actual_time[0].strip() != "":
-                flight['actual_takeoff_time'] = actual_time[0].strip()
-                flight['flight_state'] = u"已经起飞"
-            if actual_time[1].strip() != "":
-                flight['actual_arrival_time'] = actual_time[1].strip()
-                flight['flight_state'] = u"已经到达"
-                flight['full_info'] = 1
-                
-        rows = doc.xpath("//div[@class='search_result']/div[@class='result_list']/div[@class='state_list']/ul/li")
-        
-        week = time.strftime("%w", time.strptime(flight['schedule_takeoff_date'], "%Y-%m-%d"))
-        if week == '0':
-            week = '7'
-        
-        find = False
-        for row in rows:
-            schedule = row.xpath("span[@class='ctime5']/span[@class='circular_blue']/text()")
-            if week not in schedule:
-                continue
+        if len(content) > 2:  
+            estimate_time = content[1].split('-')
+            if len(estimate_time) == 2:
+                if estimate_time[0].strip() != "":
+                    flight['estimate_takeoff_time'] = estimate_time[0].strip()
+                if estimate_time[1].strip() != "":
+                    flight['estimate_arrival_time'] = estimate_time[1].strip()
             
-            find = True
-             
-            flight['schedule'] = json.dumps(schedule)
-            flight['schedule_takeoff_time'] = row.xpath("span[@class='ctime2']/text()")[0]
-            flight['schedule_arrival_time'] = row.xpath("span[@class='ctime2']/em/text()")[0]
-                
-            flight['plane_model'] = row.xpath("span[@class='ctime4']/text()")[0]
-            flight['stopover'] = row.xpath("span[@class='ctime6']/text()")[0]
+            flight['flight_state'] = u"计划航班"
+            actual_time = content[2].split('-')
+            if len(actual_time) == 2:
+                if actual_time[0].strip() != "":
+                    flight['actual_takeoff_time'] = actual_time[0].strip()
+                    flight['flight_state'] = u"已经起飞"
+                if actual_time[1].strip() != "":
+                    flight['actual_arrival_time'] = actual_time[1].strip()
+                    flight['flight_state'] = u"已经到达"
+                    flight['full_info'] = 1
+                    
+            rows = doc.xpath("//div[@class='search_result']/div[@class='result_list']/div[@class='state_list']/ul/li")
             
-        if find:
-            return 0
+            week = time.strftime("%w", time.strptime(flight['schedule_takeoff_date'], "%Y-%m-%d"))
+            if week == '0':
+                week = '7'
+            
+            find = False
+            for row in rows:
+                schedule = row.xpath("span[@class='ctime5']/span[@class='circular_blue']/text()")
+                if week not in schedule:
+                    continue
+                
+                find = True
+                 
+                flight['schedule'] = json.dumps(schedule)
+                flight['schedule_takeoff_time'] = row.xpath("span[@class='ctime2']/text()")[0]
+                flight['schedule_arrival_time'] = row.xpath("span[@class='ctime2']/em/text()")[0]
+                    
+                flight['plane_model'] = row.xpath("span[@class='ctime4']/text()")[0]
+                flight['stopover'] = row.xpath("span[@class='ctime6']/text()")[0]
+                
+            if find:
+                return 0
+            else:
+                return -1
         else:
-            return -1
+            return None
             
        
     def getFlightRealTimeInfo(self, flight):

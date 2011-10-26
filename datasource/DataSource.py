@@ -6,6 +6,7 @@ from site import Ctrip
 from site import Qunar
 from site import Veryzhun
 from site import Other
+from site import Feeyo
 from db import DBUtility
 import traceback
 import time
@@ -23,7 +24,7 @@ class DataSource:
         self.db_data_source = self.createDataSource('db')
         self.realtime_data_source = []
         self.realtime_data_source.append(self.createDataSource('qunar'))
-        self.realtime_data_source.append(self.createDataSource('veryzhun'))
+        self.punctuality_source = self.createDataSource('feeyo')
     
     
     def createDataSource(self, source):
@@ -37,6 +38,8 @@ class DataSource:
             return Other.Other(self.config)
         if source == 'qunar':
             return Qunar.Qunar(self.config)
+        if source == 'feeyo':
+            return Feeyo.Feeyo(self.config)
         
         
     def getFlightFixInfoByFlightNO(self, flight_no, schedule_takeoff_date):
@@ -72,6 +75,25 @@ class DataSource:
             self.logger.info("%s %s %s %s" % (flight_no, takeoff_city, arrival_city, schedule_takeoff_date))
 
             data = self.db_data_source.getFlightFixInfoByUniq(flight_no, takeoff_city, arrival_city, schedule_takeoff_date, lang)
+            
+            return data
+        except:
+            msg = traceback.format_exc()
+            self.logger.error(msg)
+            
+            return None
+        
+    
+    def getPunctualityInfo(self, fix_data, spider_punctuality):
+        try:
+            self.logger.info("%s %s %s" % (fix_data['flight_no'], fix_data['takeoff_airport'], fix_data['arrival_airport']))
+
+            data = self.db_data_source.getPunctualityInfo(fix_data['flight_no'], fix_data['takeoff_airport'], fix_data['arrival_airport'])
+
+            if data is None and spider_punctuality:
+                data = self.punctuality_source.getPunctualityInfo(fix_data['takeoff_airport'], fix_data['arrival_airport'], fix_data['flight_no'])
+                if data is not None:
+                    self.db_data_source.putPunctualityInfo(fix_data, data)   
             
             return data
         except:
@@ -153,7 +175,7 @@ class DataSource:
             return False
         
     
-    def completeFlightInfo(self, data_list, fix_data_list, schedule_takeoff_date, lang, realtime_data_only = False):
+    def completeFlightInfo(self, data_list, fix_data_list, schedule_takeoff_date, lang, realtime_data_only, spider_punctuality):
         try:
             for fix_data in fix_data_list:
                 fix_data['schedule_takeoff_date'] = schedule_takeoff_date
@@ -178,7 +200,20 @@ class DataSource:
                     data['plane_model'] = fix_data['plane_model']
                     data['takeoff_airport_building'] = fix_data['takeoff_airport_building']
                     data['arrival_airport_building'] = fix_data['arrival_airport_building']
-                
+                    data['on_time'] = ""
+                    data['half_hour_late'] = ""
+                    data['one_hour_late'] = ""
+                    data['more_than_one_hour_late'] = ""
+                    data['cancel'] = ""
+                    
+                    punctuality_data = self.getPunctualityInfo(fix_data, spider_punctuality)
+                    if punctuality_data is not None:
+                        data['on_time'] = punctuality_data['on_time']
+                        data['half_hour_late'] = punctuality_data['half_hour_late']
+                        data['one_hour_late'] = punctuality_data['one_hour_late']
+                        data['more_than_one_hour_late'] = punctuality_data['more_than_one_hour_late']
+                        data['cancel'] = punctuality_data['cancel']
+
                 data['schedule_takeoff_time'] = realtime_data['schedule_takeoff_time']
                 data['schedule_arrival_time'] = realtime_data['schedule_arrival_time']
                 
@@ -285,6 +320,31 @@ class DataSource:
 
     #########################################################################################
     # 一次性使用
+    
+    def spiderPunctuality(self):
+        try:
+            db_data_source = self.createDataSource('db')
+            flight_list = db_data_source.getFlightList()
+
+            count = 0
+            data_source = self.createDataSource('feeyo')
+            for flight in flight_list:
+                count += 1
+                self.logger.info(str(count))
+                ret = db_data_source.getPunctualityInfo(flight['flight_no'], flight['takeoff_airport'], flight['arrival_airport'])
+                if ret is None:
+                    punctualit_info = data_source.getPunctualityInfo(flight['takeoff_airport'], flight['arrival_airport'], flight['flight_no'])
+                    db_data_source.putPunctualityInfo(flight, punctualit_info)
+                    time.sleep(2)
+                else:
+                    self.logger.info("already in..................................................")    
+        except:
+            msg = traceback.format_exc()
+            self.logger.error(msg)
+            
+            return json.dumps(None)
+    
+    
     '''
     def spiderCompany(self):
         try:
