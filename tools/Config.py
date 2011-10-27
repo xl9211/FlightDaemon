@@ -28,3 +28,6 @@ class Config:
         self.scan_interval = int(cf.get("Task", "ScanInterval"))
         self.spider_timeout = int(cf.get("Task", "SpiderTimeout"))
         
+        self.stop_fly_start = cf.get("Other", "StopFlyStart")
+        self.stop_fly_end = cf.get("Other", "StopFlyEnd")
+        

@@ -14,7 +14,6 @@ from AirlineInfoModel import AirlineInfo
 from CityInfoModel import CityInfo
 from PunctualityInfoModel import PunctualityInfo
 
-import random
 import time
 import json
 
@@ -183,12 +182,28 @@ class DB:
         return company_info_list
     
     
-    def getRandomFlight(self):
-        flight_list = FlightFixInfo.getAllFlightNO()
-        flight_no = flight_list[random.randint(0, len(flight_list))][0]
+    def getRandomFlightList(self, cur_time):
+        ret = FlightFixInfo.getNowFlightNO(cur_time)
         
-        return flight_no
-    
+        flight_list = []
+        for one in ret:
+            flight_list.append(one[0])
+        
+        return flight_list
+
+
+    def getRandomFlight(self):
+        ret = FlightRealtimeInfo.getOneArrivedFlightNO()
+        
+        flight = None
+        
+        if ret is not None:
+            flight = {}
+            flight['flight_no'] = ret.flight_no
+            flight['schedule_takeoff_date'] = ret.schedule_takeoff_date
+            
+        return flight
+        
     
     def getAllLivedFlight(self):
         flights = FlightRealtimeInfo.find(full_info = 0)
@@ -411,24 +426,27 @@ class DB:
             airline.takeoff_city = ret[0]
             airline.arrival_city = ret[1]
             airline.add()
+            
+    
+    def updateScheduleTimeInFlightFixInfo(self, flight):
+        ret = FlightFixInfo.find(True, flight_no = flight['flight_no'], 
+                                 takeoff_airport = flight['takeoff_airport'], 
+                                 arrival_airport = flight['arrival_airport'])
+        
+        if ret is not None:
+            ret.schedule_takeoff_time = flight['schedule_takeoff_time']
+            ret.schedule_arrival_time = flight['schedule_arrival_time']
+            
+            ret.add()
+        
     
     
     def adjustFlightFixInfo(self):
-        data = FlightFixInfo.find()
+        cur_time = time.strftime("%H:%M", time.localtime())
+        data = FlightFixInfo.getNowFlightNO(cur_time)
         
-        set = []
-        
-        count = 0
         for one in data:
-            count += 1
-            print count
-            
-            key = one.flight_no + one.takeoff_airport + one.arrival_airport
-            
-            if key in set:
-                one.delete()
-            else:
-                set.append(key)
+            print one
 
         
         '''
@@ -464,7 +482,7 @@ if __name__ == "__main__":
     init("root", "root", "127.0.0.1", "fd_db")
     
     db = DB()
-    db.adjustFlightFixInfo()
+    print db.getRandomFlight()
     
             
     

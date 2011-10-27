@@ -19,6 +19,7 @@ import json
 import time
 from datasource.DataSource import DataSource
 from task.FlightScan import FlightScan
+import random
 
 
 from pygments import highlight
@@ -35,7 +36,7 @@ class FlightDaemon:
         self.data_source = DataSource(self.config)
 
         self.flight_scan = FlightScan(self.config, self.data_source)
-        #self.flight_scan.start()
+        self.flight_scan.start()
         
         self.logger.info("Flight Daemon Started...")
 
@@ -75,7 +76,7 @@ class FlightDaemon:
                 return json.dumps(None)
             
             data_list = []
-            self.data_source.completeFlightInfo(data_list, fix_data_list, schedule_takeoff_date, lang, False, False)
+            self.data_source.completeFlightInfo(data_list, fix_data_list, schedule_takeoff_date, lang, False, False, False)
   
             ret = json.dumps(data_list)
             self.logger.info(ret) 
@@ -89,7 +90,7 @@ class FlightDaemon:
     
     
     @cherrypy.expose
-    def queryFlightInfoByFlightNO(self, flight_no, schedule_takeoff_date, lang = 'zh'):
+    def queryFlightInfoByFlightNO(self, flight_no, schedule_takeoff_date, lang = 'zh', flying = False):
         try:
             self.logger.info("get request %s %s %s" % (flight_no, schedule_takeoff_date, lang))
             
@@ -102,7 +103,7 @@ class FlightDaemon:
                 return json.dumps(None)
             
             data_list = []
-            self.data_source.completeFlightInfo(data_list, fix_data_list, schedule_takeoff_date, lang, False, True)
+            self.data_source.completeFlightInfo(data_list, fix_data_list, schedule_takeoff_date, lang, False, True, flying)
   
             ret = json.dumps(data_list)
             self.logger.info(ret) 
@@ -120,12 +121,30 @@ class FlightDaemon:
         try:
             self.logger.info("get request %s" % (lang))
             
-            flight_no = self.data_source.getRandomFlight()
+            flights = []
+            cur_time = time.strftime("%H:%M", time.localtime())
             
-            schedule_takeoff_date = time.strftime("%Y-%m-%d", time.localtime())
-            flights = json.loads(self.queryFlightInfoByFlightNO(flight_no, schedule_takeoff_date, lang))
+            if not (cur_time > self.config.stop_fly_start and cur_time < self.config.stop_fly_end):
+                flight_list = self.data_source.getRandomFlightList(cur_time)
+                flight_num = len(flight_list)
+                
+                for i in range(0, flight_num):
+                    index = random.randint(0, len(flight_list))
+                    flight_no = flight_list.pop(index)
+                    
+                    schedule_takeoff_date = time.strftime("%Y-%m-%d", time.localtime())
+                    flights = json.loads(self.queryFlightInfoByFlightNO(flight_no, schedule_takeoff_date, lang, True))
+                    
+                    if len(flights) > 0:
+                        break
             
-            if len(flights) > 1:
+            if flights == []:
+                flight = self.data_source.getRandomFlight()
+                
+                if flight is not None:
+                    flights = json.loads(self.queryFlightInfoByFlightNO(flight['flight_no'], flight['schedule_takeoff_date'], lang, False))
+            
+            if flights is not None and len(flights) > 1:
                 self.logger.info("random more than one")
                 ret_tmp = []
                 ret_tmp.append(flights[0])
@@ -164,7 +183,7 @@ class FlightDaemon:
                     self.logger.error("get fix data error")
                     continue
                 
-                self.data_source.completeFlightInfo(data_list, fix_data_list, flight['schedule_takeoff_date'], lang, True, False)
+                self.data_source.completeFlightInfo(data_list, fix_data_list, flight['schedule_takeoff_date'], lang, True, False, False)
             
             ret = json.dumps(data_list)
             self.logger.info(ret) 

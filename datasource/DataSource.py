@@ -103,7 +103,7 @@ class DataSource:
             return None
         
 
-    def getFlightRealtimeInfo(self, fix_data, auto = False):
+    def getFlightRealtimeInfo(self, fix_data, auto, flying):
         try:
             self.logger.info("%s %s" % (fix_data['flight_no'], fix_data['schedule_takeoff_date']))
             
@@ -138,7 +138,12 @@ class DataSource:
                         return -1
                     else:
                         self.db_data_source.putFlightRealtimeInfo(flight)
+                        self.db_data_source.updateScheduleTimeInFlightFixInfo(flight)
                         break
+                    
+            if flying:
+                if flight['flight_state'] != u"已经起飞":
+                    flight = []
 
             return flight
         except:
@@ -175,11 +180,15 @@ class DataSource:
             return False
         
     
-    def completeFlightInfo(self, data_list, fix_data_list, schedule_takeoff_date, lang, realtime_data_only, spider_punctuality):
+    def completeFlightInfo(self, data_list, fix_data_list, schedule_takeoff_date, lang, realtime_data_only, spider_punctuality, flying):
         try:
             for fix_data in fix_data_list:
                 fix_data['schedule_takeoff_date'] = schedule_takeoff_date
-                realtime_data = self.getFlightRealtimeInfo(fix_data)
+                realtime_data = self.getFlightRealtimeInfo(fix_data, False, flying)
+                
+                if flying:
+                    if realtime_data == []:
+                        continue
                 
                 if realtime_data == -1:
                     continue
@@ -234,11 +243,23 @@ class DataSource:
             return json.dumps(None)
         
         
+    def getRandomFlightList(self, cur_time):
+        try:
+            flight_list = self.db_data_source.getRandomFlightList(cur_time)
+            
+            return flight_list
+        except:
+            msg = traceback.format_exc()
+            self.logger.error(msg)
+            
+            return json.dumps(None)
+        
+    
     def getRandomFlight(self):
         try:
-            flight_no = self.db_data_source.getRandomFlight()
+            flight = self.db_data_source.getRandomFlight()
             
-            return flight_no
+            return flight
         except:
             msg = traceback.format_exc()
             self.logger.error(msg)

@@ -41,9 +41,9 @@ class FlightRealtimeInfo(DBBase.Base):
  
 
     @staticmethod    
-    def getAllFlightNO():
+    def getOneArrivedFlightNO():
         session = DBBase.getSession()
-        key_item = session.query(FlightRealtimeInfo.flight_no).all()
+        key_item = session.query(FlightRealtimeInfo).filter_by(full_info = 1).order_by(FlightRealtimeInfo.date.desc()).first()
         DBBase.Session.remove()
         return key_item
     

@@ -49,6 +49,14 @@ class FlightFixInfo(DBBase.Base):
         return key_item
     
     
+    @staticmethod
+    def getNowFlightNO(cur_time):
+        session = DBBase.getSession()
+        key_item = session.query(FlightFixInfo.flight_no).filter(and_(FlightFixInfo.schedule_takeoff_time <= cur_time, FlightFixInfo.schedule_arrival_time >= cur_time)).all()
+        DBBase.Session.remove()
+        return key_item
+    
+    
     @staticmethod    
     def count(**kwargs):
         session = DBBase.getSession()
