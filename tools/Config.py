@@ -15,11 +15,15 @@ class Config:
         log_tmp = cf.get('CherryPy', 'LogOutput')
         self.log_output = False
         if log_tmp == 'yes':
-            log_output = True
+            self.log_output = True
         self.log_error_file = cf.get('CherryPy', 'LogErrorFile')
         self.log_access_file = cf.get('CherryPy', 'LogAccessFile')
         self.environment = cf.get('CherryPy', 'Environment')
-        
+        gzip_tmp = cf.get('CherryPy', 'Gzip')
+        self.gzip = False
+        if gzip_tmp == 'yes':
+            self.gzip = True
+
         self.db_host = cf.get("DB", "DBHost")
         self.db_user = cf.get("DB", "DBUser")
         self.db_passwd = cf.get("DB", "DBPasswd")
@@ -30,4 +34,9 @@ class Config:
         
         self.stop_fly_start = cf.get("Other", "StopFlyStart")
         self.stop_fly_end = cf.get("Other", "StopFlyEnd")
+        self.debug_mode = cf.get("Other", "DebugMode")
+        
+        
+        
+        
         

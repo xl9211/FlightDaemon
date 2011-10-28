@@ -36,7 +36,8 @@ class FlightDaemon:
         self.data_source = DataSource(self.config)
 
         self.flight_scan = FlightScan(self.config, self.data_source)
-        self.flight_scan.start()
+        if self.config.debug_mode == 'no':
+            self.flight_scan.start()
         
         self.logger.info("Flight Daemon Started...")
 
@@ -292,7 +293,8 @@ def main():
             'log.screen': config.log_output,
             'log.error_file': config.log_error_file,
             'log.access_file': config.log_access_file,
-            'environment': config.environment
+            'environment': config.environment,
+            'tools.gzip.on': config.gzip
         }
     }
     
