@@ -10,6 +10,7 @@ class CityInfo(DBBase.Base):
     city_short = Column(VARCHAR(50), primary_key = True, index = True)
     city_zh = Column(VARCHAR(100), nullable = False)
     city_en = Column(VARCHAR(100))
+    city_code = Column(VARCHAR(20))
     date = Column(VARCHAR(20))
        
     

@@ -31,8 +31,8 @@ class DB:
     
     
     def getFlightFixInfoByUniq(self, flight_no, takeoff_city, arrival_city, schedule_takeoff_date, lang):
-        takeoff_city_short = self.getCityCode(takeoff_city, lang)
-        arrival_city_short = self.getCityCode(arrival_city, lang)
+        takeoff_city_short = self.getCityShort(takeoff_city, lang)
+        arrival_city_short = self.getCityShort(arrival_city, lang)
         ret = FlightFixInfo.find(flight_no = flight_no, takeoff_city = takeoff_city_short, arrival_city = arrival_city_short)
         week = time.strftime("%w", time.strptime(schedule_takeoff_date, "%Y-%m-%d"))
         flight_info_list = []
@@ -279,9 +279,18 @@ class DB:
                 return ret[0].city_zh
         else:
             return ""
+    
+    
+    def getCityCode(self, short):
+        ret = CityInfo.find(city_short = short)
+        
+        if len(ret) == 1:
+            return ret[0].city_code
+        else:
+            return None
         
     
-    def getCityCode(self, name, lang):
+    def getCityShort(self, name, lang):
         ret = None
         if lang == 'zh':
             ret = CityInfo.find(city_zh = name)
@@ -300,6 +309,15 @@ class DB:
                 return ret[0].airport_zh
         else:
             return ""
+    
+    
+    def getAirportCity(self, short):
+        ret = AirportInfo.find(airport_short = short)
+        
+        if len(ret) == 1:
+            return ret[0].city
+        else:
+            return None
        
         
     def getPunctualityInfo(self, flight_no, takeoff_airport,  arrival_airport):
@@ -442,11 +460,22 @@ class DB:
     
     
     def adjustFlightFixInfo(self):
-        cur_time = time.strftime("%H:%M", time.localtime())
-        data = FlightFixInfo.getNowFlightNO(cur_time)
+        city_code_file = open("../../test/citycode", "r")
         
-        for one in data:
-            print one
+        hash = {}
+        for line in city_code_file:
+            line = line.strip()
+            item = line.split('=')
+            
+            if len(item) == 2:
+                hash[item[1].decode("utf-8")] = item[0]
+                
+        ret = CityInfo.find()
+        
+        for one in ret:
+            if one.city_zh in hash:
+                one.city_code = hash[one.city_zh]
+                one.add()
 
         
         '''
@@ -482,7 +511,7 @@ if __name__ == "__main__":
     init("root", "root", "127.0.0.1", "fd_db")
     
     db = DB()
-    print db.getRandomFlight()
+    db.adjustFlightFixInfo()
     
             
     

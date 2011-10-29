@@ -7,6 +7,7 @@ from site import Qunar
 from site import Veryzhun
 from site import Other
 from site import Feeyo
+from site import Weather
 from db import DBUtility
 import traceback
 import time
@@ -25,6 +26,7 @@ class DataSource:
         self.realtime_data_source = []
         self.realtime_data_source.append(self.createDataSource('qunar'))
         self.punctuality_source = self.createDataSource('feeyo')
+        self.weather_source = self.createDataSource('weather')
     
     
     def createDataSource(self, source):
@@ -40,6 +42,8 @@ class DataSource:
             return Qunar.Qunar(self.config)
         if source == 'feeyo':
             return Feeyo.Feeyo(self.config)
+        if source == 'weather':
+            return Weather.Weather(self.config)
         
         
     def getFlightFixInfoByFlightNO(self, flight_no, schedule_takeoff_date):
@@ -337,7 +341,26 @@ class DataSource:
             self.logger.error(msg)
             
             return json.dumps(None)
+        
     
+    def getAirportWeather(self, airport, type = 'realtime', lang = 'zh'):
+        try:
+            weather_info = {}
+            
+            city = self.db_data_source.getAirportCity(airport)
+            if city is not None:
+                city_code = self.db_data_source.getCityCode(city)
+                if city_code is not None:
+                    weather_info = self.weather_source.getWeather(city_code, type)
+                    weather_info['airport'] = self.db_data_source.getAirportName(airport, lang)
+
+            return weather_info
+        except:
+            msg = traceback.format_exc()
+            self.logger.error(msg)
+            
+            return json.dumps(None)
+        
 
     #########################################################################################
     # 一次性使用

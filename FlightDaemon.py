@@ -225,8 +225,23 @@ class FlightDaemon:
             
             return json.dumps(None)
         
-
     
+    @cherrypy.expose     
+    def getAirportWeather(self, airport, type = 'realtime', lang = 'zh'):
+        try:
+            self.logger.info("get request %s" % (lang))
+                      
+            data = self.data_source.getAirportWeather(airport, type, lang)
+            
+            return json.dumps(data)
+        except:
+            msg = traceback.format_exc()
+            self.logger.error(msg)
+            
+            return json.dumps(None)
+          
+
+    '''
     @cherrypy.expose     
     def spiderPunctuality(self):
         try:
@@ -240,8 +255,9 @@ class FlightDaemon:
             self.logger.error(msg)
             
             return json.dumps(None)
+
     
-    '''
+    
     @cherrypy.expose     
     def spiderAirline(self):
         try:
