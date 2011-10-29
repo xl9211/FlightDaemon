@@ -197,11 +197,11 @@ class FlightDaemon:
     
     
     @cherrypy.expose     
-    def getCompanyList(self, lang = 'zh'):
+    def getCompanyList(self, sign = None, lang = 'zh'):
         try:
             self.logger.info("get request %s" % (lang))
                       
-            data = self.data_source.getCompanyList(lang)
+            data = self.data_source.getCompanyList(sign, lang)
             
             return json.dumps(data)
         except:
@@ -212,11 +212,11 @@ class FlightDaemon:
         
         
     @cherrypy.expose     
-    def getAirportList(self, sign, lang = 'zh'):
+    def getAirportList(self, sign = None, lang = 'zh'):
         try:
             self.logger.info("get request %s" % (lang))
                       
-            data = self.data_source.getAirportList(lang)
+            data = self.data_source.getAirportList(sign, lang)
             
             return json.dumps(data)
         except:

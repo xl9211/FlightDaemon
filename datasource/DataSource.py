@@ -13,6 +13,7 @@ import traceback
 import time
 import json
 from db import DBBase
+import hashlib
 
 
 class DataSource:
@@ -272,11 +273,20 @@ class DataSource:
             return json.dumps(None)
     
     
-    def getCompanyList(self, lang):
+    def getCompanyList(self, sign, lang):
         try:
             data = self.db_data_source.getCompanyList(lang)
-            
-            return data
+            if sign is None:
+                return data
+            else:
+                hash = {}
+                m = hashlib.md5()
+                m.update(json.dumps(data))
+                sign_new = m.hexdigest().upper()
+                if sign_new != sign:
+                    hash['sign'] = sign_new
+                    hash['data'] = data
+                return hash
         except:
             msg = traceback.format_exc()
             self.logger.error(msg)
@@ -284,11 +294,20 @@ class DataSource:
             return json.dumps(None)
         
     
-    def getAirportList(self, lang):
+    def getAirportList(self, sign, lang):
         try:
             data = self.db_data_source.getAirportList(lang)
-            
-            return data
+            if sign is None:
+                return data
+            else:
+                hash = {}
+                m = hashlib.md5()
+                m.update(json.dumps(data))
+                sign_new = m.hexdigest().upper()
+                if sign_new != sign:
+                    hash['sign'] = sign_new
+                    hash['data'] = data
+                return hash
         except:
             msg = traceback.format_exc()
             self.logger.error(msg)
