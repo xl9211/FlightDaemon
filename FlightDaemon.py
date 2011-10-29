@@ -212,7 +212,7 @@ class FlightDaemon:
         
         
     @cherrypy.expose     
-    def getAirportList(self, lang = 'zh'):
+    def getAirportList(self, sign, lang = 'zh'):
         try:
             self.logger.info("get request %s" % (lang))
                       
