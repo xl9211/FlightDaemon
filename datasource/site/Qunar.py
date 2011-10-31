@@ -27,7 +27,17 @@ class Qunar(Spider):
         doc = lxml.html.soupparser.fromstring(self.content)
         content = doc.xpath("//div[@class='search_result']/dl[@class='state_detail']//span[@class='sd_2']/b/text()")
         
-        if len(content) > 2:  
+        if len(content) > 2:
+            flight['flight_state'] = u"计划航班"
+            if content[0] == u"计划":
+                flight['flight_state'] = u"计划航班"
+            if content[0] == u"起飞":
+                flight['flight_state'] = u"已经起飞"
+            if content[0] == u"到达":
+                flight['flight_state'] = u"已经到达"
+            if content[0] == u"取消":
+                flight['flight_state'] = u"已经取消"
+            
             estimate_time = content[1].split('-')
             if len(estimate_time) == 2:
                 if estimate_time[0].strip() != "":
@@ -35,16 +45,15 @@ class Qunar(Spider):
                 if estimate_time[1].strip() != "":
                     flight['estimate_arrival_time'] = estimate_time[1].strip()
             
-            flight['flight_state'] = u"计划航班"
             actual_time = content[2].split('-')
             if len(actual_time) == 2:
                 if actual_time[0].strip() != "":
                     flight['actual_takeoff_time'] = actual_time[0].strip()
-                    flight['flight_state'] = u"已经起飞"
                 if actual_time[1].strip() != "":
                     flight['actual_arrival_time'] = actual_time[1].strip()
-                    flight['flight_state'] = u"已经到达"
                     flight['full_info'] = 1
+                    
+            
                     
             rows = doc.xpath("//div[@class='search_result']/div[@class='result_list']/div[@class='state_list']/ul/li")
             
