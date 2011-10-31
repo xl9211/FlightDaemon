@@ -172,8 +172,7 @@ class DataSource:
             return False
         elif cur_date > flight['schedule_takeoff_date']:
             cur_second += 60 * 60 * 24
-        
-        
+              
         hour = int(flight['schedule_arrival_time'][:2])
         minute = int(flight['schedule_arrival_time'][3:])
         second = hour * 60 * 60 + minute * 60
@@ -191,6 +190,7 @@ class DataSource:
             for fix_data in fix_data_list:
                 fix_data['schedule_takeoff_date'] = schedule_takeoff_date
                 realtime_data = self.getFlightRealtimeInfo(fix_data, False, flying)
+                self.logger.info("realtime data %s" %(json.dumps(realtime_data)))
                 
                 if flying:
                     if realtime_data == []:

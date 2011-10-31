@@ -130,7 +130,7 @@ class FlightDaemon:
                 flight_num = len(flight_list)
                 
                 for i in range(0, flight_num):
-                    index = random.randint(0, len(flight_list))
+                    index = random.randint(0, len(flight_list) - 1)
                     flight_no = flight_list.pop(index)
                     
                     schedule_takeoff_date = time.strftime("%Y-%m-%d", time.localtime())
