@@ -149,7 +149,7 @@ class DataSource:
                     
             if flying:
                 if flight['flight_state'] != u"已经起飞":
-                    flight = []
+                    flight = {}
 
             return flight
         except:
@@ -193,7 +193,7 @@ class DataSource:
                 self.logger.info("realtime data %s" %(json.dumps(realtime_data)))
                 
                 if flying:
-                    if realtime_data == []:
+                    if realtime_data == {}:
                         continue
                 
                 if realtime_data == -1:
