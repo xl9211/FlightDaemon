@@ -317,7 +317,6 @@ def main():
     cherrypy.quickstart(FlightDaemon(config), '/', config = global_cfg)
       
 
-#Start AppManager
 if __name__ == '__main__':
     main()
     
