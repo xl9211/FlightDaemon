@@ -80,6 +80,8 @@ class Qunar(Spider):
                         flight['full_info'] = 1    
             else:
                 return None
+        
+        return 0
             
        
     def getFlightRealTimeInfo(self, flight):

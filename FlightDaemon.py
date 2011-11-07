@@ -109,7 +109,6 @@ class FlightDaemon:
             ret = json.dumps(data_list)
             self.logger.info(ret) 
             return ret
-        
         except:
             msg = traceback.format_exc()
             self.logger.error(msg)
