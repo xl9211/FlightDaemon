@@ -14,8 +14,6 @@ from AirlineInfoModel import AirlineInfo
 from CityInfoModel import CityInfo
 from PunctualityInfoModel import PunctualityInfo
 
-import time
-import json
 import traceback
 from tools import LogUtil
 
@@ -32,15 +30,11 @@ class DB:
         self.logger = LogUtil.Logging.getLogger()
     
     
-    def getFlightFixInfoByUniq(self, flight_no, takeoff_city, arrival_city, schedule_takeoff_date, lang):
+    def getFlightFixInfoByUniq(self, flight_no, takeoff_airport, arrival_airport, schedule_takeoff_date, lang):
         try:
-            takeoff_city_short = self.getCityShort(takeoff_city, lang)
-            arrival_city_short = self.getCityShort(arrival_city, lang)
-            ret = FlightFixInfo.find(flight_no = flight_no, takeoff_city = takeoff_city_short, arrival_city = arrival_city_short)
-            week = time.strftime("%w", time.strptime(schedule_takeoff_date, "%Y-%m-%d"))
+            ret = FlightFixInfo.find(flight_no = flight_no, takeoff_airport = takeoff_airport, arrival_airport = arrival_airport)
             flight_info_list = []
             for one in ret:
-                #if week in json.loads(one.schedule):
                 one_hash = {}
                 
                 one_hash['flight_no'] = one.flight_no
@@ -73,10 +67,8 @@ class DB:
     def getFlightFixInfoByFlightNO(self, flight_no, schedule_takeoff_date):
         try:
             ret = FlightFixInfo.find(flight_no = flight_no)
-            week = time.strftime("%w", time.strptime(schedule_takeoff_date, "%Y-%m-%d"))
             flight_info_list = []
             for one in ret:
-                #if week in json.loads(one.schedule):
                 one_hash = {}
                 
                 one_hash['flight_no'] = one.flight_no
@@ -107,7 +99,6 @@ class DB:
     
     def getFlightFixInfoByRoute(self, takeoff_airport, arrival_airport, schedule_takeoff_date, company):
         try:
-            week = time.strftime("%w", time.strptime(schedule_takeoff_date, "%Y-%m-%d"))
             ret = []
             if company == 'all':
                 ret = FlightFixInfo.find(takeoff_airport = takeoff_airport, arrival_airport = arrival_airport)
@@ -116,7 +107,6 @@ class DB:
             
             flight_info_list = []
             for one in ret:
-                #if week in json.loads(one.schedule):
                 one_hash = {}
                 
                 one_hash['flight_no'] = one.flight_no
@@ -330,7 +320,7 @@ class DB:
             
             airline_list = []
             for one in ret:
-                hash = {}
+                hash = {} #@ReservedAssignment
                 hash['takeoff_city'] = one.takeoff_city
                 hash['arrival_city'] = one.arrival_city
                 airline_list.append(hash)
@@ -698,7 +688,7 @@ class DB:
         try:
             city_code_file = open("../../test/citycode", "r")
             
-            hash = {}
+            hash = {} #@ReservedAssignment
             for line in city_code_file:
                 line = line.strip()
                 item = line.split('=')

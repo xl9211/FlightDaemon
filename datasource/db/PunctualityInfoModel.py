@@ -1,6 +1,6 @@
 from sqlalchemy import Column
-from sqlalchemy.types import *
-from sqlalchemy import and_
+from sqlalchemy.types import * #@UnusedWildImport
+from sqlalchemy import and_ #@UnusedImport
 import datetime
 import DBBase
 

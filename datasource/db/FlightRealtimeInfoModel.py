@@ -1,13 +1,13 @@
 from sqlalchemy import Column
-from sqlalchemy.types import *
-from sqlalchemy import and_
+from sqlalchemy.types import * #@UnusedWildImport
+from sqlalchemy import and_ #@UnusedImport
 import datetime
 import DBBase
 
 
 class FlightRealtimeInfo(DBBase.Base):
     __tablename__ = 'flight_realtime_info_table'
-    id = Column(INTEGER, primary_key = True)    
+    id = Column(INTEGER, primary_key = True)    #@ReservedAssignment
     flight_no = Column(VARCHAR(50), index = True, nullable = False)
     flight_state = Column(VARCHAR(50))
     estimate_takeoff_time = Column(VARCHAR(50))

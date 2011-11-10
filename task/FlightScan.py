@@ -2,7 +2,6 @@
 
 from tools import Timer
 from tools import LogUtil
-import time
 import json
 
 

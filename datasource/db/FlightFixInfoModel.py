@@ -1,5 +1,5 @@
 from sqlalchemy import Column
-from sqlalchemy.types import *
+from sqlalchemy.types import * #@UnusedWildImport
 from sqlalchemy import and_
 import datetime
 import DBBase

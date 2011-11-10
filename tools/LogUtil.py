@@ -1,5 +1,4 @@
 import logging
-import os
 
 
 class Logging:
