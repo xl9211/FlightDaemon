@@ -1,6 +1,6 @@
 # coding=utf-8
 
-import urllib2
+
 from tools import LogUtil
 from site import Ctrip
 from site import Qunar
@@ -12,7 +12,7 @@ from db import DBUtility
 import traceback
 import time
 import json
-from db import DBBase
+from db import DBBase #@UnusedImport
 import hashlib
 
 
@@ -279,7 +279,7 @@ class DataSource:
             if sign is None:
                 return data
             else:
-                hash = {}
+                hash = {} #@ReservedAssignment
                 m = hashlib.md5()
                 m.update(json.dumps(data))
                 sign_new = m.hexdigest().upper()
@@ -300,7 +300,7 @@ class DataSource:
             if sign is None:
                 return data
             else:
-                hash = {}
+                hash = {} #@ReservedAssignment
                 m = hashlib.md5()
                 m.update(json.dumps(data))
                 sign_new = m.hexdigest().upper()
@@ -363,7 +363,7 @@ class DataSource:
             return json.dumps(None)
         
     
-    def getAirportWeather(self, airport, type = 'realtime', lang = 'zh'):
+    def getAirportWeather(self, airport, wtype = 'realtime', lang = 'zh'):
         try:
             weather_info = {}
             
@@ -371,7 +371,7 @@ class DataSource:
             if city is not None:
                 city_code = self.db_data_source.getCityCode(city)
                 if city_code is not None:
-                    weather_info = self.weather_source.getWeather(city_code, type)
+                    weather_info = self.weather_source.getWeather(city_code, wtype)
                     weather_info['airport'] = self.db_data_source.getAirportName(airport, lang)
 
             return weather_info

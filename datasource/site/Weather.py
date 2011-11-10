@@ -10,7 +10,7 @@ sys.path.append(base_path)
 
 
 from Spider import Spider
-import lxml.html.soupparser 
+import lxml.html.soupparser #@UnusedImport
 import json
 
 
@@ -34,13 +34,13 @@ class Weather(Spider):
         self.ret_val['realtime'] = realtime_info
             
                 
-    def getWeather(self, city, type):
-        if type == 'realtime' or type == 'all':
+    def getWeather(self, city, wtype):
+        if wtype == 'realtime' or wtype == 'all':
             self.url = "http://www.weather.com.cn/data/sk/%s.html" % (city)
             self.fetch()
             self.parseWeather()
             
-        if type == 'days' or type == 'all':
+        if wtype == 'days' or wtype == 'all':
             pass
         
         return self.ret_val

@@ -14,7 +14,6 @@ import cherrypy
 from tools import LogUtil
 import traceback
 from tools import Config
-import ConfigParser
 import json
 import time
 from datasource.DataSource import DataSource
@@ -22,9 +21,9 @@ from task.FlightScan import FlightScan
 import random
 
 
-from pygments import highlight
-from pygments.lexers import PythonLexer
-from pygments.formatters import HtmlFormatter
+from pygments import highlight #@UnresolvedImport
+from pygments.lexers import PythonLexer #@UnresolvedImport
+from pygments.formatters import HtmlFormatter #@UnresolvedImport
 
 
 class FlightDaemon:
@@ -128,7 +127,7 @@ class FlightDaemon:
                 flight_list = self.data_source.getRandomFlightList(cur_time)
                 flight_num = len(flight_list)
                 
-                for i in range(0, flight_num):
+                for i in range(0, flight_num): #@UnusedVariable
                     index = random.randint(0, len(flight_list) - 1)
                     flight_no = flight_list.pop(index)
                     
@@ -226,11 +225,11 @@ class FlightDaemon:
         
     
     @cherrypy.expose     
-    def getAirportWeather(self, airport, type = 'realtime', lang = 'zh'):
+    def getAirportWeather(self, airport, wtype = 'realtime', lang = 'zh'):
         try:
             self.logger.info("get request %s" % (lang))
                       
-            data = self.data_source.getAirportWeather(airport, type, lang)
+            data = self.data_source.getAirportWeather(airport, wtype, lang)
             
             return json.dumps(data)
         except:
