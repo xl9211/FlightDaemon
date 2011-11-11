@@ -381,6 +381,16 @@ class DataSource:
             
             return json.dumps(None)
         
+        
+    def storeFollowedInfo(self, device_token, followed_list):
+        try:
+            self.db_data_source.putFollowedInfo(device_token, followed_list)
+        except:
+            msg = traceback.format_exc()
+            self.logger.error(msg)
+            
+            return json.dumps(None)
+        
 
     #########################################################################################
     # 一次性使用

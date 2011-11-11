@@ -3,6 +3,7 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.orm import scoped_session
+from sqlalchemy.schema import Index
 import DBBase
 
 from FlightFixInfoModel import FlightFixInfo
@@ -12,6 +13,7 @@ from FlightRealtimeInfoModel import FlightRealtimeInfo
 from AirportInfoModel import AirportInfo
 from AirlineInfoModel import AirlineInfo
 from CityInfoModel import CityInfo
+from FollowedInfoModel import FollowedInfo
 from PunctualityInfoModel import PunctualityInfo
 
 import traceback
@@ -20,6 +22,14 @@ from tools import LogUtil
 
 def init(db_user, db_passwd, db_host, db_name):
         DBBase.Engine = create_engine("mysql://%s:%s@%s/%s?charset=utf8" %(db_user, db_passwd, db_host, db_name), pool_recycle = -1, echo = False)
+        
+        Index('ix_followedInfo_col23456',
+              FollowedInfo.device_token,
+              FollowedInfo.flight_no,
+              FollowedInfo.takeoff_airport,
+              FollowedInfo.arrival_airport,
+              FollowedInfo.schedule_takeoff_date)
+        
         DBBase.Base.metadata.create_all(DBBase.Engine)
         DBBase.Session = scoped_session(sessionmaker(bind = DBBase.Engine, expire_on_commit = False))
 
@@ -653,6 +663,35 @@ class DB:
                 airline.takeoff_city = ret[0]
                 airline.arrival_city = ret[1]
                 airline.add()
+        except:
+            msg = traceback.format_exc()
+            self.logger.error(msg)
+            
+            DBBase.Session.rollback()
+            DBBase.Engine.dispose()
+            
+            return None
+        
+    
+    def putFollowedInfo(self, device_token, followed_list):
+        try:
+            for one in followed_list:
+                ret = FollowedInfo.findOne(device_token = device_token,
+                                        flight_no = one['flight_no'],
+                                        takeoff_airport = one['takeoff_airport'],
+                                        arrival_airport = one['arrival_airport'],
+                                        schedule_takeoff_date = one['schedule_takeoff_date'])
+                
+                if ret is None:
+                    info = FollowedInfo()
+                    
+                    info.device_token = device_token
+                    info.flight_no = one['flight_no']
+                    info.takeoff_airport = one['takeoff_airport']
+                    info.arrival_airport = one['arrival_airport']
+                    info.schedule_takeoff_date = one['schedule_takeoff_date']
+                    
+                    info.add()
         except:
             msg = traceback.format_exc()
             self.logger.error(msg)
