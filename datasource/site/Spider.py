@@ -6,8 +6,6 @@ from tools import LogUtil
 class Spider:
 
     def __init__(self, config):
-        self.url = None
-        self.content = None
         self.timeout = 10
         self.headers = {
                         "User-Agent":"Mozilla/5.0 (Macintosh; Intel Mac OS X 10.7; rv:7.0.1) Gecko/20100101 Firefox/7.0.1",
@@ -25,21 +23,19 @@ class Spider:
         self.logger = LogUtil.Logging.getLogger()
     
     
-    def fetch(self):
+    def fetch(self, url):
         try:
-            self.logger.info("fetch url start %s" % (self.url))
-            if self.url is not None:
-                
-                req = urllib2.Request(url = self.url, headers = self.headers)
+            self.logger.info("fetch url start %s" % (url))
+            if url is not None:
+                req = urllib2.Request(url = url, headers = self.headers)
                 #response = urllib2.urlopen(self.url, timeout = self.timeout)
                 response = urllib2.urlopen(req, timeout = self.timeout)
-                self.logger.info("fetch url succ %s" % (self.url))
-                self.content = response.read()
-                return 0
+                self.logger.info("fetch url succ %s" % (url))
+                return response.read()
             else:
                 return -2
         except:
-            self.logger.error("fetch url error")
+            self.logger.error("fetch url error %s" % (url))
             msg = traceback.format_exc()
             self.logger.error(msg)
             

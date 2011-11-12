@@ -14,7 +14,7 @@ class FlightScan:
 
     
     def start(self):
-        self.timer = Timer.Timer(self.config.scan_interval, self.do)
+        self.timer = Timer.Timer(self.config.flight_scan_interval, self.do)
         self.timer.start()
         
     
@@ -24,8 +24,9 @@ class FlightScan:
         lived_flight_list = self.data_source.getAllLivedFlight()
         self.logger.info("lived flight %s" % (json.dumps(lived_flight_list)))
         
-        for lived_flight in lived_flight_list:
-            self.data_source.getFlightRealtimeInfo(lived_flight, True, False)
+        if lived_flight_list is not None:
+            for lived_flight in lived_flight_list:
+                self.data_source.getFlightRealtimeInfo(lived_flight, True, False)
         
         self.logger.info("lived flight realtime info spider end...")
     

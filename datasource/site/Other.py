@@ -18,13 +18,11 @@ class Other(Spider):
     def __init__(self, config):
         Spider.__init__(self, config)
         
-        self.ret_val = None
         
-        
-    def parse(self):
-        doc = lxml.html.soupparser.fromstring(self.content)
+    def parse(self, content):
+        doc = lxml.html.soupparser.fromstring(content)
         tables = doc.xpath("//div[@class='mw-content-ltr']//table")
-        self.ret_val = []
+        ret_val = []
         for table in tables:
             rows = table.xpath("tbody/tr")
             for row in rows:       
@@ -59,21 +57,19 @@ class Other(Spider):
                         state = columns[2].text_content().strip()
                         
                         print "%s\t%s\t%s\t%s" %(code, company_zh, company_en, state)
-                        self.ret_val.append((code, company_zh, company_en, state))
+                        ret_val.append((code, company_zh, company_en, state))
+                        
+        return ret_val
             
                 
     def getCompany(self):
-        self.content = open('iata_company_code.html')
-        self.parse()
-        
-        return self.ret_val
+        content = open('iata_company_code.html')
+        return self.parse(content)
     
     
     def getAirport(self):
-        self.content = open('iata_company_code.html')
-        self.parse()
-        
-        return self.ret_val
+        content = open('iata_company_code.html')
+        return self.parse(content)
     
     
 if __name__ == '__main__':     

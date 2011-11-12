@@ -13,6 +13,8 @@ class FollowedInfo(DBBase.Base):
     takeoff_airport = Column(VARCHAR(50), index = True, nullable = False)
     arrival_airport = Column(VARCHAR(50), index = True, nullable = False)
     schedule_takeoff_date = Column(VARCHAR(50), index = True, nullable = False)
+    push_switch = Column(VARCHAR(2048), index = True, nullable = False, default = 'on')
+    push_info = Column(VARCHAR(2048), nullable = False, default = '[]')
     date = Column(VARCHAR(20))
        
     

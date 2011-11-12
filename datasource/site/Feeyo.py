@@ -23,8 +23,8 @@ class Feeyo(Spider):
         Spider.__init__(self, config)
         
     
-    def parsePunctualityInfo(self):
-        doc = lxml.html.soupparser.fromstring(self.content)
+    def parsePunctualityInfo(self, content):
+        doc = lxml.html.soupparser.fromstring(content)
         content = doc.xpath("//div[@class='Pblock2']/table")
         
         punctuality_info = {}
@@ -48,9 +48,10 @@ class Feeyo(Spider):
        
     def getPunctualityInfo(self, takeoff_airport, arrival_airport, flight_no):
         try:
-            self.url = "http://www.feeyo.com/vflight/delay/a/%s_%s_%s.htm" % (takeoff_airport, arrival_airport, flight_no)
-            if self.fetch() == 0:
-                return self.parsePunctualityInfo()
+            url = "http://www.feeyo.com/vflight/delay/a/%s_%s_%s.htm" % (takeoff_airport, arrival_airport, flight_no)
+            content = self.fetch(url)
+            if not (content < 0):
+                return self.parsePunctualityInfo(content)
             else:
                 return None
         except:

@@ -22,7 +22,7 @@ class Veryzhun(Spider):
         self.logger = LogUtil.Logging.getLogger()
         
         
-    def parseRealtimeInfo(self, flight):
+    def parseRealtimeInfo(self, flight, content):
         doc = lxml.html.soupparser.fromstring(self.content)
         
         numinfo = doc.xpath("//div[@class='numinfo']")
@@ -58,9 +58,10 @@ class Veryzhun(Spider):
     
     def getFlightRealTimeInfo(self, flight):
         try:
-            self.url = "http://www.veryzhun.com/searchnum.asp?flightnum=%s" % (flight['flight_no'])
-            if self.fetch() == 0:
-                self.parseRealtimeInfo(flight)
+            url = "http://www.veryzhun.com/searchnum.asp?flightnum=%s" % (flight['flight_no'])
+            content = self.fetch(url)
+            if not (content < 0):
+                self.parseRealtimeInfo(flight, content)
             else:
                 return None
             

@@ -12,7 +12,7 @@ sys.path.append(base_path)
 from Spider import Spider
 import lxml.html.soupparser 
 import json
-from tools import LogUtil
+from tools import LogUtil #@UnusedImport
 import traceback 
 import time
 
@@ -23,8 +23,8 @@ class Qunar(Spider):
         Spider.__init__(self, config)
         
     
-    def parseRealtimeInfo(self, flight):
-        doc = lxml.html.soupparser.fromstring(self.content)
+    def parseRealtimeInfo(self, flight, content):
+        doc = lxml.html.soupparser.fromstring(content)
         rows = doc.xpath("//div[@class='search_result']/div[@class='result_list']/div[@class='state_list']/ul/li")
             
         week = time.strftime("%w", time.strptime(flight['schedule_takeoff_date'], "%Y-%m-%d"))
@@ -86,9 +86,10 @@ class Qunar(Spider):
        
     def getFlightRealTimeInfo(self, flight):
         try:
-            self.url = "http://flight.qunar.com/schedule/fquery.jsp?flightCode=%s&d=%s&a=%s" % (flight['flight_no'], flight['takeoff_airport'], flight['arrival_airport'])
-            if self.fetch() == 0:
-                return self.parseRealtimeInfo(flight)
+            url = "http://flight.qunar.com/schedule/fquery.jsp?flightCode=%s&d=%s&a=%s" % (flight['flight_no'], flight['takeoff_airport'], flight['arrival_airport'])
+            content = self.fetch(url)
+            if not (content < 0):
+                return self.parseRealtimeInfo(flight, content)
             else:
                 return None
         except:

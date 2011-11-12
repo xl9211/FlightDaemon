@@ -18,6 +18,7 @@ from PunctualityInfoModel import PunctualityInfo
 
 import traceback
 from tools import LogUtil
+import json
 
 
 def init(db_user, db_passwd, db_host, db_name):
@@ -148,8 +149,8 @@ class DB:
     def getFlightRealtimeInfo(self, flight):
         try:
             ret = FlightRealtimeInfo.find(flight_no = flight['flight_no'], 
-                                          schedule_takeoff_time = flight['schedule_takeoff_time'], 
-                                          schedule_arrival_time = flight['schedule_arrival_time'], 
+                                          takeoff_airport = flight['takeoff_airport'], 
+                                          arrival_airport = flight['arrival_airport'], 
                                           schedule_takeoff_date = flight['schedule_takeoff_date'])
             
             if len(ret) >= 1:
@@ -161,6 +162,8 @@ class DB:
                 flight['estimate_arrival_time'] = one.estimate_arrival_time
                 flight['actual_arrival_time'] = one.actual_arrival_time
                 flight['full_info'] = one.full_info
+                
+            '''
             else:
                 one  = FlightRealtimeInfo()
                 
@@ -177,6 +180,7 @@ class DB:
                 one.schedule_takeoff_date = flight['schedule_takeoff_date']
                 one.full_info = 0    
                 one.add()
+            '''
         
             return flight
         except:
@@ -247,6 +251,34 @@ class DB:
                 flight_list.append(one[0])
             
             return flight_list
+        except:
+            msg = traceback.format_exc()
+            self.logger.error(msg)
+            
+            DBBase.Session.rollback()
+            DBBase.Engine.dispose()
+            
+            return None
+        
+        
+    def getPushCandidate(self):
+        try:
+            ret = FollowedInfo().findAll(push_switch = 'on')
+            
+            push_list = []
+            for one in ret:
+                one_hash = {}
+                one_hash['device_token'] = one.device_token
+                one_hash['flight_no'] = one.flight_no
+                one_hash['takeoff_airport'] = one.takeoff_airport
+                one_hash['arrival_airport'] = one.arrival_airport
+                one_hash['schedule_takeoff_date'] = one.schedule_takeoff_date
+                one_hash['push_switch'] = one.push_switch
+                one_hash['push_info'] = json.loads(one.push_info)
+                
+                push_list.append(one_hash) 
+            
+            return push_list
         except:
             msg = traceback.format_exc()
             self.logger.error(msg)
@@ -692,6 +724,28 @@ class DB:
                     info.schedule_takeoff_date = one['schedule_takeoff_date']
                     
                     info.add()
+        except:
+            msg = traceback.format_exc()
+            self.logger.error(msg)
+            
+            DBBase.Session.rollback()
+            DBBase.Engine.dispose()
+            
+            return None
+        
+        
+    def putPushInfo(self, push_candidate):
+        try:
+            ret = FollowedInfo.findOne(device_token = push_candidate['device_token'],
+                                       flight_no = push_candidate['flight_no'],
+                                       takeoff_airport = push_candidate['takeoff_airport'],
+                                       arrival_airport = push_candidate['arrival_airport'],
+                                       schedule_takeoff_date = push_candidate['schedule_takeoff_date'])
+            
+            if ret is not None:
+                ret.push_switch = push_candidate['push_switch']
+                ret.push_info = json.dumps(push_candidate['push_info'])
+                ret.add()
         except:
             msg = traceback.format_exc()
             self.logger.error(msg)

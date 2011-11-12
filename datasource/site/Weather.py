@@ -18,11 +18,10 @@ class Weather(Spider):
     
     def __init__(self, config):
         Spider.__init__(self, config)
+
         
-        self.ret_val = {}
-        
-    def parseWeather(self):
-        info = json.loads(self.content)
+    def parseWeather(self, content):
+        info = json.loads(content)
         
         realtime_info = {}
         realtime_info['temperature'] = info['weatherinfo']['temp']
@@ -31,19 +30,23 @@ class Weather(Spider):
         realtime_info['humidity'] = info['weatherinfo']['SD']
         realtime_info['update_time'] = info['weatherinfo']['time']
 
-        self.ret_val['realtime'] = realtime_info
+        ret_val = {}
+        ret_val['realtime'] = realtime_info
+        
+        return ret_val
             
                 
     def getWeather(self, city, wtype):
+        ret_val = {}
         if wtype == 'realtime' or wtype == 'all':
-            self.url = "http://www.weather.com.cn/data/sk/%s.html" % (city)
-            self.fetch()
-            self.parseWeather()
+            url = "http://www.weather.com.cn/data/sk/%s.html" % (city)
+            content = self.fetch(url)
+            ret_val = self.parseWeather(content)
             
         if wtype == 'days' or wtype == 'all':
             pass
         
-        return self.ret_val
+        return ret_val
     
     
 if __name__ == '__main__':     

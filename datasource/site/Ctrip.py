@@ -20,13 +20,11 @@ class Ctrip(Spider):
     def __init__(self, config):
         Spider.__init__(self, config)
         
-        self.ret_val = None
         
-        
-    def parse(self):
-        doc = lxml.html.soupparser.fromstring(self.content)
+    def parse(self, content):
+        doc = lxml.html.soupparser.fromstring(content)
         rows = doc.xpath("//li[@class='base_maincontent']//tr")
-        self.ret_val = []
+        ret_val = []
         for row in rows:
             flight_info = {}
             columns = row.xpath("td")
@@ -43,24 +41,24 @@ class Ctrip(Spider):
                 flight_info['plane_model'] = columns[8].text_content().strip()
                 flight_info['schedule'] = columns[9].text_content().strip()
             
-                self.ret_val.append(flight_info)
+                ret_val.append(flight_info)
+                
+        return ret_val
             
                 
     def getFlightFixInfoByFlightNO(self, flight_no):
-        self.url = "http://flights.ctrip.com/schedule/%s.html" % (flight_no)
-        self.fetch()
-        self.parse()
-        
-        return self.ret_val
+        url = "http://flights.ctrip.com/schedule/%s.html" % (flight_no)
+        content = self.fetch(url)
+
+        return self.parse(content)
     
     
     def getFlightFixInfoByAirline(self, takeoff_city, arrival_city):
-        self.url = "http://flights.ctrip.com/schedule/%s.%s.html" % (self.CITY_CODE[takeoff_city], self.CITY_CODE[arrival_city])
-        self.logger.info("fetch %s" % (self.url))
-        self.fetch()
-        self.parse()
-        
-        return self.ret_val
+        url = "http://flights.ctrip.com/schedule/%s.%s.html" % (self.CITY_CODE[takeoff_city], self.CITY_CODE[arrival_city])
+        self.logger.info("fetch %s" % (url))
+        content = self.fetch(url)
+
+        return self.parse(content)
     
     
 if __name__ == '__main__':     

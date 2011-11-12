@@ -18,6 +18,7 @@ import json
 import time
 from datasource.DataSource import DataSource
 from task.FlightScan import FlightScan
+from task.PushScan import PushScan
 import random
 
 
@@ -34,9 +35,11 @@ class FlightDaemon:
            
         self.data_source = DataSource(self.config)
 
-        self.flight_scan = FlightScan(self.config, self.data_source)
         if self.config.debug_mode == 'no':
+            self.flight_scan = FlightScan(self.config, self.data_source)
             self.flight_scan.start()
+            self.push_scan = PushScan(self.config, self.data_source)
+            self.push_scan.start()
         
         self.logger.info("Flight Daemon Started...")
 

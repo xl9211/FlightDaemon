@@ -133,7 +133,7 @@ class DataSource:
         
             self.db_data_source.getFlightRealtimeInfo(flight)
             
-            if flight['full_info'] == 0 and (not auto or self.allow2Spider(flight)): 
+            if flight['full_info'] == 0 and self.allow2Spider(flight, auto): 
                 for source in self.realtime_data_source:     
                     ret = source.getFlightRealTimeInfo(flight)
     
@@ -143,9 +143,9 @@ class DataSource:
                         self.logger.info("today %s there is no such flight" % (flight['schedule_takeoff_date']))
                         return -1
                     else:
-                        self.db_data_source.putFlightRealtimeInfo(flight)
                         self.db_data_source.updateScheduleTimeInFlightFixInfo(flight)
                         break
+            self.db_data_source.putFlightRealtimeInfo(flight)
                     
             if flying:
                 if flight['flight_state'] != u"已经起飞":
@@ -158,33 +158,56 @@ class DataSource:
             
             return None
         
+    
+    def getFlightRealtimeInfoFromDB(self, flight):
+        try:
+            self.logger.info("%s %s %s %s" % (flight['flight_no'],
+                                              flight['takeoff_airport'],
+                                              flight['arrival_airport'], 
+                                              flight['schedule_takeoff_date']))
         
-    def allow2Spider(self, flight):
+            self.db_data_source.getFlightRealtimeInfo(flight)
+            
+            return flight
+        except:
+            msg = traceback.format_exc()
+            self.logger.error(msg)
+            
+            return None
+        
+        
+    def allow2Spider(self, flight, auto):
         cur_date = time.strftime("%Y-%m-%d", time.localtime())
         
         cur_time = time.strftime("%H:%M", time.localtime())
         cur_hour = int(cur_time[:2])
-        cur_minute = int(cur_time[3:])
-        cur_second = cur_hour * 60 * 60 + cur_minute * 60
+        cur_minute = int(cur_time[3:]) + cur_hour * 60
         
-        if cur_date < flight['schedule_takeoff_date']:
-            self.logger.info("%s %s not allow to spider" %(flight['flight_no'], flight['schedule_takeoff_date']))
-            return False
-        elif cur_date > flight['schedule_takeoff_date']:
-            cur_second += 60 * 60 * 24
-              
         hour = int(flight['schedule_arrival_time'][:2])
-        minute = int(flight['schedule_arrival_time'][3:])
-        second = hour * 60 * 60 + minute * 60
+        minute = int(flight['schedule_arrival_time'][3:]) + hour * 60
         
-        if cur_second > second:
-            self.logger.info("%s %s allow to spider" %(flight['flight_no'], flight['schedule_takeoff_date']))
-            return True
+        if auto:
+            if cur_date < flight['schedule_takeoff_date']:
+                self.logger.info("%s %s not allow to spider" %(flight['flight_no'], flight['schedule_takeoff_date']))
+                return False
+            elif cur_date > flight['schedule_takeoff_date']:
+                cur_minute += 60 * 24
+
+            if cur_minute > minute:
+                self.logger.info("%s %s allow to spider" %(flight['flight_no'], flight['schedule_takeoff_date']))
+                return True
+            else:
+                self.logger.info("%s %s not allow to spider" %(flight['flight_no'], flight['schedule_takeoff_date']))
+                return False
         else:
-            self.logger.info("%s %s not allow to spider" %(flight['flight_no'], flight['schedule_takeoff_date']))
-            return False
-        
-    
+            if cur_date == flight['schedule_takeoff_date'] and (minute - cur_minute) < 60 * 60 * 3:
+                self.logger.info("%s %s allow to spider" %(flight['flight_no'], flight['schedule_takeoff_date']))
+                return True
+            else:
+                self.logger.info("%s %s not allow to spider" %(flight['flight_no'], flight['schedule_takeoff_date']))
+                return False
+                
+
     def completeFlightInfo(self, data_list, fix_data_list, schedule_takeoff_date, lang, realtime_data_only, spider_punctuality, flying):
         try:
             for fix_data in fix_data_list:
@@ -246,7 +269,7 @@ class DataSource:
             msg = traceback.format_exc()
             self.logger.error(msg)
             
-            return json.dumps(None)
+            return None
         
         
     def getRandomFlightList(self, cur_time):
@@ -258,7 +281,7 @@ class DataSource:
             msg = traceback.format_exc()
             self.logger.error(msg)
             
-            return json.dumps(None)
+            return None
         
     
     def getRandomFlight(self):
@@ -270,7 +293,19 @@ class DataSource:
             msg = traceback.format_exc()
             self.logger.error(msg)
             
-            return json.dumps(None)
+            return None
+        
+    
+    def getPushCandidate(self):
+        try:
+            push_list = self.db_data_source.getRandomFlight()
+            
+            return push_list
+        except:
+            msg = traceback.format_exc()
+            self.logger.error(msg)
+            
+            return None
     
     
     def getCompanyList(self, sign, lang):
@@ -291,7 +326,7 @@ class DataSource:
             msg = traceback.format_exc()
             self.logger.error(msg)
             
-            return json.dumps(None)
+            return None
         
     
     def getAirportList(self, sign, lang):
@@ -312,7 +347,7 @@ class DataSource:
             msg = traceback.format_exc()
             self.logger.error(msg)
             
-            return json.dumps(None)
+            return None
         
     
     def getCompanyName(self, short, lang):
@@ -324,7 +359,7 @@ class DataSource:
             msg = traceback.format_exc()
             self.logger.error(msg)
             
-            return json.dumps(None)
+            return None
         
     
     def getCityName(self, short, lang):
@@ -336,7 +371,7 @@ class DataSource:
             msg = traceback.format_exc()
             self.logger.error(msg)
             
-            return json.dumps(None)
+            return None
         
     
     def getAirportName(self, short, lang):
@@ -348,7 +383,7 @@ class DataSource:
             msg = traceback.format_exc()
             self.logger.error(msg)
             
-            return json.dumps(None)
+            return None
         
     
     def getAllLivedFlight(self):
@@ -360,7 +395,7 @@ class DataSource:
             msg = traceback.format_exc()
             self.logger.error(msg)
             
-            return json.dumps(None)
+            return None
         
     
     def getAirportWeather(self, airport, wtype = 'realtime', lang = 'zh'):
@@ -379,7 +414,7 @@ class DataSource:
             msg = traceback.format_exc()
             self.logger.error(msg)
             
-            return json.dumps(None)
+            return None
         
         
     def storeFollowedInfo(self, device_token, followed_list):
@@ -388,8 +423,18 @@ class DataSource:
         except:
             msg = traceback.format_exc()
             self.logger.error(msg)
-            
-            return json.dumps(None)
+        
+            return None
+
+        
+    def storePushInfo(self, push_candidate):
+        try:
+            self.db_data_source.putPushInfo(push_candidate)
+        except:
+            msg = traceback.format_exc()
+            self.logger.error(msg)
+        
+            return None
         
 
     #########################################################################################
@@ -416,7 +461,7 @@ class DataSource:
             msg = traceback.format_exc()
             self.logger.error(msg)
             
-            return json.dumps(None)
+            return None
     
     
     '''
@@ -432,7 +477,7 @@ class DataSource:
             msg = traceback.format_exc()
             self.logger.error(msg)
             
-            return json.dumps(None)
+            return None
         
     
     def spiderAirline(self):
@@ -449,7 +494,7 @@ class DataSource:
             msg = traceback.format_exc()
             self.logger.error(msg)
             
-            return json.dumps(None)
+            return None
         
     
     def spiderFlightFixInfo(self):
@@ -468,7 +513,7 @@ class DataSource:
             msg = traceback.format_exc()
             self.logger.error(msg)
             
-            return json.dumps(None)
+            return None
     '''
     # 一次性使用
     #########################################################################################    
