@@ -256,12 +256,12 @@ class DataSource:
                 data['schedule_arrival_time'] = realtime_data['schedule_arrival_time']
                 
                 data['flight_state'] = realtime_data['flight_state']
-                if realtime_data['estimate_takeoff_time'] == fix_data['schedule_takeoff_date']:
+                if realtime_data['estimate_takeoff_time'] == fix_data['schedule_takeoff_time']:
                     data['estimate_takeoff_time'] = "--:--"
                 else:
                     data['estimate_takeoff_time'] = realtime_data['estimate_takeoff_time']
                 data['actual_takeoff_time'] = realtime_data['actual_takeoff_time']        
-                if realtime_data['estimate_arrival_time'] == fix_data['schedule_arrival_date']:
+                if realtime_data['estimate_arrival_time'] == fix_data['schedule_arrival_time']:
                     data['estimate_arrival_time'] = "--:--"
                 else:
                     data['estimate_arrival_time'] = realtime_data['estimate_arrival_time']
