@@ -310,15 +310,18 @@ class DataSource:
                 data = self.db_data_source.getFlightFixInfoByUniq(one['flight_no'], 
                                                                   one['takeoff_airport'], 
                                                                   one['arrival_airport'], 
-                                                                  one['schedule_takeoff_date'])[0]
+                                                                  one['schedule_takeoff_date'])
                 
-                one['full_info'] = 0
-                one['schedule_takeoff_time'] = data['schedule_takeoff_time']
-                one['schedule_arrival_time'] = data['schedule_arrival_time']
-                one['estimate_takeoff_time'] = "--:--"
-                one['estimate_arrival_time'] = "--:--"
-                one['actual_takeoff_time'] = "--:--"
-                one['actual_arrival_time'] = "--:--"
+                if data is not None and len(data) > 0:
+                    one['full_info'] = 0
+                    one['schedule_takeoff_time'] = data[0]['schedule_takeoff_time']
+                    one['schedule_arrival_time'] = data[0]['schedule_arrival_time']
+                    one['estimate_takeoff_time'] = "--:--"
+                    one['estimate_arrival_time'] = "--:--"
+                    one['actual_takeoff_time'] = "--:--"
+                    one['actual_arrival_time'] = "--:--"
+                else:
+                    push_list.remove(one)
             
             return push_list
         except:
