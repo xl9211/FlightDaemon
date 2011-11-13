@@ -716,8 +716,7 @@ class DB:
                 
                 if ret is None:
                     info = FollowedInfo()
-                    
-                    info.device_token = device_token
+                    info.device_token = ''.join(device_token.strip("<>").split(" "))
                     info.flight_no = one['flight_no']
                     info.takeoff_airport = one['takeoff_airport']
                     info.arrival_airport = one['arrival_airport']
