@@ -261,7 +261,7 @@ class DataSource:
                 else:
                     data['estimate_takeoff_time'] = realtime_data['estimate_takeoff_time']
                 data['actual_takeoff_time'] = realtime_data['actual_takeoff_time']        
-                if data['estimate_arrival_time'] == fix_data['schedule_arrival_date']:
+                if realtime_data['estimate_arrival_time'] == fix_data['schedule_arrival_date']:
                     data['estimate_arrival_time'] = "--:--"
                 else:
                     data['estimate_arrival_time'] = realtime_data['estimate_arrival_time']
