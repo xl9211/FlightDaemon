@@ -41,7 +41,7 @@ class DB:
         self.logger = LogUtil.Logging.getLogger()
     
     
-    def getFlightFixInfoByUniq(self, flight_no, takeoff_airport, arrival_airport, schedule_takeoff_date, lang):
+    def getFlightFixInfoByUniq(self, flight_no, takeoff_airport, arrival_airport, schedule_takeoff_date):
         try:
             ret = FlightFixInfo.find(flight_no = flight_no, takeoff_airport = takeoff_airport, arrival_airport = arrival_airport)
             flight_info_list = []

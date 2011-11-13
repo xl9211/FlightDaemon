@@ -76,11 +76,11 @@ class DataSource:
             return None
         
         
-    def getFlightFixInfoByUniq(self, flight_no, takeoff_airport, arrival_airport, schedule_takeoff_date, lang):
+    def getFlightFixInfoByUniq(self, flight_no, takeoff_airport, arrival_airport, schedule_takeoff_date):
         try:
             self.logger.info("%s %s %s %s" % (flight_no, takeoff_airport, arrival_airport, schedule_takeoff_date))
 
-            data = self.db_data_source.getFlightFixInfoByUniq(flight_no, takeoff_airport, arrival_airport, schedule_takeoff_date, lang)
+            data = self.db_data_source.getFlightFixInfoByUniq(flight_no, takeoff_airport, arrival_airport, schedule_takeoff_date)
             
             return data
         except:
@@ -200,7 +200,7 @@ class DataSource:
                 self.logger.info("%s %s not allow to spider" %(flight['flight_no'], flight['schedule_takeoff_date']))
                 return False
         else:
-            if cur_date == flight['schedule_takeoff_date'] and (minute - cur_minute) < 60 * 60 * 3:
+            if cur_date == flight['schedule_takeoff_date'] and (minute - cur_minute) < 60 * 3:
                 self.logger.info("%s %s allow to spider" %(flight['flight_no'], flight['schedule_takeoff_date']))
                 return True
             else:
@@ -255,10 +255,16 @@ class DataSource:
                 data['schedule_takeoff_time'] = realtime_data['schedule_takeoff_time']
                 data['schedule_arrival_time'] = realtime_data['schedule_arrival_time']
                 
-                data['flight_state'] = realtime_data['flight_state'] 
-                data['estimate_takeoff_time'] = realtime_data['estimate_takeoff_time']
+                data['flight_state'] = realtime_data['flight_state']
+                if realtime_data['estimate_takeoff_time'] == fix_data['schedule_takeoff_date']:
+                    data['estimate_takeoff_time'] = "--:--"
+                else:
+                    data['estimate_takeoff_time'] = realtime_data['estimate_takeoff_time']
                 data['actual_takeoff_time'] = realtime_data['actual_takeoff_time']        
-                data['estimate_arrival_time'] = realtime_data['estimate_arrival_time']
+                if data['estimate_arrival_time'] == fix_data['schedule_arrival_date']:
+                    data['estimate_arrival_time'] = "--:--"
+                else:
+                    data['estimate_arrival_time'] = realtime_data['estimate_arrival_time']
                 data['actual_arrival_time'] = realtime_data['actual_arrival_time']
                 data['flight_location'] = realtime_data['flight_location']
                 
@@ -298,7 +304,21 @@ class DataSource:
     
     def getPushCandidate(self):
         try:
-            push_list = self.db_data_source.getRandomFlight()
+            push_list = self.db_data_source.getPushCandidate()
+            
+            for one in push_list:
+                data = self.db_data_source.getFlightFixInfoByUniq(one['flight_no'], 
+                                                                  one['takeoff_airport'], 
+                                                                  one['arrival_airport'], 
+                                                                  one['schedule_takeoff_date'])[0]
+                
+                one['full_info'] = 0
+                one['schedule_takeoff_time'] = data['schedule_takeoff_time']
+                one['schedule_arrival_time'] = data['schedule_arrival_time']
+                one['estimate_takeoff_time'] = "--:--"
+                one['estimate_arrival_time'] = "--:--"
+                one['actual_takeoff_time'] = "--:--"
+                one['actual_arrival_time'] = "--:--"
             
             return push_list
         except:

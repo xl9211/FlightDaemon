@@ -38,8 +38,8 @@ class FlightDaemon:
         if self.config.debug_mode == 'no':
             self.flight_scan = FlightScan(self.config, self.data_source)
             self.flight_scan.start()
-            self.push_scan = PushScan(self.config, self.data_source)
-            self.push_scan.start()
+        self.push_scan = PushScan(self.config, self.data_source)
+        self.push_scan.start()
         
         self.logger.info("Flight Daemon Started...")
 
@@ -177,7 +177,7 @@ class FlightDaemon:
                 # 更新航班
                 for flight in flight_list:
                     # fix data
-                    fix_data_list = self.data_source.getFlightFixInfoByUniq(flight['flight_no'], flight['takeoff_airport'], flight['arrival_airport'], flight['schedule_takeoff_date'], lang)
+                    fix_data_list = self.data_source.getFlightFixInfoByUniq(flight['flight_no'], flight['takeoff_airport'], flight['arrival_airport'], flight['schedule_takeoff_date'])
                     self.logger.info("fix data %s" %(json.dumps(fix_data_list)))
      
                     if len(fix_data_list) == 0:
