@@ -34,13 +34,14 @@ class PushScan:
         
         if push_list is not None:
             for push_candidate in push_list:
-                self.data_source.getFlightRealtimeInfoFromDB(push_candidate)
-                
-                if self.checkPush(push_candidate):
-                    payload = Payload(alert = push_candidate['push_content'], sound = "default")
-                    self.apns.gateway_server.send_notification(push_candidate['device_token'], payload)
-                    self.data_source.storePushInfo(push_candidate)
-                    self.logger.info("push succ to %s" % (push_candidate['device_token']))
+                if push_candidate['full_info'] != -1:
+                    self.data_source.getFlightRealtimeInfoFromDB(push_candidate)
+                    
+                    if self.checkPush(push_candidate):
+                        payload = Payload(alert = push_candidate['push_content'], sound = "default")
+                        self.apns.gateway_server.send_notification(push_candidate['device_token'], payload)
+                        self.data_source.storePushInfo(push_candidate)
+                        self.logger.info("push succ to %s" % (push_candidate['device_token']))
         
         self.logger.info("push task end...")
     

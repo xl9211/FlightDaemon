@@ -321,7 +321,7 @@ class DataSource:
                     one['actual_takeoff_time'] = "--:--"
                     one['actual_arrival_time'] = "--:--"
                 else:
-                    push_list.remove(one)
+                    one['full_info'] = -1
             
             return push_list
         except:
