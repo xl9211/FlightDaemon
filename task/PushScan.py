@@ -51,14 +51,16 @@ class PushScan:
         cur_minute = int(cur_time[3:]) + cur_hour * 60
             
         if push_candidate['full_info'] == 1:
-            push_candidate['push_content'] = "%s从%s到%s已于%s到达" % (push_candidate['flight_no'], push_candidate['takeoff_aitport'], push_candidate['arrival_airport'], push_candidate['actual_arrival_time'])
+            push_candidate['push_content'] = "%s从%s到%s已于%s到达" % (push_candidate['flight_no'].encode("utf-8"), 
+                                                                     push_candidate['takeoff_aitport'].encode("utf-8"), 
+                                                                     push_candidate['arrival_airport'].encode("utf-8"), 
+                                                                     push_candidate['actual_arrival_time'].encode("utf-8"))
             push_candidate['push_switch'] = 'off'
             if PushScan.PUSH_POINT_5 not in push_candidate['push_info']:
                 push_candidate['push_info'].append(PushScan.PUSH_POINT_5)
                 return True
             else:
-                return False
-                
+                return False       
         
         estimate_arrival_time = ""
         if push_candidate['estimate_arrival_time'] != '--:--':
@@ -71,7 +73,10 @@ class PushScan:
             estimate_arrival_time = push_candidate['schedule_arrival_time']
         
         if (estimate_arrival_minute - cur_minute) < 30:
-            push_candidate['push_content'] = "%s从%s到%s预计于%s到达" % (push_candidate['flight_no'], push_candidate['takeoff_aitport'], push_candidate['arrival_airport'], estimate_arrival_time)
+            push_candidate['push_content'] = "%s从%s到%s预计于%s到达" % (push_candidate['flight_no'].encode("utf-8"), 
+                                                                       push_candidate['takeoff_aitport'].encode("utf-8"), 
+                                                                       push_candidate['arrival_airport'].encode("utf-8"), 
+                                                                       estimate_arrival_time.encode("utf-8"))
             if PushScan.PUSH_POINT_4 not in push_candidate['push_info']:
                 push_candidate['push_info'].append(PushScan.PUSH_POINT_4)
                 return True
@@ -79,7 +84,10 @@ class PushScan:
                 return False
        
         if push_candidate['actual_takeoff_time'] != '--:--':
-            push_candidate['push_content'] = "%s从%s到%s已于%s起飞" % (push_candidate['flight_no'], push_candidate['takeoff_aitport'], push_candidate['arrival_airport'], push_candidate['actual_takeoff_time'])
+            push_candidate['push_content'] = "%s从%s到%s已于%s起飞" % (push_candidate['flight_no'].encode("utf-8"), 
+                                                                     push_candidate['takeoff_aitport'].encode("utf-8"), 
+                                                                     push_candidate['arrival_airport'].encode("utf-8"), 
+                                                                     push_candidate['actual_takeoff_time'].encode("utf-8"))
             if PushScan.PUSH_POINT_3 not in push_candidate['push_info']:
                 push_candidate['push_info'].append(PushScan.PUSH_POINT_3)
                 return True
@@ -97,7 +105,10 @@ class PushScan:
             estimate_takeoff_time = push_candidate['schedule_takeoff_time']
             
         if (estimate_takeoff_minute - cur_minute) < 60:
-            push_candidate['push_content'] = "%s从%s到%s预计于%s起飞" % (push_candidate['flight_no'], push_candidate['takeoff_airport'], push_candidate['arrival_airport'], estimate_takeoff_time)
+            push_candidate['push_content'] = "%s从%s到%s预计于%s起飞" % (push_candidate['flight_no'].encode("utf-8"),
+                                                                       push_candidate['takeoff_airport'].encode("utf-8"), 
+                                                                       push_candidate['arrival_airport'].encode("utf-8"), 
+                                                                       estimate_takeoff_time.encode("utf-8"))
             if PushScan.PUSH_POINT_2 not in push_candidate['push_info']:
                 push_candidate['push_info'].append(PushScan.PUSH_POINT_2)
                 return True
@@ -105,7 +116,10 @@ class PushScan:
                 return False
         
         if (estimate_takeoff_minute - cur_minute) < 120:
-            push_candidate['push_content'] = "%s从%s到%s预计于%s起飞" % (push_candidate['flight_no'], push_candidate['takeoff_airport'], push_candidate['arrival_airport'], estimate_takeoff_time)
+            push_candidate['push_content'] = "%s从%s到%s预计于%s起飞" % (push_candidate['flight_no'].encode("utf-8"), 
+                                                                       push_candidate['takeoff_airport'].encode("utf-8"), 
+                                                                       push_candidate['arrival_airport'].encode("utf-8"), 
+                                                                       estimate_takeoff_time.encode("utf-8"))
             if PushScan.PUSH_POINT_1 not in push_candidate['push_info']:
                 push_candidate['push_info'].append(PushScan.PUSH_POINT_1)
                 return True
