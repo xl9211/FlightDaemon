@@ -52,7 +52,7 @@ class PushScan:
             
         if push_candidate['full_info'] == 1:
             push_candidate['push_content'] = "%s从%s到%s已于%s到达" % (push_candidate['flight_no'].encode("utf-8"), 
-                                                                     push_candidate['takeoff_aitport'].encode("utf-8"), 
+                                                                     push_candidate['takeoff_airport'].encode("utf-8"), 
                                                                      push_candidate['arrival_airport'].encode("utf-8"), 
                                                                      push_candidate['actual_arrival_time'].encode("utf-8"))
             push_candidate['push_switch'] = 'off'
@@ -74,7 +74,7 @@ class PushScan:
         
         if (estimate_arrival_minute - cur_minute) < 30:
             push_candidate['push_content'] = "%s从%s到%s预计于%s到达" % (push_candidate['flight_no'].encode("utf-8"), 
-                                                                       push_candidate['takeoff_aitport'].encode("utf-8"), 
+                                                                       push_candidate['takeoff_airport'].encode("utf-8"), 
                                                                        push_candidate['arrival_airport'].encode("utf-8"), 
                                                                        estimate_arrival_time.encode("utf-8"))
             if PushScan.PUSH_POINT_4 not in push_candidate['push_info']:
@@ -85,7 +85,7 @@ class PushScan:
        
         if push_candidate['actual_takeoff_time'] != '--:--':
             push_candidate['push_content'] = "%s从%s到%s已于%s起飞" % (push_candidate['flight_no'].encode("utf-8"), 
-                                                                     push_candidate['takeoff_aitport'].encode("utf-8"), 
+                                                                     push_candidate['takeoff_airport'].encode("utf-8"), 
                                                                      push_candidate['arrival_airport'].encode("utf-8"), 
                                                                      push_candidate['actual_takeoff_time'].encode("utf-8"))
             if PushScan.PUSH_POINT_3 not in push_candidate['push_info']:

@@ -708,7 +708,7 @@ class DB:
     def putFollowedInfo(self, device_token, followed_list):
         try:
             for one in followed_list:
-                ret = FollowedInfo.findOne(device_token = device_token,
+                ret = FollowedInfo.findOne(device_token = ''.join(device_token.strip("<>").split(" ")),
                                         flight_no = one['flight_no'],
                                         takeoff_airport = one['takeoff_airport'],
                                         arrival_airport = one['arrival_airport'],
