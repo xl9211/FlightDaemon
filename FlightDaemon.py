@@ -38,8 +38,8 @@ class FlightDaemon:
         if self.config.debug_mode == 'no':
             self.flight_scan = FlightScan(self.config, self.data_source)
             self.flight_scan.start()
-        self.push_scan = PushScan(self.config, self.data_source)
-        self.push_scan.start()
+            self.push_scan = PushScan(self.config, self.data_source)
+            self.push_scan.start()
         
         self.logger.info("Flight Daemon Started...")
 
@@ -158,6 +158,40 @@ class FlightDaemon:
             ret = json.dumps(flights)
             self.logger.info(ret) 
             return ret              
+        except:
+            msg = traceback.format_exc()
+            self.logger.error(msg)
+            
+            return json.dumps(None)
+        
+        
+    @cherrypy.expose
+    def addFollowedFlightInfo(self, query_string, device_token):
+        try:
+            self.logger.info("get request %s %s" % (query_string, str(device_token)))
+            
+            flight_list = json.loads(query_string)
+            self.data_source.storeFollowedInfo(device_token, flight_list)
+            
+            ret = json.dumps(0)
+            return ret
+        except:
+            msg = traceback.format_exc()
+            self.logger.error(msg)
+            
+            return json.dumps(None)
+        
+    
+    @cherrypy.expose
+    def deleteFollowedFlightInfo(self, query_string, device_token):
+        try:
+            self.logger.info("get request %s %s" % (query_string, str(device_token)))
+            
+            flight_list = json.loads(query_string)
+            self.data_source.deleteFollowedInfo(device_token, flight_list)
+            
+            ret = json.dumps(0)
+            return ret
         except:
             msg = traceback.format_exc()
             self.logger.error(msg)

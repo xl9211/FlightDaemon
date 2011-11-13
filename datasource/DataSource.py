@@ -448,6 +448,16 @@ class DataSource:
             self.logger.error(msg)
         
             return None
+        
+    
+    def deleteFollowedInfo(self, device_token, followed_list):
+        try:
+            self.db_data_source.deleteFollowedInfo(device_token, followed_list)
+        except:
+            msg = traceback.format_exc()
+            self.logger.error(msg)
+        
+            return None
 
         
     def storePushInfo(self, push_candidate):

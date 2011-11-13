@@ -753,6 +753,27 @@ class DB:
             DBBase.Engine.dispose()
             
             return None
+        
+    
+    def deleteFollowedInfo(self, device_token, followed_list):
+        try:
+            for one in followed_list:
+                ret = FollowedInfo.findOne(device_token = ''.join(device_token.strip("<>").split(" ")),
+                                        flight_no = one['flight_no'],
+                                        takeoff_airport = one['takeoff_airport'],
+                                        arrival_airport = one['arrival_airport'],
+                                        schedule_takeoff_date = one['schedule_takeoff_date'])
+                
+                if ret is not None:
+                    ret.delete()
+        except:
+            msg = traceback.format_exc()
+            self.logger.error(msg)
+            
+            DBBase.Session.rollback()
+            DBBase.Engine.dispose()
+            
+            return None
             
     
     def updateScheduleTimeInFlightFixInfo(self, flight):

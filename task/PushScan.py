@@ -52,7 +52,7 @@ class PushScan:
         cur_minute = int(cur_time[3:]) + cur_hour * 60
             
         if push_candidate['full_info'] == 1:
-            push_candidate['push_content'] = "[%s]\n从[%s]到[%s]\n已于[%s]到达" % (push_candidate['flight_no'].encode("utf-8"), 
+            push_candidate['push_content'] = "%s\n从 %s 到 %s\n已于 %s 到达" % (push_candidate['flight_no'].encode("utf-8"), 
                                                                      self.data_source.getAirportName(push_candidate['takeoff_airport'], 'zh').encode("utf-8"), 
                                                                      self.data_source.getAirportName(push_candidate['arrival_airport'], 'zh').encode("utf-8"), 
                                                                      push_candidate['actual_arrival_time'].encode("utf-8"))
@@ -74,7 +74,7 @@ class PushScan:
             estimate_arrival_time = push_candidate['schedule_arrival_time']
         
         if (estimate_arrival_minute - cur_minute) < 30:
-            push_candidate['push_content'] = "[%s]\n从[%s]到[%s]\n预计于[%s]到达" % (push_candidate['flight_no'].encode("utf-8"), 
+            push_candidate['push_content'] = "%s\n从 %s 到 %s\n预计于 %s 到达" % (push_candidate['flight_no'].encode("utf-8"), 
                                                                        self.data_source.getAirportName(push_candidate['takeoff_airport'], 'zh').encode("utf-8"), 
                                                                        self.data_source.getAirportName(push_candidate['arrival_airport'], 'zh').encode("utf-8"), 
                                                                        estimate_arrival_time.encode("utf-8"))
@@ -85,10 +85,11 @@ class PushScan:
                 return False
        
         if push_candidate['actual_takeoff_time'] != '--:--':
-            push_candidate['push_content'] = "[%s]\n从[%s]到[%s]\n已于[%s]起飞" % (push_candidate['flight_no'].encode("utf-8"), 
+            push_candidate['push_content'] = "%s\n从 %s 到 %s\n已于 %s 起飞\n预计于 %s 到达" % (push_candidate['flight_no'].encode("utf-8"), 
                                                                      self.data_source.getAirportName(push_candidate['takeoff_airport'], 'zh').encode("utf-8"), 
                                                                      self.data_source.getAirportName(push_candidate['arrival_airport'], 'zh').encode("utf-8"),
-                                                                     push_candidate['actual_takeoff_time'].encode("utf-8"))
+                                                                     push_candidate['actual_takeoff_time'].encode("utf-8"),
+                                                                     estimate_arrival_time.encode("utf-8"))
             if PushScan.PUSH_POINT_3 not in push_candidate['push_info']:
                 push_candidate['push_info'].append(PushScan.PUSH_POINT_3)
                 return True
@@ -106,7 +107,7 @@ class PushScan:
             estimate_takeoff_time = push_candidate['schedule_takeoff_time']
             
         if (estimate_takeoff_minute - cur_minute) < 60:
-            push_candidate['push_content'] = "[%s]\n从[%s]到[%s]\n预计于[%s]起飞" % (push_candidate['flight_no'].encode("utf-8"),
+            push_candidate['push_content'] = "%s\n从 %s 到 %s\n预计于 %s 起飞" % (push_candidate['flight_no'].encode("utf-8"),
                                                                        self.data_source.getAirportName(push_candidate['takeoff_airport'], 'zh').encode("utf-8"), 
                                                                        self.data_source.getAirportName(push_candidate['arrival_airport'], 'zh').encode("utf-8"),
                                                                        estimate_takeoff_time.encode("utf-8"))
@@ -117,7 +118,7 @@ class PushScan:
                 return False
         
         if (estimate_takeoff_minute - cur_minute) < 120:
-            push_candidate['push_content'] = "[%s]\n从[%s]到[%s]\n预计于[%s]起飞" % (push_candidate['flight_no'].encode("utf-8"), 
+            push_candidate['push_content'] = "%s\n从 %s 到 %s\n预计于 %s 起飞" % (push_candidate['flight_no'].encode("utf-8"), 
                                                                        self.data_source.getAirportName(push_candidate['takeoff_airport'], 'zh').encode("utf-8"), 
                                                                        self.data_source.getAirportName(push_candidate['arrival_airport'], 'zh').encode("utf-8"),
                                                                        estimate_takeoff_time.encode("utf-8"))
