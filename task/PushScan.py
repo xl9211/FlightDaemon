@@ -52,8 +52,8 @@ class PushScan:
             
         if push_candidate['full_info'] == 1:
             push_candidate['push_content'] = "%s从%s到%s已于%s到达" % (push_candidate['flight_no'].encode("utf-8"), 
-                                                                     push_candidate['takeoff_airport'].encode("utf-8"), 
-                                                                     push_candidate['arrival_airport'].encode("utf-8"), 
+                                                                     self.data_source.getAirportName(push_candidate['takeoff_airport'], 'zh').encode("utf-8"), 
+                                                                     self.data_source.getAirportName(push_candidate['arrival_airport'], 'zh').encode("utf-8"), 
                                                                      push_candidate['actual_arrival_time'].encode("utf-8"))
             push_candidate['push_switch'] = 'off'
             if PushScan.PUSH_POINT_5 not in push_candidate['push_info']:
@@ -74,8 +74,8 @@ class PushScan:
         
         if (estimate_arrival_minute - cur_minute) < 30:
             push_candidate['push_content'] = "%s从%s到%s预计于%s到达" % (push_candidate['flight_no'].encode("utf-8"), 
-                                                                       push_candidate['takeoff_airport'].encode("utf-8"), 
-                                                                       push_candidate['arrival_airport'].encode("utf-8"), 
+                                                                       self.data_source.getAirportName(push_candidate['takeoff_airport'], 'zh').encode("utf-8"), 
+                                                                       self.data_source.getAirportName(push_candidate['arrival_airport'], 'zh').encode("utf-8"), 
                                                                        estimate_arrival_time.encode("utf-8"))
             if PushScan.PUSH_POINT_4 not in push_candidate['push_info']:
                 push_candidate['push_info'].append(PushScan.PUSH_POINT_4)
@@ -85,8 +85,8 @@ class PushScan:
        
         if push_candidate['actual_takeoff_time'] != '--:--':
             push_candidate['push_content'] = "%s从%s到%s已于%s起飞" % (push_candidate['flight_no'].encode("utf-8"), 
-                                                                     push_candidate['takeoff_airport'].encode("utf-8"), 
-                                                                     push_candidate['arrival_airport'].encode("utf-8"), 
+                                                                     self.data_source.getAirportName(push_candidate['takeoff_airport'], 'zh').encode("utf-8"), 
+                                                                     self.data_source.getAirportName(push_candidate['arrival_airport'], 'zh').encode("utf-8"),
                                                                      push_candidate['actual_takeoff_time'].encode("utf-8"))
             if PushScan.PUSH_POINT_3 not in push_candidate['push_info']:
                 push_candidate['push_info'].append(PushScan.PUSH_POINT_3)
@@ -106,8 +106,8 @@ class PushScan:
             
         if (estimate_takeoff_minute - cur_minute) < 60:
             push_candidate['push_content'] = "%s从%s到%s预计于%s起飞" % (push_candidate['flight_no'].encode("utf-8"),
-                                                                       push_candidate['takeoff_airport'].encode("utf-8"), 
-                                                                       push_candidate['arrival_airport'].encode("utf-8"), 
+                                                                       self.data_source.getAirportName(push_candidate['takeoff_airport'], 'zh').encode("utf-8"), 
+                                                                       self.data_source.getAirportName(push_candidate['arrival_airport'], 'zh').encode("utf-8"),
                                                                        estimate_takeoff_time.encode("utf-8"))
             if PushScan.PUSH_POINT_2 not in push_candidate['push_info']:
                 push_candidate['push_info'].append(PushScan.PUSH_POINT_2)
@@ -117,8 +117,8 @@ class PushScan:
         
         if (estimate_takeoff_minute - cur_minute) < 120:
             push_candidate['push_content'] = "%s从%s到%s预计于%s起飞" % (push_candidate['flight_no'].encode("utf-8"), 
-                                                                       push_candidate['takeoff_airport'].encode("utf-8"), 
-                                                                       push_candidate['arrival_airport'].encode("utf-8"), 
+                                                                       self.data_source.getAirportName(push_candidate['takeoff_airport'], 'zh').encode("utf-8"), 
+                                                                       self.data_source.getAirportName(push_candidate['arrival_airport'], 'zh').encode("utf-8"),
                                                                        estimate_takeoff_time.encode("utf-8"))
             if PushScan.PUSH_POINT_1 not in push_candidate['push_info']:
                 push_candidate['push_info'].append(PushScan.PUSH_POINT_1)
