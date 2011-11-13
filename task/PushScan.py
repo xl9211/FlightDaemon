@@ -105,7 +105,7 @@ class PushScan:
                 return False
         
         if (estimate_takeoff_minute - cur_minute) < 120:
-            push_candidate['push_content'] = "%s从%s到%s预计于%s起飞" % (push_candidate['flight_no'], push_candidate['takeoff_aitport'], push_candidate['arrival_airport'], estimate_takeoff_time)
+            push_candidate['push_content'] = "%s从%s到%s预计于%s起飞" % (push_candidate['flight_no'], push_candidate['takeoff_airport'], push_candidate['arrival_airport'], estimate_takeoff_time)
             if PushScan.PUSH_POINT_1 not in push_candidate['push_info']:
                 push_candidate['push_info'].append(PushScan.PUSH_POINT_1)
                 return True
