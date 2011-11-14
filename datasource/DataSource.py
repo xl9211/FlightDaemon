@@ -461,6 +461,17 @@ class DataSource:
             return None
         
         
+    def getPushInfoList(self, device_token, push_switch):
+        try:
+            push_list = self.db_data_source.getPushInfoList(device_token, push_switch)
+            return push_list
+        except:
+            msg = traceback.format_exc()
+            self.logger.error(msg)
+            
+            return None
+        
+        
     def storeFollowedInfo(self, device_token, followed_list):
         try:
             self.db_data_source.putFollowedInfo(device_token, followed_list)

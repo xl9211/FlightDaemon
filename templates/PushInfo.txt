@@ -1,0 +1,52 @@
+<link href="css/table.css" rel="stylesheet" type="text/css" />
+<form action="http://${ip}:${port}/getPushInfo" method="post" enctype="multipart/form-data">
+Device Token: <input type="text" name="device_token" size="64" />
+Push Switch: <input type="text" name="push_switch" />
+<input type="submit" value="Submit" />
+</form>
+
+<hr />
+
+<table class="list">
+	<thead>
+		<tr>
+			<th class="device_token">Device Token</th>
+			<th class="flight">Flight</th>
+			<th class="push_switch">Push Switch</th>
+			<th class="push_info">Push Info</th>
+		</tr>
+	</thead>
+	<tbody>
+		<%
+		  i = 0
+		%>
+		% for row in rows:
+			% if i % 2 == 0:
+		<tr class="even">	
+			% else:	
+		<tr class="odd">
+			% endif
+		<%
+			  i += 1
+		%>
+        	<td class="device_token">
+        	${row['device_token']}
+        	</td>
+        	<td class="flight">
+        	${row['flight']}
+        	</td>
+        	<td class="push_switch">
+        	${row['push_switch']}
+        	</td>
+        	<td class="push_info">
+        	% for one in row['push_info']:
+        		<div>
+        			${one}
+        		</div>
+        	% endfor
+        	</td>
+        </tr>
+    	% endfor
+	</tbody>
+</table>
+</form>

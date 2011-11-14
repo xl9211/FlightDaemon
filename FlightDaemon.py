@@ -26,6 +26,7 @@ from pygments import highlight #@UnresolvedImport
 from pygments.lexers import PythonLexer #@UnresolvedImport
 from pygments.formatters import HtmlFormatter #@UnresolvedImport
 
+from mako.template import Template #@UnresolvedImport
 
 class FlightDaemon:
     
@@ -282,13 +283,14 @@ class FlightDaemon:
         
         
     @cherrypy.expose     
-    def getPushInfo(self, device_token = None, push_switch = None):
+    def getPushInfo(self, device_token = "", push_switch = ""):
         try:
-            self.logger.info("get request %s %s %s" % (device_token, push_switch))
-                      
-            data = self.data_source.getAirportWeather(device_token, push_switch)
+            self.logger.info("get request %s %s" % (device_token, push_switch))
             
-            return json.dumps(data)
+            data = self.data_source.getPushInfoList(device_token, push_switch)
+           
+            template = Template(filename = 'templates/PushInfo.txt')
+            return template.render(rows = data, ip = self.config.http_ip, port = self.config.http_port)
         except:
             msg = traceback.format_exc()
             self.logger.error(msg)
@@ -369,7 +371,18 @@ def main():
         }
     }
     
-    cherrypy.quickstart(FlightDaemon(config), '/', config = global_cfg)
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    
+    cfg = {
+        '/css' : {
+            'tools.staticdir.on' : True,
+            'tools.staticdir.dir' : "css",
+            'tools.staticdir.root' : current_dir
+        }
+    }
+    
+    cherrypy.config.update(global_cfg)
+    cherrypy.quickstart(FlightDaemon(config), '/', config = cfg)
       
 
 if __name__ == '__main__':

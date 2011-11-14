@@ -41,12 +41,14 @@ class PushScan:
                         
                         if self.checkPush(push_candidate):
                             payload = Payload(alert = push_candidate['push_content'], sound = "pushmusic.wav")
+                            self.logger.error("[PayLoad] %s" % (payload))
                             self.apns.gateway_server.send_notification(push_candidate['device_token'], payload)
                             self.data_source.storePushInfo(push_candidate)
                             self.logger.info("push succ to %s" % (push_candidate['device_token']))
             
             self.logger.info("push task end...")
         except:
+            self.logger.error("%s %s" % (push_candidate['device_token'], payload))
             msg = traceback.format_exc()
             self.logger.error(msg)
             
@@ -80,7 +82,7 @@ class PushScan:
             estimate_arrival_minute = int(push_candidate['schedule_arrival_time'][3:]) + estimate_arrival_hour * 60
             estimate_arrival_time = push_candidate['schedule_arrival_time']
         
-        if (estimate_arrival_minute - cur_minute) < 30:
+        if (estimate_arrival_minute - cur_minute) < 30 and push_candidate['actual_takeoff_time'] != '--:--':
             push_candidate['push_content'] = "%s\n从 %s 到 %s\n预计于 %s 到达" % (push_candidate['flight_no'].encode("utf-8"), 
                                                                        self.data_source.getAirportName(push_candidate['takeoff_airport'], 'zh').encode("utf-8"), 
                                                                        self.data_source.getAirportName(push_candidate['arrival_airport'], 'zh').encode("utf-8"), 

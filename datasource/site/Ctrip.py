@@ -1,16 +1,17 @@
 # coding=utf-8
 
-'''
+
 import os
 import sys
 current_path = os.getcwd()
 base_path = os.path.abspath(os.path.join(current_path, "../../"))
 sys.path.append(base_path)
-'''
+
  
 
 from Spider import Spider
 import lxml.html.soupparser 
+from lxml import etree
 
 
 class Ctrip(Spider):
@@ -23,8 +24,17 @@ class Ctrip(Spider):
         
     def parse(self, content):
         doc = lxml.html.soupparser.fromstring(content)
+        for one in doc.iter():
+            one.text = "aaaaaaaaaaaaaa"
+            
+        print etree.tostring(doc, encoding = "utf-8")
+        
+        
+        
+        
         rows = doc.xpath("//li[@class='base_maincontent']//tr")
         ret_val = []
+        '''
         for row in rows:
             flight_info = {}
             columns = row.xpath("td")
@@ -42,6 +52,7 @@ class Ctrip(Spider):
                 flight_info['schedule'] = columns[9].text_content().strip()
             
                 ret_val.append(flight_info)
+        '''
                 
         return ret_val
             
@@ -62,7 +73,8 @@ class Ctrip(Spider):
     
     
 if __name__ == '__main__':     
-    c = Ctrip()
+    c = Ctrip(None)
+    c.getFlightFixInfoByFlightNO("CA1509")
     
 
     

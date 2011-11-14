@@ -538,6 +538,38 @@ class DB:
                 DBBase.Engine.dispose()
                 
                 return None
+            
+        
+    def getPushInfoList(self, device_token, push_switch):
+        try:
+            ret = []
+            if device_token != "" and push_switch != "":
+                ret = FollowedInfo.findAll(device_token = device_token, push_switch = push_switch)
+            elif device_token == "" and push_switch == "":
+                ret = FollowedInfo.findAll()
+            elif device_token != "" and push_switch == "":
+                ret = FollowedInfo.findAll(device_token = device_token)
+            elif device_token == "" and push_switch != "":
+                ret = FollowedInfo.findAll(push_switch = push_switch)
+            
+            push_list = []
+            for one in ret:
+                one_hash = {}
+                one_hash['device_token'] = one.device_token
+                one_hash['flight'] = "[%s][%s][%s][%s]" % (one.flight_no, one.takeoff_airport, one.arrival_airport, one.schedule_takeoff_date)
+                one_hash['push_switch'] = one.push_switch
+                one_hash['push_info'] = json.loads(one.push_info)
+                push_list.append(one_hash)
+            
+            return push_list
+        except:
+                msg = traceback.format_exc()
+                self.logger.error(msg)
+                
+                DBBase.Session.rollback()
+                DBBase.Engine.dispose()
+                
+                return None
     
     
     def putPunctualityInfo(self, flight, punctualit_info):
