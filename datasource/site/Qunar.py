@@ -26,62 +26,64 @@ class Qunar(Spider):
     def parseRealtimeInfo(self, flight, content):
         doc = lxml.html.soupparser.fromstring(content)
         rows = doc.xpath("//div[@class='search_result']/div[@class='result_list']/div[@class='state_list']/ul/li")
-            
-        week = time.strftime("%w", time.strptime(flight['schedule_takeoff_date'], "%Y-%m-%d"))
-        if week == '0':
-            week = '7'
         
-        find = False
-        for row in rows:
-            schedule = row.xpath("span[@class='ctime5']/span[@class='circular_blue']/text()")
-            if week not in schedule:
-                continue
+        if len(rows) != 0:   
+            week = time.strftime("%w", time.strptime(flight['schedule_takeoff_date'], "%Y-%m-%d"))
+            if week == '0':
+                week = '7'
             
-            find = True
-             
-            flight['schedule'] = json.dumps(schedule)
-            flight['schedule_takeoff_time'] = row.xpath("span[@class='ctime2']/text()")[0]
-            flight['schedule_arrival_time'] = row.xpath("span[@class='ctime2']/em/text()")[0]
+            find = False
+            for row in rows:
+                schedule = row.xpath("span[@class='ctime5']/span[@class='circular_blue']/text()")
+                if week not in schedule:
+                    continue
                 
-            flight['plane_model'] = row.xpath("span[@class='ctime4']/text()")[0]
-            flight['stopover'] = row.xpath("span[@class='ctime6']/text()")[0]
+                find = True
+                 
+                flight['schedule'] = json.dumps(schedule)
+                flight['schedule_takeoff_time'] = row.xpath("span[@class='ctime2']/text()")[0]
+                flight['schedule_arrival_time'] = row.xpath("span[@class='ctime2']/em/text()")[0]
+                    
+                flight['plane_model'] = row.xpath("span[@class='ctime4']/text()")[0]
+                flight['stopover'] = row.xpath("span[@class='ctime6']/text()")[0]
+                
+            if not find:
+                return -1
             
-        if not find:
-            return -1
-        
-        cur_date = time.strftime("%Y-%m-%d", time.localtime())
-        cur_time = time.strftime("%H:%M", time.localtime())
-        if cur_date > flight['schedule_takeoff_date'] or (cur_date == flight['schedule_takeoff_date'] and cur_time >= "05:00"):   
-            content = doc.xpath("//div[@class='search_result']/dl[@class='state_detail']//span[@class='sd_2']/b/text()")
-            
-            if len(content) > 2:
-                if content[0] == u"计划":
-                    flight['flight_state'] = u"计划航班"
-                if content[0] == u"起飞":
-                    flight['flight_state'] = u"已经起飞"
-                if content[0] == u"到达":
-                    flight['flight_state'] = u"已经到达"
-                if content[0] == u"取消":
-                    flight['flight_state'] = u"已经取消"
+            cur_date = time.strftime("%Y-%m-%d", time.localtime())
+            cur_time = time.strftime("%H:%M", time.localtime())
+            if cur_date > flight['schedule_takeoff_date'] or (cur_date == flight['schedule_takeoff_date'] and cur_time >= "05:00"):   
+                content = doc.xpath("//div[@class='search_result']/dl[@class='state_detail']//span[@class='sd_2']/b/text()")
                 
-                estimate_time = content[1].split('-')
-                if len(estimate_time) == 2:
-                    if estimate_time[0].strip() != "":
-                        flight['estimate_takeoff_time'] = estimate_time[0].strip()
-                    if estimate_time[1].strip() != "":
-                        flight['estimate_arrival_time'] = estimate_time[1].strip()
-                
-                actual_time = content[2].split('-')
-                if len(actual_time) == 2:
-                    if actual_time[0].strip() != "":
-                        flight['actual_takeoff_time'] = actual_time[0].strip()
-                    if actual_time[1].strip() != "":
-                        flight['actual_arrival_time'] = actual_time[1].strip()
-                        flight['full_info'] = 1    
-            else:
-                return None
-        
-        return 0
+                if len(content) > 2:
+                    if content[0] == u"计划":
+                        flight['flight_state'] = u"计划航班"
+                    if content[0] == u"起飞":
+                        flight['flight_state'] = u"已经起飞"
+                    if content[0] == u"到达":
+                        flight['flight_state'] = u"已经到达"
+                    if content[0] == u"取消":
+                        flight['flight_state'] = u"已经取消"
+                    
+                    estimate_time = content[1].split('-')
+                    if len(estimate_time) == 2:
+                        if estimate_time[0].strip() != "":
+                            flight['estimate_takeoff_time'] = estimate_time[0].strip()
+                        if estimate_time[1].strip() != "":
+                            flight['estimate_arrival_time'] = estimate_time[1].strip()
+                    
+                    actual_time = content[2].split('-')
+                    if len(actual_time) == 2:
+                        if actual_time[0].strip() != "":
+                            flight['actual_takeoff_time'] = actual_time[0].strip()
+                        if actual_time[1].strip() != "":
+                            flight['actual_arrival_time'] = actual_time[1].strip()
+                            flight['full_info'] = 1    
+                else:
+                    return None
+            return 0
+        else:
+            return -2
             
        
     def getFlightRealTimeInfo(self, flight):
@@ -182,10 +184,13 @@ class Qunar(Spider):
 if __name__ == '__main__':     
     q = Qunar(None)
     
-    flights = q.getFlightRealTimeInfo('ZH8091', 'KMG', 'CTU', '2011-10-21')
-    print len(flights)
-    for flight in flights:
-        print flight
+    flight = {}
+    flight['flight_no'] = "CA1995"
+    flight['takeoff_airport'] = "PEK"
+    flight['arrival_airport'] = "SHA"
+    flight['schedule_takeoff_date'] = "2011-11-14"
+    print q.getFlightRealTimeInfo(flight)
+
     
 
     

@@ -142,6 +142,9 @@ class DataSource:
                     elif ret == -1:
                         self.logger.info("today %s there is no such flight" % (flight['schedule_takeoff_date']))
                         return -1
+                    elif ret == -2:
+                        self.logger.info("there is no such flight %s" % (flight['flight_no']))
+                        return -2
                     else:
                         self.db_data_source.updateScheduleTimeInFlightFixInfo(flight)
                         break
@@ -219,7 +222,7 @@ class DataSource:
                     if realtime_data == {}:
                         continue
                 
-                if realtime_data == -1:
+                if realtime_data == -1 or realtime_data == -2:
                     continue
 
                 data = {}
