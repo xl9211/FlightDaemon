@@ -290,7 +290,10 @@ class FlightDaemon:
             data = self.data_source.getPushInfoList(device_token, push_switch)
            
             template = Template(filename = 'templates/PushInfo.txt')
-            return template.render(rows = data, ip = self.config.http_ip, port = self.config.http_port)
+            if self.config.debug_mode == 'no':
+                return template.render(rows = data, ip = "118.194.161.243", port = "28888")
+            else:
+                return template.render(rows = data, ip = self.config.http_ip, port = self.config.http_port)
         except:
             msg = traceback.format_exc()
             self.logger.error(msg)
