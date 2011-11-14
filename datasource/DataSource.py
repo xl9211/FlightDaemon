@@ -268,6 +268,8 @@ class DataSource:
                 data['actual_arrival_time'] = realtime_data['actual_arrival_time']
                 data['flight_location'] = realtime_data['flight_location']
                 
+                self.checkValid(data)
+                
                 data_list.append(data)
             
             return 0
@@ -277,6 +279,25 @@ class DataSource:
             
             return None
         
+        
+    def checkValid(self, data):
+        try:
+            data['valid'] = '1'
+            cur_time = time.strftime("%H:%M", time.localtime())
+            
+            if data['flight_state'] == u"已经起飞" and (data['actual_takeoff_time'] == '--:--' or data['actual_takeoff_time'] > cur_time):
+                data['valid'] = '0'
+
+            if data['flight_state'] == u"已经到达" and (data['actual_arrival_time'] == '--:--' or data['actual_arrival_time'] < cur_time):
+                data['valid'] = '0'
+            
+            return 0
+        except:
+            msg = traceback.format_exc()
+            self.logger.error(msg)
+            
+            return None
+
         
     def getRandomFlightList(self, cur_time):
         try:
