@@ -19,6 +19,7 @@ from PunctualityInfoModel import PunctualityInfo
 import traceback
 from tools import LogUtil
 import json
+import datetime
 
 
 def init(db_user, db_passwd, db_host, db_name):
@@ -313,18 +314,22 @@ class DB:
     
     def getAllLivedFlight(self):
         try:
-            flights = FlightRealtimeInfo.find(full_info = 0)
+            day = []
+            day.append(datetime.datetime.now().strftime("%Y-%m-%d"))
+            day.append((datetime.datetime.now() - datetime.timedelta(1)).strftime("%Y-%m-%d"))
             
             lived_flight_list = []
-            for flight in flights:
-                lived_flight = {}
-                lived_flight['flight_no'] = flight.flight_no
-                lived_flight['schedule_takeoff_time'] = flight.schedule_takeoff_time
-                lived_flight['schedule_arrival_time'] = flight.schedule_arrival_time
-                lived_flight['takeoff_airport'] = flight.takeoff_airport
-                lived_flight['arrival_airport'] = flight.arrival_airport
-                lived_flight['schedule_takeoff_date'] = flight.schedule_takeoff_date
-                lived_flight_list.append(lived_flight)
+            for one in day:
+                flights = FlightRealtimeInfo.find(full_info = 0, schedule_takeoff_date = one) 
+                for flight in flights:
+                    lived_flight = {}
+                    lived_flight['flight_no'] = flight.flight_no
+                    lived_flight['schedule_takeoff_time'] = flight.schedule_takeoff_time
+                    lived_flight['schedule_arrival_time'] = flight.schedule_arrival_time
+                    lived_flight['takeoff_airport'] = flight.takeoff_airport
+                    lived_flight['arrival_airport'] = flight.arrival_airport
+                    lived_flight['schedule_takeoff_date'] = flight.schedule_takeoff_date
+                    lived_flight_list.append(lived_flight)
             
             return lived_flight_list
         except:
