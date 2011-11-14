@@ -279,6 +279,21 @@ class FlightDaemon:
             self.logger.error(msg)
             
             return json.dumps(None)
+        
+        
+    @cherrypy.expose     
+    def getPushInfo(self, device_token = None, push_switch = None):
+        try:
+            self.logger.info("get request %s %s %s" % (device_token, push_switch))
+                      
+            data = self.data_source.getAirportWeather(device_token, push_switch)
+            
+            return json.dumps(data)
+        except:
+            msg = traceback.format_exc()
+            self.logger.error(msg)
+            
+            return json.dumps(None)
           
 
     '''
