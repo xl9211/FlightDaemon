@@ -9,7 +9,7 @@ import traceback
 
 
 class PushScan:
-    PUSH_POINT_1 = "2_hours_before_takeoff"
+    PUSH_POINT_1 = u"2_hours_before_takeoff"
     PUSH_POINT_2 = "1_hour_before_takeoff"
     PUSH_POINT_3 = "actual_takeoff"
     PUSH_POINT_4 = "30_minutes_before_arrival"
@@ -20,7 +20,6 @@ class PushScan:
         self.config = config
         self.logger = LogUtil.Logging.getLogger()
         self.data_source = data_source
-        self.apns = APNs(use_sandbox = False, cert_file = self.config.cert_file, key_file = self.config.key_file)
 
     
     def start(self):
@@ -33,6 +32,7 @@ class PushScan:
             self.logger.info("push task start...")
             
             push_list = self.data_source.getPushCandidate()
+            apns = APNs(use_sandbox = False, cert_file = self.config.cert_file, key_file = self.config.key_file)
             
             if push_list is not None:
                 for push_candidate in push_list:
@@ -40,9 +40,11 @@ class PushScan:
                         self.data_source.getFlightRealtimeInfoFromDB(push_candidate)
                         
                         if self.checkPush(push_candidate):
-                            self.logger.info("%s %s" % (push_candidate['device_token'].encode("utf-8"), push_candidate['push_content']))
+                            self.logger.info("push to %s %s" % (push_candidate['flight_no'].encode("utf-8"), push_candidate['device_token'].encode("utf-8")))
+                            
                             payload = Payload(alert = push_candidate['push_content'], sound = "pushmusic.wav")
-                            self.apns.gateway_server.send_notification(push_candidate['device_token'], payload)
+                            apns.gateway_server.send_notification(push_candidate['device_token'], payload)
+                            
                             self.data_source.storePushInfo(push_candidate)
                             self.logger.info("push succ to %s" % (push_candidate['device_token']))
             

@@ -25,13 +25,11 @@ class Ctrip(Spider):
     def parse(self, content):
         doc = lxml.html.soupparser.fromstring(content)
         for one in doc.iter():
-            one.text = "aaaaaaaaaaaaaa"
+            print one.text
+            #one.text = "aaaaaaaaaaaaaa"
             
-        print etree.tostring(doc, encoding = "utf-8")
-        
-        
-        
-        
+        #print etree.tostring(doc, encoding = "utf-8") #@UndefinedVariable
+  
         rows = doc.xpath("//li[@class='base_maincontent']//tr")
         ret_val = []
         '''
@@ -59,7 +57,8 @@ class Ctrip(Spider):
                 
     def getFlightFixInfoByFlightNO(self, flight_no):
         url = "http://flights.ctrip.com/schedule/%s.html" % (flight_no)
-        content = self.fetch(url)
+        #content = self.fetch(url)
+        content = open("/Users/xulin/workspace/FlightDaemon/test.html", "r")
 
         return self.parse(content)
     
