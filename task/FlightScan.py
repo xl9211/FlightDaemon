@@ -14,7 +14,7 @@ class FlightScan:
         self.logger = LogUtil.Logging.getLogger()
         self.data_source = data_source
         
-        self.push_scan = PushScan(self.config, self.data_source, True)
+        self.push_scan = PushScan.PushScan(self.config, self.data_source, True)
 
     
     def start(self):
