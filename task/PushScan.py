@@ -40,7 +40,7 @@ class PushScan:
                         self.data_source.getFlightRealtimeInfoFromDB(push_candidate)
                         
                         if self.checkPush(push_candidate):
-                            self.logger.info("[PayLoad] %s" % (push_candidate['push_content']))
+                            self.logger.info("%s %s" % (push_candidate['device_token'].encode("utf-8"), push_candidate['push_content']))
                             payload = Payload(alert = push_candidate['push_content'], sound = "pushmusic.wav")
                             self.apns.gateway_server.send_notification(push_candidate['device_token'], payload)
                             self.data_source.storePushInfo(push_candidate)
@@ -48,7 +48,7 @@ class PushScan:
             
             self.logger.info("push task end...")
         except:
-            self.logger.error("%s %s" % (push_candidate['device_token'], push_candidate['push_content']))
+            self.logger.error("%s %s" % (push_candidate['device_token'].encode("utf-8"), push_candidate['push_content']))
             msg = traceback.format_exc()
             self.logger.error(msg)
             
