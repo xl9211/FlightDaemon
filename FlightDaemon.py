@@ -18,7 +18,6 @@ import json
 import time
 from datasource.DataSource import DataSource
 from task.FlightScan import FlightScan
-from task.PushScan import PushScan
 import random
 
 
@@ -39,8 +38,6 @@ class FlightDaemon:
         if self.config.debug_mode == 'no':
             self.flight_scan = FlightScan(self.config, self.data_source)
             self.flight_scan.start()
-            self.push_scan = PushScan(self.config, self.data_source)
-            self.push_scan.start()
         
         self.logger.info("Flight Daemon Started...")
 
@@ -171,8 +168,9 @@ class FlightDaemon:
         try:
             self.logger.info("get request %s %s" % (query_string, str(device_token)))
             
-            flight_list = json.loads(query_string)
-            self.data_source.storeFollowedInfo(device_token, flight_list)
+            if len(str(device_token)) >= 64:
+                flight_list = json.loads(query_string)
+                self.data_source.storeFollowedInfo(device_token, flight_list)
             
             ret = json.dumps(0)
             return ret

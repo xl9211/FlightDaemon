@@ -4,6 +4,7 @@ from tools import Timer
 from tools import LogUtil
 import json
 import traceback
+import PushScan
 
 
 class FlightScan:
@@ -12,6 +13,8 @@ class FlightScan:
         self.config = config
         self.logger = LogUtil.Logging.getLogger()
         self.data_source = data_source
+        
+        self.push_scan = PushScan(self.config, self.data_source, True)
 
     
     def start(self):
@@ -31,6 +34,8 @@ class FlightScan:
                     self.data_source.getFlightRealtimeInfo(lived_flight, True, False)
             
             self.logger.info("lived flight realtime info spider end...")
+            
+            self.push_scan.start()
         except:
             msg = traceback.format_exc()
             self.logger.error(msg)

@@ -56,9 +56,10 @@ class Ctrip(Spider):
             
                 
     def getFlightFixInfoByFlightNO(self, flight_no):
-        url = "http://flights.ctrip.com/schedule/%s.html" % (flight_no)
-        #content = self.fetch(url)
-        content = open("/Users/xulin/workspace/FlightDaemon/test.html", "r")
+        #url = "http://flights.ctrip.com/schedule/%s.html" % (flight_no)
+        url = "http://www.zhuoku.com"
+        content = self.fetch(url)
+        #content = open("/Users/xulin/workspace/FlightDaemon/test.html", "r")
 
         return self.parse(content)
     
