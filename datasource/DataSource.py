@@ -186,8 +186,8 @@ class DataSource:
         cur_hour = int(cur_time[:2])
         cur_minute = int(cur_time[3:]) + cur_hour * 60
         
-        hour = int(flight['schedule_arrival_time'][:2])
-        minute = int(flight['schedule_arrival_time'][3:]) + hour * 60
+        hour = int(flight['schedule_takeoff_time'][:2])
+        minute = int(flight['schedule_takeoff_time'][3:]) + hour * 60
         
         if auto:
             if cur_date < flight['schedule_takeoff_date']:
