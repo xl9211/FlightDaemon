@@ -25,7 +25,7 @@ class Ctrip(Spider):
     def parse(self, content):
         doc = lxml.html.soupparser.fromstring(content)
         for one in doc.iter():
-            print one.text
+            print one.get("href")
             #one.text = "aaaaaaaaaaaaaa"
             
         #print etree.tostring(doc, encoding = "utf-8") #@UndefinedVariable
@@ -57,7 +57,7 @@ class Ctrip(Spider):
                 
     def getFlightFixInfoByFlightNO(self, flight_no):
         #url = "http://flights.ctrip.com/schedule/%s.html" % (flight_no)
-        url = "http://www.zhuoku.com"
+        url = "http://www.baidu.com"
         content = self.fetch(url)
         #content = open("/Users/xulin/workspace/FlightDaemon/test.html", "r")
 

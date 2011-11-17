@@ -39,6 +39,15 @@ class FlightFixInfo(DBBase.Base):
             key_item = session.query(FlightFixInfo).filter_by(**kwargs).all()
         DBBase.Session.remove()
         return key_item
+    
+    
+    @staticmethod
+    def findLike(flight_no):
+        session = DBBase.getSession()
+        key_item = None #@UnusedVariable
+        key_item = session.query(FlightFixInfo).filter(FlightFixInfo.flight_no.like("%" + flight_no + "%")).all()
+        DBBase.Session.remove()
+        return key_item
  
 
     @staticmethod

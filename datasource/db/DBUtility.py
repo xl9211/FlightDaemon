@@ -78,7 +78,7 @@ class DB:
      
     def getFlightFixInfoByFlightNO(self, flight_no, schedule_takeoff_date):
         try:
-            ret = FlightFixInfo.find(flight_no = flight_no)
+            ret = FlightFixInfo.findLike(flight_no)
             flight_info_list = []
             for one in ret:
                 one_hash = {}
