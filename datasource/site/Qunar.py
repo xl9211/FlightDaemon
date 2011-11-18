@@ -58,12 +58,14 @@ class Qunar(Spider):
                 if len(content) > 2:
                     if content[0] == u"计划":
                         flight['flight_state'] = u"计划航班"
-                    if content[0] == u"起飞":
+                    elif content[0] == u"起飞":
                         flight['flight_state'] = u"已经起飞"
-                    if content[0] == u"到达":
+                    elif content[0] == u"到达":
                         flight['flight_state'] = u"已经到达"
-                    if content[0] == u"取消":
+                    elif content[0] == u"取消":
                         flight['flight_state'] = u"已经取消"
+                    elif content[0] == u"延误":
+                        flight['flight_state'] = u"已经延误"
                     
                     estimate_time = content[1].split('-')
                     if len(estimate_time) == 2:
