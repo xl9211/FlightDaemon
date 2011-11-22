@@ -25,8 +25,7 @@ class DataSource:
         DBUtility.init(self.config.db_user, self.config.db_passwd, self.config.db_host, self.config.db_name)
         
         self.db_data_source = self.createDataSource('db')
-        self.realtime_data_source = []
-        self.realtime_data_source.append(self.createDataSource('qunar'))
+        self.qunar_source = self.createDataSource('qunar')
         self.punctuality_source = self.createDataSource('feeyo')
         self.weather_source = self.createDataSource('weather')
     
@@ -51,10 +50,11 @@ class DataSource:
     def getFlightFixInfoByFlightNO(self, flight_no, schedule_takeoff_date):
         try:
             self.logger.info("%s %s" % (flight_no, schedule_takeoff_date))
-                       
-            data = self.db_data_source.getFlightFixInfoByFlightNO(flight_no, schedule_takeoff_date)
+                     
+            flight_list = self.db_data_source.getFlightFixInfoByFlightNO(flight_no, schedule_takeoff_date)
+            flight_list = self.__checkFixDataValid(flight_list, schedule_takeoff_date)
             
-            return data
+            return flight_list
         except:
             msg = traceback.format_exc()
             self.logger.error(msg)
@@ -66,9 +66,10 @@ class DataSource:
         try:
             self.logger.info("%s %s %s %s" % (takeoff_airport, arrival_airport, schedule_takeoff_date, company))
             
-            data = self.db_data_source.getFlightFixInfoByRoute(takeoff_airport, arrival_airport, schedule_takeoff_date, company)
+            flight_list = self.db_data_source.getFlightFixInfoByRoute(takeoff_airport, arrival_airport, schedule_takeoff_date, company)
+            flight_list = self.__checkFixDataValid(flight_list, schedule_takeoff_date)
             
-            return data
+            return flight_list
         except:
             msg = traceback.format_exc()
             self.logger.error(msg)
@@ -79,10 +80,34 @@ class DataSource:
     def getFlightFixInfoByUniq(self, flight_no, takeoff_airport, arrival_airport, schedule_takeoff_date):
         try:
             self.logger.info("%s %s %s %s" % (flight_no, takeoff_airport, arrival_airport, schedule_takeoff_date))
-
-            data = self.db_data_source.getFlightFixInfoByUniq(flight_no, takeoff_airport, arrival_airport, schedule_takeoff_date)
+                     
+            flight_list = self.db_data_source.getFlightFixInfoByUniq(flight_no, takeoff_airport, arrival_airport, schedule_takeoff_date)
+            flight_list = self.__checkFixDataValid(flight_list, schedule_takeoff_date)
             
-            return data
+            return flight_list
+        except:
+            msg = traceback.format_exc()
+            self.logger.error(msg)
+            
+            return None
+        
+        
+    def __checkFixDataValid(self, flight_list, schedule_takeoff_date):
+        try:
+            week = time.strftime("%w", time.strptime(schedule_takeoff_date, "%Y-%m-%d"))
+            if week == '0':
+                week = '7'
+
+            filter_dup = []
+            flight_list_ret = []
+            for flight in flight_list:
+                if week in flight['schedule']:
+                    key = "%s%s%s" % (flight['flight_no'], flight['takeoff_airport'], flight['arrival_airport'])
+                    if key not in filter_dup:
+                        filter_dup.append(key)
+                        flight_list_ret.append(flight)
+            
+            return flight_list_ret
         except:
             msg = traceback.format_exc()
             self.logger.error(msg)
@@ -90,37 +115,12 @@ class DataSource:
             return None
         
     
-    def getPunctualityInfo(self, fix_data, spider_punctuality):
+    def getFlightRealtimeInfo(self, flight, auto = False):
         try:
-            self.logger.info("%s %s %s" % (fix_data['flight_no'], fix_data['takeoff_airport'], fix_data['arrival_airport']))
-
-            data = self.db_data_source.getPunctualityInfo(fix_data['flight_no'], fix_data['takeoff_airport'], fix_data['arrival_airport'])
-
-            if data is None and spider_punctuality:
-                data = self.punctuality_source.getPunctualityInfo(fix_data['takeoff_airport'], fix_data['arrival_airport'], fix_data['flight_no'])
-                if data is not None:
-                    self.db_data_source.putPunctualityInfo(fix_data, data)   
-            
-            return data
-        except:
-            msg = traceback.format_exc()
-            self.logger.error(msg)
-            
-            return None
-        
-
-    def getFlightRealtimeInfo(self, fix_data, auto, flying):
-        try:
-            self.logger.info("%s %s" % (fix_data['flight_no'], fix_data['schedule_takeoff_date']))
-            
-            flight = {}
-            
-            flight['flight_no'] = fix_data['flight_no']
-            flight['schedule_takeoff_time'] = fix_data['schedule_takeoff_time']
-            flight['schedule_arrival_time'] = fix_data['schedule_arrival_time']
-            flight['takeoff_airport'] = fix_data['takeoff_airport']
-            flight['arrival_airport'] = fix_data['arrival_airport']
-            flight['schedule_takeoff_date'] = fix_data['schedule_takeoff_date']
+            self.logger.info("%s %s %s %s" % (flight['flight_no'],
+                                              flight['takeoff_airport'],
+                                              flight['arrival_airport'], 
+                                              flight['schedule_takeoff_date']))
              
             flight['flight_state'] = u"计划航班"
             flight['estimate_takeoff_time'] = "--:--"
@@ -128,50 +128,20 @@ class DataSource:
             flight['estimate_arrival_time'] = "--:--"
             flight['actual_arrival_time'] = "--:--"
             flight['full_info'] = 0
-            
             flight['flight_location'] = ""
         
             self.db_data_source.getFlightRealtimeInfo(flight)
             
-            if flight['full_info'] == 0 and self.allow2Spider(flight, auto): 
-                for source in self.realtime_data_source:     
-                    ret = source.getFlightRealTimeInfo(flight)
-    
-                    if ret is None:
-                        self.logger.error("get %s realtime info error" % (flight['flight_no']))
-                    elif ret == -1:
-                        self.logger.info("today %s there is no such flight" % (flight['schedule_takeoff_date']))
-                        return -1
-                    elif ret == -2:
-                        self.logger.info("there is no such flight %s" % (flight['flight_no']))
-                        return -2
-                    else:
-                        self.db_data_source.updateScheduleTimeInFlightFixInfo(flight)
-                        break
-            self.db_data_source.putFlightRealtimeInfo(flight)
-                    
-            if flying:
-                if flight['flight_state'] != u"已经起飞":
-                    flight = {}
+            if flight['full_info'] == 0 and self.allow2Spider(flight, auto):      
+                ret = self.qunar_source.getFlightRealTimeInfo(flight)
 
-            return flight
-        except:
-            msg = traceback.format_exc()
-            self.logger.error(msg)
-            
-            return None
-        
-    
-    def getFlightRealtimeInfoFromDB(self, flight):
-        try:
-            self.logger.info("%s %s %s %s" % (flight['flight_no'],
-                                              flight['takeoff_airport'],
-                                              flight['arrival_airport'], 
-                                              flight['schedule_takeoff_date']))
-        
-            self.db_data_source.getFlightRealtimeInfo(flight)
-            
-            return flight
+                if ret is None:
+                    self.logger.error("get %s realtime info error" % (flight['flight_no']))
+                else:
+                    self.logger.info("get %s realtime info succ" % (flight['flight_no']))
+            self.db_data_source.putFlightRealtimeInfo(flight)
+
+            return 0
         except:
             msg = traceback.format_exc()
             self.logger.error(msg)
@@ -209,72 +179,57 @@ class DataSource:
             else:
                 self.logger.info("%s %s not allow to spider" %(flight['flight_no'], flight['schedule_takeoff_date']))
                 return False
-                
-
-    def completeFlightInfo(self, data_list, fix_data_list, schedule_takeoff_date, lang, realtime_data_only, spider_punctuality, flying):
-        try:
-            for fix_data in fix_data_list:
-                fix_data['schedule_takeoff_date'] = schedule_takeoff_date
-                realtime_data = self.getFlightRealtimeInfo(fix_data, False, flying)
-                self.logger.info("realtime data %s" %(json.dumps(realtime_data)))
-                
-                if flying:
-                    if realtime_data == {}:
-                        continue
-                
-                if realtime_data == -1 or realtime_data == -2:
-                    continue
-
-                data = {}
-                
-                if not realtime_data_only: 
-                    data['flight_no'] = fix_data['flight_no']
-                    data['company'] = self.getCompanyName(fix_data['company'], lang)
-                    data['takeoff_airport_entrance_exit'] = ""
-                    data['takeoff_airport'] = self.getAirportName(fix_data['takeoff_airport'], lang)
-                    data['takeoff_city'] = self.getCityName(fix_data['takeoff_city'],lang)
-                    data['arrival_airport_entrance_exit'] = ""
-                    data['arrival_airport'] = self.getAirportName(fix_data['arrival_airport'], lang)
-                    data['arrival_city'] = self.getCityName(fix_data['arrival_city'], lang)
-                    data['mileage'] = fix_data['mileage']
-                    data['schedule_takeoff_date'] = fix_data['schedule_takeoff_date']
-                    data['plane_model'] = fix_data['plane_model']
-                    data['takeoff_airport_building'] = fix_data['takeoff_airport_building']
-                    data['arrival_airport_building'] = fix_data['arrival_airport_building']
-                    data['on_time'] = ""
-                    data['half_hour_late'] = ""
-                    data['one_hour_late'] = ""
-                    data['more_than_one_hour_late'] = ""
-                    data['cancel'] = ""
-                    
-                    punctuality_data = self.getPunctualityInfo(fix_data, spider_punctuality)
-                    if punctuality_data is not None:
-                        data['on_time'] = punctuality_data['on_time']
-                        data['half_hour_late'] = punctuality_data['half_hour_late']
-                        data['one_hour_late'] = punctuality_data['one_hour_late']
-                        data['more_than_one_hour_late'] = punctuality_data['more_than_one_hour_late']
-                        data['cancel'] = punctuality_data['cancel']
-
-                data['schedule_takeoff_time'] = realtime_data['schedule_takeoff_time']
-                data['schedule_arrival_time'] = realtime_data['schedule_arrival_time']
-                
-                data['flight_state'] = realtime_data['flight_state']
-                if realtime_data['estimate_takeoff_time'] == fix_data['schedule_takeoff_time']:
-                    data['estimate_takeoff_time'] = "--:--"
-                else:
-                    data['estimate_takeoff_time'] = realtime_data['estimate_takeoff_time']
-                data['actual_takeoff_time'] = realtime_data['actual_takeoff_time']        
-                if realtime_data['estimate_arrival_time'] == fix_data['schedule_arrival_time']:
-                    data['estimate_arrival_time'] = "--:--"
-                else:
-                    data['estimate_arrival_time'] = realtime_data['estimate_arrival_time']
-                data['actual_arrival_time'] = realtime_data['actual_arrival_time']
-                data['flight_location'] = realtime_data['flight_location']
-                
-                self.checkValid(data)
-                
-                data_list.append(data)
             
+        
+    def getFlightRealtimeInfoFromDB(self, flight):
+        try:
+            self.db_data_source.getFlightRealtimeInfo(flight)
+            return 0
+        except:
+            msg = traceback.format_exc()
+            self.logger.error(msg)
+            
+            return None
+                
+
+    def completeFlightInfo(self, flight_list, schedule_takeoff_date, lang):
+        try:
+            for flight in flight_list:
+                flight['schedule_takeoff_date'] = schedule_takeoff_date
+                self.getFlightRealtimeInfo(flight)
+                 
+                flight['company'] = self.getCompanyName(flight['company'], lang)
+                flight['takeoff_airport'] = self.getAirportName(flight['takeoff_airport'], lang)
+                flight['takeoff_city'] = self.getCityName(flight['takeoff_city'],lang)
+                flight['arrival_airport'] = self.getAirportName(flight['arrival_airport'], lang)
+                flight['arrival_city'] = self.getCityName(flight['arrival_city'], lang)
+                
+                flight['takeoff_airport_entrance_exit'] = ""
+                flight['arrival_airport_entrance_exit'] = "" 
+                        
+                flight['on_time'] = ""
+                flight['half_hour_late'] = ""
+                flight['one_hour_late'] = ""
+                flight['more_than_one_hour_late'] = ""
+                flight['cancel'] = ""
+                
+                '''
+                punctuality_data = self.getPunctualityInfo(fix_data, spider_punctuality)
+                if punctuality_data is not None:
+                    data['on_time'] = punctuality_data['on_time']
+                    data['half_hour_late'] = punctuality_data['half_hour_late']
+                    data['one_hour_late'] = punctuality_data['one_hour_late']
+                    data['more_than_one_hour_late'] = punctuality_data['more_than_one_hour_late']
+                    data['cancel'] = punctuality_data['cancel']
+                '''
+                
+                if flight['estimate_takeoff_time'] == flight['schedule_takeoff_time']:
+                    flight['estimate_takeoff_time'] = "--:--"
+         
+                if flight['estimate_arrival_time'] == flight['schedule_arrival_time']:
+                    flight['estimate_arrival_time'] = "--:--"
+                
+                self.checkRealtimeDataValid(flight)
             return 0
         except:
             msg = traceback.format_exc()
@@ -283,16 +238,16 @@ class DataSource:
             return None
         
         
-    def checkValid(self, data):
+    def checkRealtimeDataValid(self, flight):
         try:
-            data['valid'] = '1'
+            flight['valid'] = '1'
             cur_time = time.strftime("%H:%M", time.localtime())
             
-            if data['flight_state'] == u"已经起飞" and (data['actual_takeoff_time'] == '--:--' or data['actual_takeoff_time'] > cur_time):
-                data['valid'] = '0'
+            if flight['flight_state'] == u"已经起飞" and (flight['actual_takeoff_time'] == '--:--' or flight['actual_takeoff_time'] > cur_time):
+                flight['valid'] = '0'
 
-            if data['flight_state'] == u"已经到达" and (data['actual_arrival_time'] == '--:--' or data['actual_arrival_time'] < cur_time):
-                data['valid'] = '0'
+            if flight['flight_state'] == u"已经到达" and (flight['actual_arrival_time'] == '--:--' or flight['actual_arrival_time'] > cur_time):
+                flight['valid'] = '0'
             
             return 0
         except:
@@ -504,10 +459,28 @@ class DataSource:
         
             return None
         
+    
+    def getPunctualityInfo(self, fix_data, spider_punctuality):
+        try:
+            self.logger.info("%s %s %s" % (fix_data['flight_no'], fix_data['takeoff_airport'], fix_data['arrival_airport']))
+
+            data = self.db_data_source.getPunctualityInfo(fix_data['flight_no'], fix_data['takeoff_airport'], fix_data['arrival_airport'])
+
+            if data is None and spider_punctuality:
+                data = self.punctuality_source.getPunctualityInfo(fix_data['takeoff_airport'], fix_data['arrival_airport'], fix_data['flight_no'])
+                if data is not None:
+                    self.db_data_source.putPunctualityInfo(fix_data, data)   
+            
+            return data
+        except:
+            msg = traceback.format_exc()
+            self.logger.error(msg)
+            
+            return None
+        
 
     #########################################################################################
     # 一次性使用
-    
     def spiderPunctuality(self):
         try:
             db_data_source = self.createDataSource('db')
@@ -525,6 +498,28 @@ class DataSource:
                     time.sleep(2)
                 else:
                     self.logger.info("already in..................................................")    
+        except:
+            msg = traceback.format_exc()
+            self.logger.error(msg)
+            
+            return None
+    
+    
+    def spiderFlightFixInfo(self):
+        try:
+            db_data_source = self.createDataSource('db')
+            airline_list = db_data_source.getAirlineList()
+
+            data_source = self.createDataSource('qunar')
+            all_num = len(airline_list)
+            count = 0
+            for airline in airline_list:
+                count += 1
+                self.logger.info("%s/%s, %s %s" % (str(count), str(all_num), airline['takeoff_city'], airline['arrival_city']))
+                data = data_source.getFlightFixInfoByAirline(airline['takeoff_city'], airline['arrival_city'])
+                db_data_source.putFlightFixInfo(data)
+                
+                db_data_source.putAirportInfo(data)  
         except:
             msg = traceback.format_exc()
             self.logger.error(msg)
@@ -563,26 +558,9 @@ class DataSource:
             self.logger.error(msg)
             
             return None
-        
-    
-    def spiderFlightFixInfo(self):
-        try:
-            db_data_source = self.createDataSource('db')
-            airline_list = db_data_source.getAirlineList()
-
-            data_source = self.createDataSource('qunar')
-            for airline in airline_list:
-                self.logger.info("%s %s" % (airline['takeoff_city'], airline['arrival_city']))
-                data = data_source.getFlightFixInfoByAirline(airline['takeoff_city'], airline['arrival_city'])
-                db_data_source.putFlightFixInfo(data)
-                
-                db_data_source.putAirportInfo(data)  
-        except:
-            msg = traceback.format_exc()
-            self.logger.error(msg)
-            
-            return None
     '''
+
+
     # 一次性使用
     #########################################################################################    
         

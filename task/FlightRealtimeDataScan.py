@@ -7,7 +7,7 @@ import traceback
 import PushScan
 
 
-class FlightScan:
+class FlightRealtimeDataScan:
     
     def __init__(self, config, data_source):
         self.config = config
@@ -32,7 +32,7 @@ class FlightScan:
             
             if lived_flight_list is not None:
                 for lived_flight in lived_flight_list:
-                    self.data_source.getFlightRealtimeInfo(lived_flight, True, False)
+                    self.data_source.getFlightRealtimeInfo(lived_flight, True)
             
             self.logger.info("lived flight realtime info spider end...")
             

@@ -40,65 +40,14 @@ class DB:
     
     def __init__(self):
         self.logger = LogUtil.Logging.getLogger()
+        
     
-    
-    def getFlightFixInfoByUniq(self, flight_no, takeoff_airport, arrival_airport, schedule_takeoff_date):
-        try:
-            ret = FlightFixInfo.find(flight_no = flight_no, takeoff_airport = takeoff_airport, arrival_airport = arrival_airport)
-            flight_info_list = []
-            for one in ret:
-                one_hash = {}
-                
-                one_hash['flight_no'] = one.flight_no
-                one_hash['company'] = one.company
-                one_hash['schedule_takeoff_time'] = one.schedule_takeoff_time
-                one_hash['schedule_arrival_time'] = one.schedule_arrival_time
-                one_hash['takeoff_city'] = one.takeoff_city
-                one_hash['takeoff_airport'] = one.takeoff_airport
-                one_hash['takeoff_airport_building'] = one.takeoff_airport_building
-                one_hash['arrival_city'] = one.arrival_city
-                one_hash['arrival_airport'] = one.arrival_airport
-                one_hash['arrival_airport_building'] = one.arrival_airport_building
-                one_hash['plane_model'] = one.plane_model
-                one_hash['mileage'] = one.mileage
-                
-                flight_info_list.append(one_hash)
-                break
-            
-            return flight_info_list
-        except:
-            msg = traceback.format_exc()
-            self.logger.error(msg)
-            
-            DBBase.Session.rollback()
-            DBBase.Engine.dispose()
-            
-            return None
-    
-     
+    ##############################################################################################
+    # FlightFixInfo
     def getFlightFixInfoByFlightNO(self, flight_no, schedule_takeoff_date):
         try:
             ret = FlightFixInfo.findLike(flight_no)
-            flight_info_list = []
-            for one in ret:
-                one_hash = {}
-                
-                one_hash['flight_no'] = one.flight_no
-                one_hash['company'] = one.company
-                one_hash['schedule_takeoff_time'] = one.schedule_takeoff_time
-                one_hash['schedule_arrival_time'] = one.schedule_arrival_time
-                one_hash['takeoff_city'] = one.takeoff_city
-                one_hash['takeoff_airport'] = one.takeoff_airport
-                one_hash['takeoff_airport_building'] = one.takeoff_airport_building
-                one_hash['arrival_city'] = one.arrival_city
-                one_hash['arrival_airport'] = one.arrival_airport
-                one_hash['arrival_airport_building'] = one.arrival_airport_building
-                one_hash['plane_model'] = one.plane_model
-                one_hash['mileage'] = one.mileage
-                
-                flight_info_list.append(one_hash)
-            
-            return flight_info_list
+            return self.__convertFixInfo(ret)
         except:
             msg = traceback.format_exc()
             self.logger.error(msg)
@@ -108,7 +57,7 @@ class DB:
             
             return None
     
-    
+
     def getFlightFixInfoByRoute(self, takeoff_airport, arrival_airport, schedule_takeoff_date, company):
         try:
             ret = []
@@ -117,26 +66,7 @@ class DB:
             else:
                 ret = FlightFixInfo.find(takeoff_airport = takeoff_airport, arrival_airport = arrival_airport, company = company)
             
-            flight_info_list = []
-            for one in ret:
-                one_hash = {}
-                
-                one_hash['flight_no'] = one.flight_no
-                one_hash['company'] = one.company
-                one_hash['schedule_takeoff_time'] = one.schedule_takeoff_time
-                one_hash['schedule_arrival_time'] = one.schedule_arrival_time
-                one_hash['takeoff_city'] = one.takeoff_city
-                one_hash['takeoff_airport'] = one.takeoff_airport
-                one_hash['takeoff_airport_building'] = one.takeoff_airport_building
-                one_hash['arrival_city'] = one.arrival_city
-                one_hash['arrival_airport'] = one.arrival_airport
-                one_hash['arrival_airport_building'] = one.arrival_airport_building
-                one_hash['plane_model'] = one.plane_model
-                one_hash['mileage'] = one.mileage
-                
-                flight_info_list.append(one_hash)
-            
-            return flight_info_list
+            return self.__convertFixInfo(ret)
         except:
             msg = traceback.format_exc()
             self.logger.error(msg)
@@ -145,45 +75,12 @@ class DB:
             DBBase.Engine.dispose()
             
             return None
-
-            
-    def getFlightRealtimeInfo(self, flight):
-        try:
-            ret = FlightRealtimeInfo.find(flight_no = flight['flight_no'], 
-                                          takeoff_airport = flight['takeoff_airport'], 
-                                          arrival_airport = flight['arrival_airport'], 
-                                          schedule_takeoff_date = flight['schedule_takeoff_date'])
-            
-            if len(ret) >= 1:
-                one = ret[0]
-                
-                flight['flight_state'] = one.flight_state
-                flight['estimate_takeoff_time'] = one.estimate_takeoff_time
-                flight['actual_takeoff_time'] = one.actual_takeoff_time
-                flight['estimate_arrival_time'] = one.estimate_arrival_time
-                flight['actual_arrival_time'] = one.actual_arrival_time
-                flight['full_info'] = one.full_info
-                
-            '''
-            else:
-                one  = FlightRealtimeInfo()
-                
-                one.flight_no = flight['flight_no']
-                one.flight_state = flight['flight_state']
-                one.estimate_takeoff_time = flight['estimate_takeoff_time']
-                one.actual_takeoff_time = flight['actual_takeoff_time'] 
-                one.estimate_arrival_time = flight['estimate_arrival_time']
-                one.actual_arrival_time = flight['actual_arrival_time']
-                one.schedule_takeoff_time = flight['schedule_takeoff_time']
-                one.schedule_arrival_time = flight['schedule_arrival_time']
-                one.takeoff_airport = flight['takeoff_airport']
-                one.arrival_airport = flight['arrival_airport']
-                one.schedule_takeoff_date = flight['schedule_takeoff_date']
-                one.full_info = 0    
-                one.add()
-            '''
         
-            return flight
+        
+    def getFlightFixInfoByUniq(self, flight_no, takeoff_airport, arrival_airport, schedule_takeoff_date):
+        try:
+            ret = FlightFixInfo.find(flight_no = flight_no, takeoff_airport = takeoff_airport, arrival_airport = arrival_airport)
+            return self.__convertFixInfo(ret)
         except:
             msg = traceback.format_exc()
             self.logger.error(msg)
@@ -192,6 +89,33 @@ class DB:
             DBBase.Engine.dispose()
             
             return None
+        
+    
+    def __convertFixInfo(self, data):
+        flight_info_list = []
+        for one in data:
+            one_hash = {}
+            
+            one_hash['flight_no'] = one.flight_no
+            one_hash['company'] = one.company
+            one_hash['schedule_takeoff_time'] = one.schedule_takeoff_time
+            one_hash['schedule_arrival_time'] = one.schedule_arrival_time
+            one_hash['takeoff_city'] = one.takeoff_city
+            one_hash['takeoff_airport'] = one.takeoff_airport
+            one_hash['takeoff_airport_building'] = one.takeoff_airport_building
+            one_hash['arrival_city'] = one.arrival_city
+            one_hash['arrival_airport'] = one.arrival_airport
+            one_hash['arrival_airport_building'] = one.arrival_airport_building
+            one_hash['plane_model'] = one.plane_model
+            one_hash['mileage'] = one.mileage
+            one_hash['stopover'] = one.stopover
+            one_hash['schedule'] = json.loads(one.schedule)
+            one_hash['valid_date_from'] = one.valid_date_from
+            one_hash['valid_date_to'] = one.valid_date_to
+            
+            flight_info_list.append(one_hash)
+        
+        return flight_info_list
     
     
     def getFlightList(self):
@@ -217,30 +141,6 @@ class DB:
             DBBase.Engine.dispose()
             
             return None
-            
-
-    def getCompanyList(self, lang):
-        try:
-            ret = CompanyInfo.find()
-            
-            company_info_list = []
-            for one in ret:
-                one_hash = {}
-                one_hash['short'] = one.company_short
-                if lang == 'zh':
-                    one_hash['full'] = one.company_zh
-                
-                company_info_list.append(one_hash)
-            
-            return company_info_list
-        except:
-            msg = traceback.format_exc()
-            self.logger.error(msg)
-            
-            DBBase.Session.rollback()
-            DBBase.Engine.dispose()
-            
-            return None 
     
     
     def getRandomFlightList(self, cur_time):
@@ -261,25 +161,62 @@ class DB:
             
             return None
         
-        
-    def getPushCandidate(self):
+    
+    def putFlightFixInfo(self, flight_info_list):
         try:
-            ret = FollowedInfo().findAll(push_switch = 'on')
-            
-            push_list = []
-            for one in ret:
-                one_hash = {}
-                one_hash['device_token'] = one.device_token
-                one_hash['flight_no'] = one.flight_no
-                one_hash['takeoff_airport'] = one.takeoff_airport
-                one_hash['arrival_airport'] = one.arrival_airport
-                one_hash['schedule_takeoff_date'] = one.schedule_takeoff_date
-                one_hash['push_switch'] = one.push_switch
-                one_hash['push_info'] = json.loads(one.push_info)
+            for one in flight_info_list:
+                flight_info = FlightFixInfo()
                 
-                push_list.append(one_hash) 
+                flight_info.flight_no = one['flight_no']
+                flight_info.company = one['company']
+                flight_info.schedule_takeoff_time = one['schedule_takeoff_time']
+                flight_info.schedule_arrival_time = one['schedule_arrival_time']
+                flight_info.takeoff_city = self.getCityShort(one['takeoff_city'], 'zh')
+                flight_info.takeoff_airport = self.getAirportShort(one['takeoff_airport'], 'zh')
+                flight_info.takeoff_airport_building = one['takeoff_airport_building']
+                flight_info.arrival_city = self.getCityShort(one['arrival_city'], 'zh')
+                flight_info.arrival_airport = self.getAirportShort(one['arrival_airport'], 'zh')
+                flight_info.arrival_airport_building = one['arrival_airport_building']
+                flight_info.plane_model = one['plane_model']
+                flight_info.mileage = one['mileage']
+                flight_info.stopover = one['stopover']
+                flight_info.schedule = json.dumps(one['schedule'])
+                flight_info.valid_date_from = one['valid_date_from']
+                flight_info.valid_date_to = one['valid_date_to']
             
-            return push_list
+                flight_info.add()
+        except:
+            msg = traceback.format_exc()
+            self.logger.error(msg)
+            
+            DBBase.Session.rollback()
+            DBBase.Engine.dispose()
+            
+            return None
+    # FlightFixInfo
+    ##############################################################################################
+    
+
+    ##############################################################################################
+    # FlightRealtimeInfo        
+    def getFlightRealtimeInfo(self, flight):
+        try:
+            ret = FlightRealtimeInfo.find(flight_no = flight['flight_no'], 
+                                          takeoff_airport = flight['takeoff_airport'], 
+                                          arrival_airport = flight['arrival_airport'], 
+                                          schedule_takeoff_date = flight['schedule_takeoff_date'])
+            
+            if len(ret) >= 1:
+                one = ret[0]
+                
+                flight['flight_state'] = one.flight_state
+                flight['estimate_takeoff_time'] = one.estimate_takeoff_time
+                flight['actual_takeoff_time'] = one.actual_takeoff_time
+                flight['estimate_arrival_time'] = one.estimate_arrival_time
+                flight['actual_arrival_time'] = one.actual_arrival_time
+                flight['full_info'] = one.full_info
+        
+            return flight
         except:
             msg = traceback.format_exc()
             self.logger.error(msg)
@@ -289,7 +226,7 @@ class DB:
             
             return None
 
-
+    
     def getRandomFlight(self):
         try:
             ret = FlightRealtimeInfo.getOneArrivedFlightNO()
@@ -340,329 +277,7 @@ class DB:
             DBBase.Engine.dispose()
             
             return None
-            
-            
-    def getCityList(self, lang):
-        try:
-            ret = CityInfo.find()
-            
-            city_list = []
-            for one in ret:            
-                city_list.append(one.city_zh)
-            
-            return city_list
-        except:
-            msg = traceback.format_exc()
-            self.logger.error(msg)
-            
-            DBBase.Session.rollback()
-            DBBase.Engine.dispose()
-            
-            return None
     
-    
-    def getAirlineList(self, lang):
-        try:
-            ret = AirlineInfo.find()
-            
-            airline_list = []
-            for one in ret:
-                hash = {} #@ReservedAssignment
-                hash['takeoff_city'] = one.takeoff_city
-                hash['arrival_city'] = one.arrival_city
-                airline_list.append(hash)
-            
-            return airline_list
-        except:
-            msg = traceback.format_exc()
-            self.logger.error(msg)
-            
-            DBBase.Session.rollback()
-            DBBase.Engine.dispose()
-            
-            return None
-    
-    
-    def getAirportList(self, lang):
-        try:
-            ret = AirportInfo.find()
-            
-            airport_info_list = []
-            for one in ret:
-                one_hash = {}
-                one_hash['short'] = one.airport_short
-                if lang == 'zh':
-                    one_hash['full'] = one.airport_zh
-                one_hash['city'] = self.getCityName(one.city, lang)
-                
-                airport_info_list.append(one_hash)
-            
-            return airport_info_list
-        except:
-            msg = traceback.format_exc()
-            self.logger.error(msg)
-            
-            DBBase.Session.rollback()
-            DBBase.Engine.dispose()
-            
-            return None
-    
-    
-    def getCompanyName(self, short, lang):
-        try:
-            ret = CompanyInfo.find(company_short = short)
-            
-            if len(ret) == 1:
-                if lang == 'zh':
-                    return ret[0].company_zh   
-            else:
-                return ""
-        except:
-            msg = traceback.format_exc()
-            self.logger.error(msg)
-            
-            DBBase.Session.rollback()
-            DBBase.Engine.dispose()
-            
-            return None
-        
-        
-    def getCityName(self, short, lang):
-        try:
-            ret = CityInfo.find(city_short = short)
-            
-            if len(ret) == 1:
-                if lang == 'zh':
-                    return ret[0].city_zh
-            else:
-                return ""
-        except:
-            msg = traceback.format_exc()
-            self.logger.error(msg)
-            
-            DBBase.Session.rollback()
-            DBBase.Engine.dispose()
-            
-            return None
-    
-    
-    def getCityCode(self, short):
-        try:
-            ret = CityInfo.find(city_short = short)
-            
-            if len(ret) == 1:
-                return ret[0].city_code
-            else:
-                return None
-        except:
-            msg = traceback.format_exc()
-            self.logger.error(msg)
-            
-            DBBase.Session.rollback()
-            DBBase.Engine.dispose()
-            
-            return None
-        
-    
-    def getCityShort(self, name, lang):
-        try:
-            ret = None
-            if lang == 'zh':
-                ret = CityInfo.find(city_zh = name)
-            
-            if len(ret) == 1:
-                return ret[0].city_short
-            else:
-                return ""
-        except:
-            msg = traceback.format_exc()
-            self.logger.error(msg)
-            
-            DBBase.Session.rollback()
-            DBBase.Engine.dispose()
-            
-            return None
-        
-    
-    def getAirportName(self, short, lang):
-        try:
-            ret = AirportInfo.find(airport_short = short)
-            
-            if len(ret) == 1:
-                if lang == 'zh':
-                    return ret[0].airport_zh
-            else:
-                return ""
-        except:
-            msg = traceback.format_exc()
-            self.logger.error(msg)
-            
-            DBBase.Session.rollback()
-            DBBase.Engine.dispose()
-            
-            return None
-    
-    
-    def getAirportCity(self, short):
-        try:
-            ret = AirportInfo.find(airport_short = short)
-            
-            if len(ret) == 1:
-                return ret[0].city
-            else:
-                return None
-        except:
-            msg = traceback.format_exc()
-            self.logger.error(msg)
-            
-            DBBase.Session.rollback()
-            DBBase.Engine.dispose()
-            
-            return None
-       
-        
-    def getPunctualityInfo(self, flight_no, takeoff_airport,  arrival_airport):
-        try:
-            ret = PunctualityInfo.find(flight_no = flight_no, takeoff_airport = takeoff_airport, arrival_airport = arrival_airport)
-            
-            punctuality_info = None
-            if len(ret) == 1:
-                punctuality_info = {}
-                punctuality_info['on_time'] = ret[0].on_time
-                punctuality_info['half_hour_late'] = ret[0].half_hour_late
-                punctuality_info['one_hour_late'] = ret[0].one_hour_late
-                punctuality_info['more_than_one_hour_late'] = ret[0].more_than_one_hour_late
-                punctuality_info['cancel'] = ret[0].cancel
-            
-            return punctuality_info
-        except:
-                msg = traceback.format_exc()
-                self.logger.error(msg)
-                
-                DBBase.Session.rollback()
-                DBBase.Engine.dispose()
-                
-                return None
-            
-        
-    def getPushInfoList(self, device_token, push_switch):
-        try:
-            ret = []
-            if device_token != "" and push_switch != "":
-                ret = FollowedInfo.findAll(device_token = device_token, push_switch = push_switch)
-            elif device_token == "" and push_switch == "":
-                ret = FollowedInfo.findAll()
-            elif device_token != "" and push_switch == "":
-                ret = FollowedInfo.findAll(device_token = device_token)
-            elif device_token == "" and push_switch != "":
-                ret = FollowedInfo.findAll(push_switch = push_switch)
-            
-            push_list = []
-            for one in ret:
-                one_hash = {}
-                one_hash['device_token'] = one.device_token
-                one_hash['flight'] = "[%s][%s][%s][%s]" % (one.flight_no, one.takeoff_airport, one.arrival_airport, one.schedule_takeoff_date)
-                one_hash['push_switch'] = one.push_switch
-                one_hash['push_info'] = json.loads(one.push_info)
-                push_list.append(one_hash)
-            
-            return push_list
-        except:
-                msg = traceback.format_exc()
-                self.logger.error(msg)
-                
-                DBBase.Session.rollback()
-                DBBase.Engine.dispose()
-                
-                return None
-    
-    
-    def putPunctualityInfo(self, flight, punctualit_info):
-        try:
-            ret = PunctualityInfo.find(flight_no = flight['flight_no'], takeoff_airport = flight['takeoff_airport'], arrival_airport = flight['arrival_airport'])
-            
-            if len(ret) == 0:
-                info = PunctualityInfo()
-                
-                info.flight_no = flight['flight_no']
-                info.takeoff_airport = flight['takeoff_airport']
-                info.arrival_airport = flight['arrival_airport']
-                info.on_time = punctualit_info['on_time']
-                info.half_hour_late = punctualit_info['half_hour_late']
-                info.one_hour_late = punctualit_info['one_hour_late']
-                info.more_than_one_hour_late = punctualit_info['more_than_one_hour_late']
-                info.cancel = punctualit_info['cancel']
-            
-            info.add()
-        except:
-            msg = traceback.format_exc()
-            self.logger.error(msg)
-            
-            DBBase.Session.rollback()
-            DBBase.Engine.dispose()
-            
-            return None
-
-
-    def putFlightFixInfo(self, flight_info_list):
-        try:
-            for one in flight_info_list:
-                ret = FlightFixInfo.find(flight_no = one['flight_no'], schedule_takeoff_time = one['schedule_takeoff_time'], schedule_arrival_time = one['schedule_arrival_time'], schedule = one['schedule'])
-                
-                if len(ret) == 0:
-                    flight_info = FlightFixInfo()
-                    
-                    flight_info.flight_no = one['flight_no']
-                    flight_info.company = one['company']
-                    flight_info.schedule_takeoff_time = one['schedule_takeoff_time']
-                    flight_info.schedule_arrival_time = one['schedule_arrival_time']
-                    flight_info.takeoff_city = one['takeoff_city']
-                    flight_info.takeoff_airport = one['takeoff_airport']
-                    flight_info.takeoff_airport_building = one['takeoff_airport_building']
-                    flight_info.arrival_city = one['arrival_city']
-                    flight_info.arrival_airport = one['arrival_airport']
-                    flight_info.arrival_airport_building = one['arrival_airport_building']
-                    flight_info.plane_model = one['plane_model']
-                    flight_info.mileage = one['mileage']
-                    flight_info.stopover = one['stopover']
-                    flight_info.schedule = one['schedule']
-                
-                    flight_info.add()
-        except:
-            msg = traceback.format_exc()
-            self.logger.error(msg)
-            
-            DBBase.Session.rollback()
-            DBBase.Engine.dispose()
-            
-            return None
-            
-        
-    def putAirportInfo(self, flight_info_list):
-        try:
-            for one in flight_info_list:
-                ret = AirportInfo.find(airport_short = one['takeoff_airport_short'])
-                if len(ret) == 0:
-                    airport_info = AirportInfo()
-                    airport_info.airport_short = one['takeoff_airport_short']
-                    airport_info.airport_zh = one['takeoff_airport']
-                    airport_info.add()
-                    
-                ret = AirportInfo.find(airport_short = one['arrival_airport_short'])
-                if len(ret) == 0:
-                    airport_info = AirportInfo()
-                    airport_info.airport_short = one['arrival_airport_short']
-                    airport_info.airport_zh = one['arrival_airport']
-                    airport_info.add()
-        except:
-            msg = traceback.format_exc()
-            self.logger.error(msg)
-            
-            DBBase.Session.rollback()
-            DBBase.Engine.dispose()
-            
-            return None
-            
     
     def putFlightRealtimeInfo(self, one):
         try:
@@ -697,22 +312,30 @@ class DB:
             DBBase.Engine.dispose()
             
             return None
+    # FlightRealtimeInfo
+    ##############################################################################################
     
     
-    def putCompany(self, company_list):
+    ##############################################################################################
+    # FollowedInfo
+    def getPushCandidate(self):
         try:
-            for one in company_list:
-                ret = CompanyInfoAll.find(company_short = one[0])
+            ret = FollowedInfo.findAll(push_switch = 'on')
+            
+            push_list = []
+            for one in ret:
+                one_hash = {}
+                one_hash['device_token'] = one.device_token
+                one_hash['flight_no'] = one.flight_no
+                one_hash['takeoff_airport'] = one.takeoff_airport
+                one_hash['arrival_airport'] = one.arrival_airport
+                one_hash['schedule_takeoff_date'] = one.schedule_takeoff_date
+                one_hash['push_switch'] = one.push_switch
+                one_hash['push_info'] = json.loads(one.push_info)
                 
-                if len(ret) != 0:
-                    continue
-                
-                company = CompanyInfoAll()
-                company.company_short = one[0]
-                company.company_zh = one[1]
-                company.company_en = one[2]
-                company.state = one[3]
-                company.add()
+                push_list.append(one_hash) 
+            
+            return push_list
         except:
             msg = traceback.format_exc()
             self.logger.error(msg)
@@ -721,25 +344,38 @@ class DB:
             DBBase.Engine.dispose()
             
             return None
-
-            
-    def putAirline(self, airline_list):
+    
+    
+    def getPushInfoList(self, device_token, push_switch):
         try:
-            for one in airline_list:
-                ret = one.split('-')
-                
-                airline = AirlineInfo()
-                airline.takeoff_city = ret[0]
-                airline.arrival_city = ret[1]
-                airline.add()
+            ret = []
+            if device_token != "" and push_switch != "":
+                ret = FollowedInfo.findAll(device_token = device_token, push_switch = push_switch)
+            elif device_token == "" and push_switch == "":
+                ret = FollowedInfo.findAll()
+            elif device_token != "" and push_switch == "":
+                ret = FollowedInfo.findAll(device_token = device_token)
+            elif device_token == "" and push_switch != "":
+                ret = FollowedInfo.findAll(push_switch = push_switch)
+            
+            push_list = []
+            for one in ret:
+                one_hash = {}
+                one_hash['device_token'] = one.device_token
+                one_hash['flight'] = "[%s][%s][%s][%s]" % (one.flight_no, one.takeoff_airport, one.arrival_airport, one.schedule_takeoff_date)
+                one_hash['push_switch'] = one.push_switch
+                one_hash['push_info'] = json.loads(one.push_info)
+                push_list.append(one_hash)
+            
+            return push_list
         except:
-            msg = traceback.format_exc()
-            self.logger.error(msg)
-            
-            DBBase.Session.rollback()
-            DBBase.Engine.dispose()
-            
-            return None
+                msg = traceback.format_exc()
+                self.logger.error(msg)
+                
+                DBBase.Session.rollback()
+                DBBase.Engine.dispose()
+                
+                return None
         
     
     def putFollowedInfo(self, device_token, followed_list):
@@ -811,19 +447,26 @@ class DB:
             DBBase.Engine.dispose()
             
             return None
-            
+    # FollowedInfo
+    ##############################################################################################
     
-    def updateScheduleTimeInFlightFixInfo(self, flight):
+
+    ##############################################################################################
+    # CompanyInfo
+    def getCompanyList(self, lang):
         try:
-            ret = FlightFixInfo.find(True, flight_no = flight['flight_no'], 
-                                     takeoff_airport = flight['takeoff_airport'], 
-                                     arrival_airport = flight['arrival_airport'])
+            ret = CompanyInfo.find()
             
-            if ret is not None:
-                ret.schedule_takeoff_time = flight['schedule_takeoff_time']
-                ret.schedule_arrival_time = flight['schedule_arrival_time']
+            company_info_list = []
+            for one in ret:
+                one_hash = {}
+                one_hash['short'] = one.company_short
+                if lang == 'zh':
+                    one_hash['full'] = one.company_zh
                 
-                ret.add()
+                company_info_list.append(one_hash)
+            
+            return company_info_list
         except:
             msg = traceback.format_exc()
             self.logger.error(msg)
@@ -834,6 +477,349 @@ class DB:
             return None
     
     
+    def putCompany(self, company_list):
+        try:
+            for one in company_list:
+                ret = CompanyInfoAll.find(company_short = one[0])
+                
+                if len(ret) != 0:
+                    continue
+                
+                company = CompanyInfoAll()
+                company.company_short = one[0]
+                company.company_zh = one[1]
+                company.company_en = one[2]
+                company.state = one[3]
+                company.add()
+        except:
+            msg = traceback.format_exc()
+            self.logger.error(msg)
+            
+            DBBase.Session.rollback()
+            DBBase.Engine.dispose()
+            
+            return None
+    # CompanyInfo
+    ##############################################################################################
+    
+    
+    ##############################################################################################       
+    # CityInfo
+    def getCityList(self, lang):
+        try:
+            ret = CityInfo.find()
+            
+            city_list = []
+            for one in ret:            
+                city_list.append(one.city_zh)
+            
+            return city_list
+        except:
+            msg = traceback.format_exc()
+            self.logger.error(msg)
+            
+            DBBase.Session.rollback()
+            DBBase.Engine.dispose()
+            
+            return None
+    
+    
+    def getCityName(self, short, lang):
+        try:
+            ret = CityInfo.find(city_short = short)
+            
+            if len(ret) == 1:
+                if lang == 'zh':
+                    return ret[0].city_zh
+            else:
+                return ""
+        except:
+            msg = traceback.format_exc()
+            self.logger.error(msg)
+            
+            DBBase.Session.rollback()
+            DBBase.Engine.dispose()
+            
+            return None
+        
+    
+    def getCityCode(self, short):
+        try:
+            ret = CityInfo.find(city_short = short)
+            
+            if len(ret) == 1:
+                return ret[0].city_code
+            else:
+                return None
+        except:
+            msg = traceback.format_exc()
+            self.logger.error(msg)
+            
+            DBBase.Session.rollback()
+            DBBase.Engine.dispose()
+            
+            return None
+        
+    
+    def getCityShort(self, name, lang):
+        try:
+            ret = None
+            if lang == 'zh':
+                ret = CityInfo.find(city_zh = name)
+            
+            if len(ret) == 1:
+                return ret[0].city_short
+            else:
+                return ""
+        except:
+            msg = traceback.format_exc()
+            self.logger.error(msg)
+            
+            DBBase.Session.rollback()
+            DBBase.Engine.dispose()
+            
+            return None
+    # CityInfo
+    ##############################################################################################
+    
+    
+    ##############################################################################################
+    # AirlineInfo
+    def getAirlineList(self):
+        try:
+            ret = AirlineInfo.find()
+            
+            airline_list = []
+            for one in ret:
+                hash = {} #@ReservedAssignment
+                hash['takeoff_city'] = one.takeoff_city
+                hash['arrival_city'] = one.arrival_city
+                airline_list.append(hash)
+            
+            return airline_list
+        except:
+            msg = traceback.format_exc()
+            self.logger.error(msg)
+            
+            DBBase.Session.rollback()
+            DBBase.Engine.dispose()
+            
+            return None
+        
+    
+    def putAirline(self, airline_list):
+        try:
+            for one in airline_list:
+                ret = one.split('-')
+                
+                airline = AirlineInfo()
+                airline.takeoff_city = ret[0]
+                airline.arrival_city = ret[1]
+                airline.add()
+        except:
+            msg = traceback.format_exc()
+            self.logger.error(msg)
+            
+            DBBase.Session.rollback()
+            DBBase.Engine.dispose()
+            
+            return None
+    # AirlineInfo
+    ##############################################################################################
+    
+    
+    ##############################################################################################
+    # AirportInfo
+    def getAirportList(self, lang):
+        try:
+            ret = AirportInfo.find()
+            
+            airport_info_list = []
+            for one in ret:
+                one_hash = {}
+                one_hash['short'] = one.airport_short
+                if lang == 'zh':
+                    one_hash['full'] = one.airport_zh
+                one_hash['city'] = self.getCityName(one.city, lang)
+                
+                airport_info_list.append(one_hash)
+            
+            return airport_info_list
+        except:
+            msg = traceback.format_exc()
+            self.logger.error(msg)
+            
+            DBBase.Session.rollback()
+            DBBase.Engine.dispose()
+            
+            return None
+    
+    
+    def getAirportName(self, short, lang):
+        try:
+            ret = AirportInfo.find(airport_short = short)
+            
+            if len(ret) == 1:
+                if lang == 'zh':
+                    return ret[0].airport_zh
+            else:
+                return ""
+        except:
+            msg = traceback.format_exc()
+            self.logger.error(msg)
+            
+            DBBase.Session.rollback()
+            DBBase.Engine.dispose()
+            
+            return None
+        
+    
+    def getAirportShort(self, name, lang):
+        try:
+            ret = None
+            if lang == 'zh':
+                ret = AirportInfo.find(airport_zh = name)
+            
+            if len(ret) == 1:
+                return ret[0].airport_short
+            else:
+                return ""
+        except:
+            msg = traceback.format_exc()
+            self.logger.error(msg)
+            
+            DBBase.Session.rollback()
+            DBBase.Engine.dispose()
+            
+            return None
+        
+        
+    def getAirportCity(self, short):
+        try:
+            ret = AirportInfo.find(airport_short = short)
+            
+            if len(ret) == 1:
+                return ret[0].city
+            else:
+                return None
+        except:
+            msg = traceback.format_exc()
+            self.logger.error(msg)
+            
+            DBBase.Session.rollback()
+            DBBase.Engine.dispose()
+            
+            return None
+        
+    
+    def putAirportInfo(self, flight_info_list):
+        try:
+            for one in flight_info_list:
+                ret = AirportInfo.find(airport_short = one['takeoff_airport_short'])
+                if len(ret) == 0:
+                    airport_info = AirportInfo()
+                    airport_info.airport_short = one['takeoff_airport_short']
+                    airport_info.airport_zh = one['takeoff_airport']
+                    airport_info.add()
+                    
+                ret = AirportInfo.find(airport_short = one['arrival_airport_short'])
+                if len(ret) == 0:
+                    airport_info = AirportInfo()
+                    airport_info.airport_short = one['arrival_airport_short']
+                    airport_info.airport_zh = one['arrival_airport']
+                    airport_info.add()
+        except:
+            msg = traceback.format_exc()
+            self.logger.error(msg)
+            
+            DBBase.Session.rollback()
+            DBBase.Engine.dispose()
+            
+            return None
+    # AirportInfo
+    ##############################################################################################
+    
+    
+    ##############################################################################################
+    # CompanyInfo
+    def getCompanyName(self, short, lang):
+        try:
+            ret = CompanyInfo.find(company_short = short)
+            
+            if len(ret) == 1:
+                if lang == 'zh':
+                    return ret[0].company_zh   
+            else:
+                return ""
+        except:
+            msg = traceback.format_exc()
+            self.logger.error(msg)
+            
+            DBBase.Session.rollback()
+            DBBase.Engine.dispose()
+            
+            return None
+    # CompanyInfo
+    ##############################################################################################
+    
+
+    ##############################################################################################
+    # PunctualityInfo
+    def getPunctualityInfo(self, flight_no, takeoff_airport,  arrival_airport):
+        try:
+            ret = PunctualityInfo.find(flight_no = flight_no, takeoff_airport = takeoff_airport, arrival_airport = arrival_airport)
+            
+            punctuality_info = None
+            if len(ret) == 1:
+                punctuality_info = {}
+                punctuality_info['on_time'] = ret[0].on_time
+                punctuality_info['half_hour_late'] = ret[0].half_hour_late
+                punctuality_info['one_hour_late'] = ret[0].one_hour_late
+                punctuality_info['more_than_one_hour_late'] = ret[0].more_than_one_hour_late
+                punctuality_info['cancel'] = ret[0].cancel
+            
+            return punctuality_info
+        except:
+                msg = traceback.format_exc()
+                self.logger.error(msg)
+                
+                DBBase.Session.rollback()
+                DBBase.Engine.dispose()
+                
+                return None
+            
+    
+    def putPunctualityInfo(self, flight, punctualit_info):
+        try:
+            ret = PunctualityInfo.find(flight_no = flight['flight_no'], takeoff_airport = flight['takeoff_airport'], arrival_airport = flight['arrival_airport'])
+            
+            if len(ret) == 0:
+                info = PunctualityInfo()
+                
+                info.flight_no = flight['flight_no']
+                info.takeoff_airport = flight['takeoff_airport']
+                info.arrival_airport = flight['arrival_airport']
+                info.on_time = punctualit_info['on_time']
+                info.half_hour_late = punctualit_info['half_hour_late']
+                info.one_hour_late = punctualit_info['one_hour_late']
+                info.more_than_one_hour_late = punctualit_info['more_than_one_hour_late']
+                info.cancel = punctualit_info['cancel']
+            
+            info.add()
+        except:
+            msg = traceback.format_exc()
+            self.logger.error(msg)
+            
+            DBBase.Session.rollback()
+            DBBase.Engine.dispose()
+            
+            return None
+    # PunctualityInfo
+    ############################################################################################## 
+
+
+    ############################################################################################## 
+    # Test
     def adjustFlightFixInfo(self):
         try:
             city_code_file = open("../../test/citycode", "r")
@@ -889,6 +875,9 @@ class DB:
             DBBase.Engine.dispose()
             
             return None
+    # Test
+    ############################################################################################## 
+    
     
             
 if __name__ == "__main__":

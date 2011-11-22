@@ -6,21 +6,24 @@ import DBBase
 
 
 class FlightFixInfo(DBBase.Base):
-    __tablename__ = 'flight_fix_info_table'    
-    flight_no = Column(VARCHAR(50), primary_key = True, index = True, nullable = False)
+    __tablename__ = 'flight_fix_info_table'
+    id = Column(INTEGER, primary_key = True)    
+    flight_no = Column(VARCHAR(50), index = True, nullable = False)
     company = Column(VARCHAR(50), index = True, nullable = False)
     schedule_takeoff_time = Column(VARCHAR(50), index = True, nullable = False)
     schedule_arrival_time = Column(VARCHAR(50), index = True, nullable = False)
     takeoff_city = Column(VARCHAR(50), index = True, nullable = False)
-    takeoff_airport = Column(VARCHAR(50), primary_key = True, index = True, nullable = False)
+    takeoff_airport = Column(VARCHAR(50), index = True, nullable = False)
     takeoff_airport_building = Column(VARCHAR(50))
     arrival_city = Column(VARCHAR(50), index = True, nullable = False)
-    arrival_airport = Column(VARCHAR(50), primary_key = True, index = True, nullable = False)
+    arrival_airport = Column(VARCHAR(50), index = True, nullable = False)
     arrival_airport_building = Column(VARCHAR(50))
     plane_model = Column(VARCHAR(50), nullable = False)
     mileage = Column(VARCHAR(50))
     stopover = Column(VARCHAR(50))
     schedule = Column(VARCHAR(50), nullable = False)
+    valid_date_from = Column(VARCHAR(20))
+    valid_date_to = Column(VARCHAR(20))
     date = Column(VARCHAR(20))
        
     

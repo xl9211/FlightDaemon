@@ -9,7 +9,6 @@ sys.path.append(current_path)
 #import locale
 #locale.setlocale(locale.LC_ALL, 'en_US.UTF-8')
 
-
 import cherrypy
 from tools import LogUtil
 import traceback
@@ -17,7 +16,7 @@ from tools import Config
 import json
 import time
 from datasource.DataSource import DataSource
-from task.FlightScan import FlightScan
+from task.FlightScan import FlightRealtimeDataScan
 import random
 
 
@@ -26,6 +25,7 @@ from pygments.lexers import PythonLexer #@UnresolvedImport
 from pygments.formatters import HtmlFormatter #@UnresolvedImport
 
 from mako.template import Template #@UnresolvedImport
+
 
 class FlightDaemon:
     
@@ -36,7 +36,7 @@ class FlightDaemon:
         self.data_source = DataSource(self.config)
 
         if self.config.debug_mode == 'no':
-            self.flight_scan = FlightScan(self.config, self.data_source)
+            self.flight_scan = FlightRealtimeDataScan(self.config, self.data_source)
             self.flight_scan.start()
         
         self.logger.info("Flight Daemon Started...")
@@ -62,100 +62,148 @@ class FlightDaemon:
             
             return json.dumps(None)
         
+        
+    @cherrypy.expose
+    def queryFlightInfoByFlightNO(self, flight_no, schedule_takeoff_date, lang = 'zh'):
+        try:
+            self.logger.info("get request %s %s %s" % (flight_no, schedule_takeoff_date, lang))
+            
+            flight_list = self.data_source.getFlightFixInfoByFlightNO(flight_no, schedule_takeoff_date)
+ 
+            if flight_list == None:
+                self.logger.info("fix data not exist")
+                return json.dumps(None)
+            if len(flight_list) == 0:
+                self.logger.error("get fix data error")
+                return json.dumps([])
+            
+            self.data_source.completeFlightInfo(flight_list, schedule_takeoff_date, lang)
+  
+            return json.dumps(flight_list) 
+        except:
+            msg = traceback.format_exc()
+            self.logger.error(msg)
+            
+            return json.dumps(None)
+        
 
     @cherrypy.expose
     def queryFlightInfoByRoute(self, takeoff_airport, arrival_airport, schedule_takeoff_date, company = 'all', lang = 'zh'):
         try:
             self.logger.info("get request %s %s %s %s %s" % (takeoff_airport, arrival_airport, schedule_takeoff_date, company, lang))
             
-            fix_data_list = self.data_source.getFlightFixInfoByRoute(takeoff_airport, arrival_airport, schedule_takeoff_date, company)
-            self.logger.info("fix data %s" %(json.dumps(fix_data_list)))
+            flight_list = self.data_source.getFlightFixInfoByRoute(takeoff_airport, arrival_airport, schedule_takeoff_date, company)
  
-            if len(fix_data_list) == 0:
-                return json.dumps([])
-            if fix_data_list == None:
+            if flight_list == None:
+                self.logger.info("fix data not exist")
                 return json.dumps(None)
+            if len(flight_list) == 0:
+                self.logger.error("get fix data error")
+                return json.dumps([])
             
-            data_list = []
-            self.data_source.completeFlightInfo(data_list, fix_data_list, schedule_takeoff_date, lang, False, False, False)
+            self.data_source.completeFlightInfo(flight_list, schedule_takeoff_date, lang)
   
-            ret = json.dumps(data_list)
-            self.logger.info(ret) 
-            return ret
-        
+            return json.dumps(flight_list)
         except:
             msg = traceback.format_exc()
             self.logger.error(msg)
             
             return json.dumps(None)
     
-    
-    @cherrypy.expose
-    def queryFlightInfoByFlightNO(self, flight_no, schedule_takeoff_date, lang = 'zh', flying = False):
-        try:
-            self.logger.info("get request %s %s %s" % (flight_no, schedule_takeoff_date, lang))
-            
-            fix_data_list = self.data_source.getFlightFixInfoByFlightNO(flight_no, schedule_takeoff_date)
-            self.logger.info("fix data %s" %(json.dumps(fix_data_list)))
- 
-            if len(fix_data_list) == 0:
-                return json.dumps([])
-            if fix_data_list == None:
-                return json.dumps(None)
-            
-            data_list = []
-            self.data_source.completeFlightInfo(data_list, fix_data_list, schedule_takeoff_date, lang, False, True, flying)
-  
-            ret = json.dumps(data_list)
-            self.logger.info(ret) 
-            return ret
-        except:
-            msg = traceback.format_exc()
-            self.logger.error(msg)
-            
-            return json.dumps(None)
-    
-    
+
     @cherrypy.expose   
     def queryFlightInfoByRandom(self, lang = 'zh'):
         try:
             self.logger.info("get request %s" % (lang))
             
-            flights = []
+            right_flight = None
             cur_time = time.strftime("%H:%M", time.localtime())
             
             if not (cur_time > self.config.stop_fly_start and cur_time < self.config.stop_fly_end):
-                flight_list = self.data_source.getRandomFlightList(cur_time)
-                flight_num = len(flight_list)
+                random_list = self.data_source.getRandomFlightList(cur_time)
+                flight_num = len(random_list)
                 
                 for i in range(0, flight_num): #@UnusedVariable
-                    index = random.randint(0, len(flight_list) - 1)
-                    flight_no = flight_list.pop(index)
+                    index = random.randint(0, len(random_list) - 1)
+                    flight_no = random_list.pop(index)
                     
                     schedule_takeoff_date = time.strftime("%Y-%m-%d", time.localtime())
-                    flights = json.loads(self.queryFlightInfoByFlightNO(flight_no, schedule_takeoff_date, lang, True))
+                    flights = json.loads(self.queryFlightInfoByFlightNO(flight_no, schedule_takeoff_date, lang))
                     
-                    if len(flights) > 0:
+                    find = False
+                    if flights is not None and len(flights) > 0:
+                        for flight in flights:
+                            if flight['flight_state'] == u'已经起飞':
+                                right_flight = flight
+                                find = True
+                                break
+                    
+                    if find:
                         break
             
-            if flights == []:
+            # 如果没有正在飞行的航班
+            if right_flight is None:
                 flight = self.data_source.getRandomFlight()
                 
                 if flight is not None:
-                    flights = json.loads(self.queryFlightInfoByFlightNO(flight['flight_no'], flight['schedule_takeoff_date'], lang, False))
+                    flights = json.loads(self.queryFlightInfoByFlightNO(flight['flight_no'], flight['schedule_takeoff_date'], lang))
+                    
+                    if flights is not None and len(flights) > 0:
+                        right_flight = flights[0]
+
+            if right_flight is None:
+                return json.dumps([])
             
-            if flights is not None and len(flights) > 1:
-                self.logger.info("random more than one")
-                ret_tmp = []
-                ret_tmp.append(flights[0])
+            flight_list = []
+            flight_list.append(right_flight)
+
+            return json.dumps(flight_list)             
+        except:
+            msg = traceback.format_exc()
+            self.logger.error(msg)
+            
+            return json.dumps(None)
+        
+    
+    @cherrypy.expose
+    def updateFollowedFlightInfo(self, query_string, device_token = None, lang = 'zh'):
+        try:
+            self.logger.info("get request %s %s %s" % (query_string, str(device_token), lang))
+            
+            query_list = json.loads(query_string)
+            flight_list = []
+            
+            if device_token is None:
+                # 更新航班
+                for flight in query_list:
+                    tmp_list = self.data_source.getFlightFixInfoByUniq(flight['flight_no'], flight['takeoff_airport'], flight['arrival_airport'], flight['schedule_takeoff_date'])
+     
+                    if len(tmp_list) == 0:
+                        self.logger.info("fix data not exist")
+                        continue
+                    if tmp_list == None:
+                        self.logger.error("get fix data error")
+                        continue
                 
-                ret = json.dumps(ret_tmp)
-                self.logger.info(ret)
-                return ret
-            
-            ret = json.dumps(flights)
-            self.logger.info(ret) 
-            return ret              
+                    self.data_source.completeFlightInfo(tmp_list, flight['schedule_takeoff_date'], lang)
+                    
+                    tmp_flight = {}
+                    tmp_flight['flight_state'] = tmp_list[0]['flight_state']
+                    tmp_flight['estimate_takeoff_time'] = tmp_list[0]['estimate_takeoff_time']
+                    tmp_flight['actual_takeoff_time'] = tmp_list[0]['actual_takeoff_time']
+                    tmp_flight['estimate_arrival_time'] = tmp_list[0]['estimate_arrival_time']
+                    tmp_flight['actual_arrival_time'] = tmp_list[0]['actual_arrival_time']
+                    tmp_flight['flight_location'] = tmp_list[0]['flight_location']
+                    tmp_flight['schedule_takeoff_time'] = tmp_list[0]['schedule_takeoff_time']
+                    tmp_flight['schedule_arrival_time'] = tmp_list[0]['schedule_arrival_time']
+                    tmp_flight['valid'] = tmp_list[0]['valid']
+                    
+                    flight_list.append(tmp_flight)
+            else:
+                # 关注航班
+                self.data_source.storeFollowedInfo(device_token, query_list)
+
+            return json.dumps(flight_list)
         except:
             msg = traceback.format_exc()
             self.logger.error(msg)
@@ -197,44 +245,7 @@ class FlightDaemon:
             
             return json.dumps(None)
 
-    
-    @cherrypy.expose
-    def updateFollowedFlightInfo(self, query_string, device_token = None, lang = 'zh'):
-        try:
-            self.logger.info("get request %s %s %s" % (query_string, str(device_token), lang))
-            
-            flight_list = json.loads(query_string)
-            data_list = []
-            
-            if device_token is None:
-                # 更新航班
-                for flight in flight_list:
-                    # fix data
-                    fix_data_list = self.data_source.getFlightFixInfoByUniq(flight['flight_no'], flight['takeoff_airport'], flight['arrival_airport'], flight['schedule_takeoff_date'])
-                    self.logger.info("fix data %s" %(json.dumps(fix_data_list)))
-     
-                    if len(fix_data_list) == 0:
-                        self.logger.info("fix data not exist")
-                        continue
-                    if fix_data_list == None:
-                        self.logger.error("get fix data error")
-                        continue
-                    
-                    self.data_source.completeFlightInfo(data_list, fix_data_list, flight['schedule_takeoff_date'], lang, True, False, False)
-            else:
-                # 关注航班
-                self.data_source.storeFollowedInfo(device_token, flight_list)
-            
-            ret = json.dumps(data_list)
-            self.logger.info(ret) 
-            return ret
-        except:
-            msg = traceback.format_exc()
-            self.logger.error(msg)
-            
-            return json.dumps(None)
-    
-    
+
     @cherrypy.expose     
     def getCompanyList(self, sign = None, lang = 'zh'):
         try:
@@ -297,8 +308,23 @@ class FlightDaemon:
             self.logger.error(msg)
             
             return json.dumps(None)
+        
+    
+    @cherrypy.expose     
+    def spiderFlightFixInfo(self):
+        try:
+            self.logger.info("get request")
+                      
+            self.data_source.spiderFlightFixInfo()
+            
+            return json.dumps('OK')
+        except:
+            msg = traceback.format_exc()
+            self.logger.error(msg)
+            
+            return json.dumps(None)
           
-
+    
     '''
     @cherrypy.expose     
     def spiderPunctuality(self):
@@ -324,21 +350,6 @@ class FlightDaemon:
             data = self.data_source.spiderAirline()
             
             return json.dumps(data)
-        except:
-            msg = traceback.format_exc()
-            self.logger.error(msg)
-            
-            return json.dumps(None)
-
-    
-    @cherrypy.expose     
-    def spiderFlightFixInfo(self):
-        try:
-            self.logger.info("get request")
-                      
-            data = self.data_source.spiderFlightFixInfo()
-            
-            return json.dumps('OK')
         except:
             msg = traceback.format_exc()
             self.logger.error(msg)
