@@ -11,10 +11,8 @@ sys.path.append(base_path)
 
 from Spider import Spider
 import lxml.html.soupparser 
-import json
 from tools import LogUtil #@UnusedImport
 import traceback 
-import time
 
 
 class Qunar(Spider):
