@@ -132,6 +132,8 @@ class DataSource:
         
             self.db_data_source.getFlightRealtimeInfo(flight)
             
+            flight_state = flight['flight_state']
+            
             if flight['full_info'] == 0 and self.allow2Spider(flight, auto):      
                 ret = self.qunar_source.getFlightRealTimeInfo(flight)
 
@@ -140,6 +142,10 @@ class DataSource:
                 else:
                     self.logger.info("get %s realtime info succ" % (flight['flight_no']))
             self.db_data_source.putFlightRealtimeInfo(flight)
+            
+            if flight_state != flight['flight_state']:
+                # 状态发生变化
+                return 1
 
             return 0
         except:

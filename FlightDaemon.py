@@ -16,7 +16,7 @@ from tools import Config
 import json
 import time
 from datasource.DataSource import DataSource
-from task.FlightScan import FlightRealtimeDataScan
+from task.FlightRealtimeDataScan import FlightRealtimeDataScan
 import random
 
 
