@@ -28,22 +28,19 @@ class PushTask:
         try:
             self.logger.info("push task start...")
             
-            push_list = self.data_source.getPushCandidate()
+            push_list = self.data_source.getPushCandidate(flight)
             apns = APNs(use_sandbox = False, cert_file = self.config.cert_file, key_file = self.config.key_file)
             
             if push_list is not None:
                 for push_candidate in push_list:
-                    if push_candidate['full_info'] != -1:
-                        self.data_source.getFlightRealtimeInfoFromDB(push_candidate)
+                    if self.checkPush(push_candidate, flight):
+                        self.logger.info("push to %s %s" % (flight['flight_no'].encode("utf-8"), push_candidate['device_token'].encode("utf-8")))
                         
-                        if self.checkPush(push_candidate):
-                            self.logger.info("push to %s %s" % (push_candidate['flight_no'].encode("utf-8"), push_candidate['device_token'].encode("utf-8")))
-                            
-                            payload = Payload(alert = push_candidate['push_content'], sound = "pushmusic.wav")
-                            apns.gateway_server.send_notification(push_candidate['device_token'], payload)
-                            
-                            self.data_source.storePushInfo(push_candidate)
-                            self.logger.info("push succ to %s" % (push_candidate['device_token']))
+                        payload = Payload(alert = push_candidate['push_content'], sound = "pushmusic.wav")
+                        apns.gateway_server.send_notification(push_candidate['device_token'], payload)
+                        
+                        self.data_source.storePushInfo(push_candidate, flight)
+                        self.logger.info("push succ to %s" % (push_candidate['device_token']))
             
             self.logger.info("push task end...")
         except:
@@ -54,14 +51,14 @@ class PushTask:
             return None
     
     
-    def checkPush(self, push_candidate):        
+    def checkPush(self, push_candidate, flight):        
         cur_time = datetime.datetime.now()
             
         if push_candidate['full_info'] == 1:
-            push_candidate['push_content'] = "%s\n从 %s 到 %s\n已于 %s 到达" % (push_candidate['flight_no'].encode("utf-8"), 
-                                                                     self.data_source.getAirportName(push_candidate['takeoff_airport'], 'zh').encode("utf-8"), 
-                                                                     self.data_source.getAirportName(push_candidate['arrival_airport'], 'zh').encode("utf-8"), 
-                                                                     push_candidate['actual_arrival_time'].encode("utf-8"))
+            push_candidate['push_content'] = "%s\n从 %s 到 %s\n已于 %s 到达" % (flight['flight_no'].encode("utf-8"), 
+                                                                     self.data_source.getAirportName(flight['takeoff_airport'], 'zh').encode("utf-8"), 
+                                                                     self.data_source.getAirportName(flight['arrival_airport'], 'zh').encode("utf-8"), 
+                                                                     flight['actual_arrival_time'].encode("utf-8"))
             push_candidate['push_switch'] = 'off'
             if PushTask.PUSH_POINT_5 not in push_candidate['push_info']:
                 push_candidate['push_info'].append(PushTask.PUSH_POINT_5)
@@ -70,23 +67,23 @@ class PushTask:
                 return False
               
         estimate_arrival_time = ""
-        if push_candidate['estimate_arrival_time'] != '--:--':
-            estimate_arrival_time = push_candidate['schedule_takeoff_date'] + " " + push_candidate['estimate_arrival_time']
+        if flight['estimate_arrival_time'] != '--:--':
+            estimate_arrival_time = flight['schedule_takeoff_date'] + " " + flight['estimate_arrival_time']
             estimate_arrival_time = datetime.datetime.strptime(estimate_arrival_time, "%Y-%m-%d %H:%M")
-            if push_candidate['estimate_arrival_time'] < push_candidate['schedule_takeoff_time']:
+            if flight['estimate_arrival_time'] < flight['schedule_takeoff_time']:
                 estimate_arrival_time += datetime.timedelta(1)
         else:        
-            estimate_arrival_time = push_candidate['schedule_takeoff_date'] + " " + push_candidate['schedule_arrival_time']
+            estimate_arrival_time = flight['schedule_takeoff_date'] + " " + flight['schedule_arrival_time']
             estimate_arrival_time = datetime.datetime.strptime(estimate_arrival_time, "%Y-%m-%d %H:%M")
-            if push_candidate['schedule_arrival_time'] < push_candidate['schedule_takeoff_time']:
+            if flight['schedule_arrival_time'] < flight['schedule_takeoff_time']:
                 estimate_arrival_time += datetime.timedelta(1)
         
         interval = estimate_arrival_time - cur_time
         
-        if interval.days == 0 and interval.seconds < 1800 and push_candidate['actual_takeoff_time'] != '--:--':
-            push_candidate['push_content'] = "%s\n从 %s 到 %s\n预计于 %s 到达" % (push_candidate['flight_no'].encode("utf-8"), 
-                                                                       self.data_source.getAirportName(push_candidate['takeoff_airport'], 'zh').encode("utf-8"), 
-                                                                       self.data_source.getAirportName(push_candidate['arrival_airport'], 'zh').encode("utf-8"), 
+        if interval.days == 0 and interval.seconds < 1800 and flight['actual_takeoff_time'] != '--:--':
+            push_candidate['push_content'] = "%s\n从 %s 到 %s\n预计于 %s 到达" % (flight['flight_no'].encode("utf-8"), 
+                                                                       self.data_source.getAirportName(flight['takeoff_airport'], 'zh').encode("utf-8"), 
+                                                                       self.data_source.getAirportName(flight['arrival_airport'], 'zh').encode("utf-8"), 
                                                                        estimate_arrival_time.strftime("%H:%M").encode("utf-8"))
             if PushTask.PUSH_POINT_4 not in push_candidate['push_info']:
                 push_candidate['push_info'].append(PushTask.PUSH_POINT_4)
@@ -94,11 +91,11 @@ class PushTask:
             else:
                 return False
        
-        if push_candidate['actual_takeoff_time'] != '--:--':
-            push_candidate['push_content'] = "%s\n从 %s 到 %s\n已于 %s 起飞\n预计于 %s 到达" % (push_candidate['flight_no'].encode("utf-8"), 
-                                                                     self.data_source.getAirportName(push_candidate['takeoff_airport'], 'zh').encode("utf-8"), 
-                                                                     self.data_source.getAirportName(push_candidate['arrival_airport'], 'zh').encode("utf-8"),
-                                                                     push_candidate['actual_takeoff_time'].encode("utf-8"),
+        if flight['actual_takeoff_time'] != '--:--':
+            push_candidate['push_content'] = "%s\n从 %s 到 %s\n已于 %s 起飞\n预计于 %s 到达" % (flight['flight_no'].encode("utf-8"), 
+                                                                     self.data_source.getAirportName(flight['takeoff_airport'], 'zh').encode("utf-8"), 
+                                                                     self.data_source.getAirportName(flight['arrival_airport'], 'zh').encode("utf-8"),
+                                                                     flight['actual_takeoff_time'].encode("utf-8"),
                                                                      estimate_arrival_time.strftime("%H:%M").encode("utf-8"))
             if PushTask.PUSH_POINT_3 not in push_candidate['push_info']:
                 push_candidate['push_info'].append(PushTask.PUSH_POINT_3)
@@ -107,21 +104,21 @@ class PushTask:
                 return False
         
         estimate_takeoff_time = ""
-        if push_candidate['estimate_takeoff_time'] != '--:--':           
-            estimate_takeoff_time = push_candidate['schedule_takeoff_date'] + " " + push_candidate['estimate_takeoff_time']
+        if flight['estimate_takeoff_time'] != '--:--':           
+            estimate_takeoff_time = flight['schedule_takeoff_date'] + " " + flight['estimate_takeoff_time']
             estimate_takeoff_time = datetime.datetime.strptime(estimate_takeoff_time, "%Y-%m-%d %H:%M")
-            if push_candidate['estimate_takeoff_time'] < push_candidate['schedule_takeoff_time']:
+            if flight['estimate_takeoff_time'] < flight['schedule_takeoff_time']:
                 estimate_arrival_time += datetime.timedelta(1)
         else:       
-            estimate_takeoff_time = push_candidate['schedule_takeoff_date'] + " " + push_candidate['schedule_takeoff_time']
+            estimate_takeoff_time = flight['schedule_takeoff_date'] + " " + flight['schedule_takeoff_time']
             estimate_takeoff_time = datetime.datetime.strptime(estimate_takeoff_time, "%Y-%m-%d %H:%M")
         
         interval = estimate_takeoff_time - cur_time
            
         if interval.days == 0 and interval.seconds < 3600:
-            push_candidate['push_content'] = "%s\n从 %s 到 %s\n预计于 %s 起飞" % (push_candidate['flight_no'].encode("utf-8"),
-                                                                       self.data_source.getAirportName(push_candidate['takeoff_airport'], 'zh').encode("utf-8"), 
-                                                                       self.data_source.getAirportName(push_candidate['arrival_airport'], 'zh').encode("utf-8"),
+            push_candidate['push_content'] = "%s\n从 %s 到 %s\n预计于 %s 起飞" % (flight['flight_no'].encode("utf-8"),
+                                                                       self.data_source.getAirportName(flight['takeoff_airport'], 'zh').encode("utf-8"), 
+                                                                       self.data_source.getAirportName(flight['arrival_airport'], 'zh').encode("utf-8"),
                                                                        estimate_takeoff_time.strftime("%H:%M").encode("utf-8"))
             if PushTask.PUSH_POINT_2 not in push_candidate['push_info']:
                 push_candidate['push_info'].append(PushTask.PUSH_POINT_2)
@@ -130,9 +127,9 @@ class PushTask:
                 return False
         
         if interval.days == 0 and interval.seconds < 7200:
-            push_candidate['push_content'] = "%s\n从 %s 到 %s\n预计于 %s 起飞" % (push_candidate['flight_no'].encode("utf-8"), 
-                                                                       self.data_source.getAirportName(push_candidate['takeoff_airport'], 'zh').encode("utf-8"), 
-                                                                       self.data_source.getAirportName(push_candidate['arrival_airport'], 'zh').encode("utf-8"),
+            push_candidate['push_content'] = "%s\n从 %s 到 %s\n预计于 %s 起飞" % (flight['flight_no'].encode("utf-8"), 
+                                                                       self.data_source.getAirportName(flight['takeoff_airport'], 'zh').encode("utf-8"), 
+                                                                       self.data_source.getAirportName(flight['arrival_airport'], 'zh').encode("utf-8"),
                                                                        estimate_takeoff_time.strftime("%H:%M").encode("utf-8"))
             if PushTask.PUSH_POINT_1 not in push_candidate['push_info']:
                 push_candidate['push_info'].append(PushTask.PUSH_POINT_1)

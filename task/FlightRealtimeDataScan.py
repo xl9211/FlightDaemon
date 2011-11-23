@@ -31,7 +31,7 @@ class FlightRealtimeDataScan:
             
             if lived_flight_list is not None:
                 for lived_flight in lived_flight_list:
-                    ret = self.data_source.getFlightRealtimeInfo(lived_flight, True)
+                    ret = self.data_source.spiderFlightRealtimeInfo(lived_flight, True)
                     
                     if ret == 1:
                         self.push_task.do(lived_flight)

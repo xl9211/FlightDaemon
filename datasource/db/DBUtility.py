@@ -44,7 +44,7 @@ class DB:
     
     ##############################################################################################
     # FlightFixInfo
-    def getFlightFixInfoByFlightNO(self, flight_no, schedule_takeoff_date):
+    def getFlightFixInfoByFlightNO(self, flight_no):
         try:
             ret = FlightFixInfo.findLike(flight_no)
             return self.__convertFixInfo(ret)
@@ -58,7 +58,7 @@ class DB:
             return None
     
 
-    def getFlightFixInfoByRoute(self, takeoff_airport, arrival_airport, schedule_takeoff_date, company):
+    def getFlightFixInfoByRoute(self, takeoff_airport, arrival_airport, company):
         try:
             ret = []
             if company == 'all':
@@ -77,7 +77,7 @@ class DB:
             return None
         
         
-    def getFlightFixInfoByUniq(self, flight_no, takeoff_airport, arrival_airport, schedule_takeoff_date):
+    def getFlightFixInfoByUniq(self, flight_no, takeoff_airport, arrival_airport):
         try:
             ret = FlightFixInfo.find(flight_no = flight_no, takeoff_airport = takeoff_airport, arrival_airport = arrival_airport)
             return self.__convertFixInfo(ret)
@@ -266,6 +266,12 @@ class DB:
                     lived_flight['takeoff_airport'] = flight.takeoff_airport
                     lived_flight['arrival_airport'] = flight.arrival_airport
                     lived_flight['schedule_takeoff_date'] = flight.schedule_takeoff_date
+                    lived_flight['flight_state'] = flight.flight_state
+                    lived_flight['estimate_takeoff_time'] = flight.estimate_takeoff_time
+                    lived_flight['actual_takeoff_time'] = flight.actual_takeoff_time
+                    lived_flight['estimate_arrival_time'] = flight.estimate_arrival_time
+                    lived_flight['actual_arrival_time'] = flight.actual_arrival_time
+                    lived_flight['full_info'] = flight.full_info
                     lived_flight_list.append(lived_flight)
             
             return lived_flight_list
@@ -318,18 +324,18 @@ class DB:
     
     ##############################################################################################
     # FollowedInfo
-    def getPushCandidate(self):
+    def getPushCandidate(self, flight):
         try:
-            ret = FollowedInfo.findAll(push_switch = 'on')
+            ret = FollowedInfo.findAll(push_switch = 'on', 
+                                       flight_no = flight['flight_no'], 
+                                       takeoff_airport = flight['takeoff_airport'],
+                                       arrival_airport = flight['arrival_airport'],
+                                       schedule_takeoff_date = flight['schedule_takeoff_date'])
             
             push_list = []
             for one in ret:
                 one_hash = {}
                 one_hash['device_token'] = one.device_token
-                one_hash['flight_no'] = one.flight_no
-                one_hash['takeoff_airport'] = one.takeoff_airport
-                one_hash['arrival_airport'] = one.arrival_airport
-                one_hash['schedule_takeoff_date'] = one.schedule_takeoff_date
                 one_hash['push_switch'] = one.push_switch
                 one_hash['push_info'] = json.loads(one.push_info)
                 
@@ -406,13 +412,13 @@ class DB:
             return None
         
         
-    def putPushInfo(self, push_candidate):
+    def putPushInfo(self, push_candidate, flight):
         try:
             ret = FollowedInfo.findOne(device_token = push_candidate['device_token'],
-                                       flight_no = push_candidate['flight_no'],
-                                       takeoff_airport = push_candidate['takeoff_airport'],
-                                       arrival_airport = push_candidate['arrival_airport'],
-                                       schedule_takeoff_date = push_candidate['schedule_takeoff_date'])
+                                       flight_no = flight['flight_no'],
+                                       takeoff_airport = flight['takeoff_airport'],
+                                       arrival_airport = flight['arrival_airport'],
+                                       schedule_takeoff_date = flight['schedule_takeoff_date'])
             
             if ret is not None:
                 ret.push_switch = push_candidate['push_switch']
