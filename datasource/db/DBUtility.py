@@ -167,6 +167,25 @@ class DB:
             return None
         
     
+    def getRandomFlightList(self, cur_time):
+        try:
+            ret = FlightFixInfo.getNowFlightNO(cur_time)
+            
+            flight_list = []
+            for one in ret:
+                flight_list.append(one[0])
+            
+            return flight_list
+        except:
+            msg = traceback.format_exc()
+            self.logger.error(msg)
+            
+            DBBase.Session.rollback()
+            DBBase.Engine.dispose()
+            
+            return None
+        
+    
     def putFlightFixInfo(self, flight_info_list):
         try:
             for one in flight_info_list:
