@@ -54,7 +54,7 @@ class PushTask:
     def checkPush(self, push_candidate, flight):        
         cur_time = datetime.datetime.now()
             
-        if push_candidate['full_info'] == 1:
+        if flight['full_info'] == 1:
             push_candidate['push_content'] = "%s\n从 %s 到 %s\n已于 %s 到达" % (flight['flight_no'].encode("utf-8"), 
                                                                      self.data_source.getAirportName(flight['takeoff_airport'], 'zh').encode("utf-8"), 
                                                                      self.data_source.getAirportName(flight['arrival_airport'], 'zh').encode("utf-8"), 

@@ -16,7 +16,8 @@ from tools import Config
 import json
 import time
 from datasource.DataSource import DataSource
-from task.FlightRealtimeDataScan import FlightRealtimeDataScan
+from task.FlightRealtimeInfoScan import FlightRealtimeInfoScan #@UnresolvedImport
+from task.FlightFixInfoScan import FlightFixInfoScan
 import random
 
 
@@ -36,8 +37,10 @@ class FlightDaemon:
         self.data_source = DataSource(self.config)
 
         if self.config.debug_mode == 'no':
-            self.flight_scan = FlightRealtimeDataScan(self.config, self.data_source)
-            self.flight_scan.start()
+            self.flight_realtime_info_scan = FlightRealtimeInfoScan(self.config, self.data_source)
+            self.flight_realtime_info_scan.start()
+            self.flight_fix_info_scan = FlightFixInfoScan(self.config, self.data_source)
+            self.flight_fix_info_scan.start()
         
         self.logger.info("Flight Daemon Started...")
 
@@ -315,7 +318,7 @@ class FlightDaemon:
         try:
             self.logger.info("get request")
                       
-            self.data_source.spiderFlightFixInfo()
+            self.data_source.spiderAllFlightFixInfo()
             
             return json.dumps('OK')
         except:

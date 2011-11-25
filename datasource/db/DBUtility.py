@@ -91,6 +91,30 @@ class DB:
             return None
         
     
+    def getOverdayRoute(self, cur_date):
+        try:
+            ret = FlightFixInfo.getOverdayRoute(cur_date)
+            
+            route_list = []
+            for one in ret:
+                one_hash = {}
+                
+                one_hash['takeoff_airport'] = one.takeoff_airport
+                one_hash['arrival_airport'] = one.arrival_airport
+                
+                route_list.append(one_hash)
+            
+            return route_list
+        except:
+            msg = traceback.format_exc()
+            self.logger.error(msg)
+            
+            DBBase.Session.rollback()
+            DBBase.Engine.dispose()
+            
+            return None
+        
+    
     def __convertFixInfo(self, data):
         flight_info_list = []
         for one in data:
@@ -141,25 +165,6 @@ class DB:
             DBBase.Engine.dispose()
             
             return None
-    
-    
-    def getRandomFlightList(self, cur_time):
-        try:
-            ret = FlightFixInfo.getNowFlightNO(cur_time)
-            
-            flight_list = []
-            for one in ret:
-                flight_list.append(one[0])
-            
-            return flight_list
-        except:
-            msg = traceback.format_exc()
-            self.logger.error(msg)
-            
-            DBBase.Session.rollback()
-            DBBase.Engine.dispose()
-            
-            return None
         
     
     def putFlightFixInfo(self, flight_info_list):
@@ -171,11 +176,11 @@ class DB:
                 flight_info.company = one['company']
                 flight_info.schedule_takeoff_time = one['schedule_takeoff_time']
                 flight_info.schedule_arrival_time = one['schedule_arrival_time']
-                flight_info.takeoff_city = self.getCityShort(one['takeoff_city'], 'zh')
                 flight_info.takeoff_airport = self.getAirportShort(one['takeoff_airport'], 'zh')
+                flight_info.takeoff_city = self.getAirportCity(flight_info.takeoff_airport)
                 flight_info.takeoff_airport_building = one['takeoff_airport_building']
-                flight_info.arrival_city = self.getCityShort(one['arrival_city'], 'zh')
                 flight_info.arrival_airport = self.getAirportShort(one['arrival_airport'], 'zh')
+                flight_info.arrival_city = self.getAirportCity(flight_info.arrival_airport)        
                 flight_info.arrival_airport_building = one['arrival_airport_building']
                 flight_info.plane_model = one['plane_model']
                 flight_info.mileage = one['mileage']
@@ -185,6 +190,22 @@ class DB:
                 flight_info.valid_date_to = one['valid_date_to']
             
                 flight_info.add()
+        except:
+            msg = traceback.format_exc()
+            self.logger.error(msg)
+            
+            DBBase.Session.rollback()
+            DBBase.Engine.dispose()
+            
+            return None
+        
+    
+    def deleteRoute(self, takeoff_airport, arrival_airport):
+        try:
+            ret = FlightFixInfo.findDelete(takeoff_airport = takeoff_airport, arrival_airport = arrival_airport)
+            self.logger.info("%s rows is deleted" % (str(ret)))
+            
+            return 0
         except:
             msg = traceback.format_exc()
             self.logger.error(msg)
@@ -249,7 +270,7 @@ class DB:
             return None
         
     
-    def getAllLivedFlight(self):
+    def getLivedFlight(self):
         try:
             day = []
             day.append(datetime.datetime.now().strftime("%Y-%m-%d"))
@@ -884,13 +905,16 @@ class DB:
     # Test
     ############################################################################################## 
     
-    
+
+import time  
             
 if __name__ == "__main__":
     init("root", "root", "127.0.0.1", "fd_db")
     
     db = DB()
-    db.adjustFlightFixInfo()
+
+    ret = db.deleteRoute("PEK", "HGH")
+
     
             
     

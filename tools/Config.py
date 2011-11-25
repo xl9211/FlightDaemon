@@ -29,17 +29,14 @@ class Config:
         self.db_passwd = cf.get("DB", "DBPasswd")
         self.db_name = cf.get("DB", "DBName")
         
-        self.flight_scan_interval = int(cf.get("Task", "FlightScanInterval"))
+        self.flight_realtime_scan_interval = int(cf.get("Task", "FlightRealtimeScanInterval"))
+        self.flight_fix_scan_interval = int(cf.get("Task", "FlightFixScanInterval"))
         self.spider_timeout = int(cf.get("Task", "SpiderTimeout"))
-        self.push_scan_interval = int(cf.get("Task", "PushScanInterval"))
         self.cert_file = cf.get("Task", "CertFile")
         self.key_file = cf.get("Task", "KeyFile")
         
         self.stop_fly_start = cf.get("Other", "StopFlyStart")
         self.stop_fly_end = cf.get("Other", "StopFlyEnd")
         self.debug_mode = cf.get("Other", "DebugMode")
-        
-        
-        
-        
+  
         

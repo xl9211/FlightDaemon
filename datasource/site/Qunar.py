@@ -73,7 +73,7 @@ class Qunar(Spider):
             return None
            
             
-    def parseFixInfo(self, content, takeoff_city, arrival_city):
+    def parseFixInfo(self, content):
         doc = lxml.html.soupparser.fromstring(content)
         rows = doc.xpath("//div[@class='result_content']/ul/li")
         ret_val = []
@@ -85,8 +85,6 @@ class Qunar(Spider):
             flight_info['company'] = flight_info['flight_no'][:2]
             flight_info['schedule_takeoff_time'] = row.xpath("span[@class='c2']/text()")[0]
             flight_info['schedule_arrival_time'] = row.xpath("span[@class='c2']/em/text()")[0]
-            flight_info['takeoff_city'] = takeoff_city
-            flight_info['arrival_city'] = arrival_city
             
             temp_text = row.xpath("span[@class='c3']/text()")[0]
             find_index = temp_text.find('T')
@@ -142,12 +140,12 @@ class Qunar(Spider):
         return ret_val
 
     
-    def getFlightFixInfoByAirline(self, takeoff_city, arrival_city):
+    def getFlightFixInfoByAirline(self, takeoff_airport, arrival_airport):
         try:
-            url = "http://flight.qunar.com/schedule/fsearch_list.jsp?departure=%s&arrival=%s" % (takeoff_city, arrival_city)
+            url = "http://flight.qunar.com/schedule/fsearch_list.jsp?departure=%s&arrival=%s" % (takeoff_airport, arrival_airport)
             content = self.fetch(url)
             if not (content < 0):
-                return self.parseFixInfo(content, takeoff_city, arrival_city)
+                return self.parseFixInfo(content)
             else:
                 return None
         except:

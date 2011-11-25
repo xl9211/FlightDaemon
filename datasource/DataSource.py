@@ -114,6 +114,31 @@ class DataSource:
             
             return None
         
+
+    def updateFlightFixInfo(self, takeoff_airport, arrival_airport):
+        try:
+            self.logger.info("update route %s %s" % (takeoff_airport, arrival_airport))
+            flight_list = self.spiderFlightFixInfo(takeoff_airport, arrival_airport)
+            if flight_list is not None:
+                self.db_data_source.deleteRoute(takeoff_airport, arrival_airport)
+                self.db_data_source.putFlightFixInfo(flight_list)
+        except:
+            msg = traceback.format_exc()
+            self.logger.error(msg)
+            
+            return None
+        
+        
+    def spiderFlightFixInfo(self, takeoff_airport, arrival_airport):
+        try:
+            self.logger.info("spider route %s %s" % (takeoff_airport, arrival_airport))
+            return self.qunar_source.getFlightFixInfoByAirline(takeoff_airport, arrival_airport)
+        except:
+            msg = traceback.format_exc()
+            self.logger.error(msg)
+            
+            return None
+        
     
     def getFlightRealtimeInfo(self, flight):
         try:
@@ -124,15 +149,9 @@ class DataSource:
         
             self.db_data_source.getFlightRealtimeInfo(flight)
             
-            flight_state = flight['flight_state']
-            
             self.spiderFlightRealtimeInfo(flight, False)
             
             self.db_data_source.putFlightRealtimeInfo(flight)
-            
-            if flight_state != flight['flight_state']:
-                # 状态发生变化
-                return 1
 
             return 0
         except:
@@ -144,6 +163,8 @@ class DataSource:
         
     def spiderFlightRealtimeInfo(self, flight, auto):
         try:
+            flight_state = flight['flight_state']
+            
             if flight['full_info'] == 0 and self.allow2Spider(flight, auto):      
                 ret = self.qunar_source.getFlightRealTimeInfo(flight)
     
@@ -151,6 +172,14 @@ class DataSource:
                     self.logger.error("get %s realtime info error" % (flight['flight_no']))
                 else:
                     self.logger.info("get %s realtime info succ" % (flight['flight_no']))
+                    
+            self.db_data_source.putFlightRealtimeInfo(flight)
+            
+            if flight_state != flight['flight_state']:
+                # 状态发生变化
+                return 1
+                   
+            return 0
         except:
             msg = traceback.format_exc()
             self.logger.error(msg)
@@ -377,9 +406,21 @@ class DataSource:
             return None
         
     
-    def getAllLivedFlight(self):
+    def getLivedFlight(self):
         try:
-            data = self.db_data_source.getAllLivedFlight()
+            data = self.db_data_source.getLivedFlight()
+            
+            return data
+        except:
+            msg = traceback.format_exc()
+            self.logger.error(msg)
+            
+            return None
+        
+        
+    def getOverdayRoute(self, cur_date):
+        try:
+            data = self.db_data_source.getOverdayRoute(cur_date)
             
             return data
         except:
@@ -429,19 +470,29 @@ class DataSource:
             return None
         
     
-    def deleteFollowedInfo(self, device_token, followed_list):
+    def storePushInfo(self, push_candidate, flight):
         try:
-            self.db_data_source.deleteFollowedInfo(device_token, followed_list)
+            self.db_data_source.putPushInfo(push_candidate, flight)
         except:
             msg = traceback.format_exc()
             self.logger.error(msg)
         
             return None
-
         
-    def storePushInfo(self, push_candidate, flight):
+    
+    def storeFlightFixInfo(self, flight):
         try:
-            self.db_data_source.putPushInfo(push_candidate, flight)
+            self.db_data_source.putFlightFixInfo(flight)
+        except:
+            msg = traceback.format_exc()
+            self.logger.error(msg)
+        
+            return None
+        
+    
+    def deleteFollowedInfo(self, device_token, followed_list):
+        try:
+            self.db_data_source.deleteFollowedInfo(device_token, followed_list)
         except:
             msg = traceback.format_exc()
             self.logger.error(msg)
@@ -493,8 +544,8 @@ class DataSource:
             
             return None
     
-    
-    def spiderFlightFixInfo(self):
+
+    def spiderAllFlightFixInfo(self):
         try:
             db_data_source = self.createDataSource('db')
             airline_list = db_data_source.getAirlineList()
@@ -514,7 +565,6 @@ class DataSource:
             self.logger.error(msg)
             
             return None
-    
     
     '''
     def spiderCompany(self):

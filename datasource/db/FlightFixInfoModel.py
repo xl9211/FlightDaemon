@@ -7,7 +7,7 @@ import DBBase
 
 class FlightFixInfo(DBBase.Base):
     __tablename__ = 'flight_fix_info_table'
-    id = Column(INTEGER, primary_key = True)    
+    id = Column(INTEGER, primary_key = True)    #@ReservedAssignment
     flight_no = Column(VARCHAR(50), index = True, nullable = False)
     company = Column(VARCHAR(50), index = True, nullable = False)
     schedule_takeoff_time = Column(VARCHAR(50), index = True, nullable = False)
@@ -51,6 +51,15 @@ class FlightFixInfo(DBBase.Base):
         key_item = session.query(FlightFixInfo).filter(FlightFixInfo.flight_no.like("%" + flight_no + "%")).all()
         DBBase.Session.remove()
         return key_item
+    
+    
+    @staticmethod
+    def findDelete(**kwargs):
+        session = DBBase.getSession()
+        key_item = session.query(FlightFixInfo).filter_by(**kwargs).delete()
+        session.commit()
+        DBBase.Session.remove()
+        return key_item
  
 
     @staticmethod
@@ -65,6 +74,14 @@ class FlightFixInfo(DBBase.Base):
     def getNowFlightNO(cur_time):
         session = DBBase.getSession()
         key_item = session.query(FlightFixInfo.flight_no).filter(and_(FlightFixInfo.schedule_takeoff_time <= cur_time, FlightFixInfo.schedule_arrival_time >= cur_time)).all()
+        DBBase.Session.remove()
+        return key_item
+    
+    
+    @staticmethod
+    def getOverdayRoute(cur_date):
+        session = DBBase.getSession()
+        key_item = session.query(FlightFixInfo.takeoff_airport, FlightFixInfo.arrival_airport).distinct().filter(FlightFixInfo.valid_date_to < cur_date).all()
         DBBase.Session.remove()
         return key_item
     
