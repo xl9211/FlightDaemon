@@ -74,10 +74,10 @@ class FlightDaemon:
             flight_list = self.data_source.getFlightFixInfoByFlightNO(flight_no, schedule_takeoff_date)
  
             if flight_list == None:
-                self.logger.info("fix data not exist")
+                self.logger.info("%s fix data not exist" % (flight_no))
                 return json.dumps(None)
             if len(flight_list) == 0:
-                self.logger.error("get fix data error")
+                self.logger.info("%s today stop" % (flight_no))
                 return json.dumps([])
             
             self.data_source.completeFlightInfo(flight_list, schedule_takeoff_date, lang)
