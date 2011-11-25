@@ -25,7 +25,7 @@ class FlightFixInfoScan:
         try:
             cur_time = time.strftime("%H:%M", time.localtime())
             
-            if not (cur_time >= "01:00" and cur_time <= "5:00"):
+            if not (cur_time >= self.config.stop_fly_start and cur_time <= self.config.stop_fly_end):
                 return 0
             
             self.logger.info("overday flight fix info spider start...")
