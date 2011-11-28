@@ -480,16 +480,6 @@ class DataSource:
             return None
         
     
-    def storeFlightFixInfo(self, flight):
-        try:
-            self.db_data_source.putFlightFixInfo(flight)
-        except:
-            msg = traceback.format_exc()
-            self.logger.error(msg)
-        
-            return None
-        
-    
     def deleteFollowedInfo(self, device_token, followed_list):
         try:
             self.db_data_source.deleteFollowedInfo(device_token, followed_list)

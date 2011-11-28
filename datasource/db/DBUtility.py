@@ -195,13 +195,13 @@ class DB:
                 flight_info.company = one['company']
                 flight_info.schedule_takeoff_time = one['schedule_takeoff_time']
                 flight_info.schedule_arrival_time = one['schedule_arrival_time']
-                flight_info.takeoff_airport = self.getAirportShort(one['takeoff_airport'], 'zh')
+                flight_info.takeoff_airport = self.getAirportShort(one['takeoff_airport'].encode("utf-8"), 'zh')
                 flight_info.takeoff_city = self.getAirportCity(flight_info.takeoff_airport)
                 flight_info.takeoff_airport_building = one['takeoff_airport_building']
-                flight_info.arrival_airport = self.getAirportShort(one['arrival_airport'], 'zh')
+                flight_info.arrival_airport = self.getAirportShort(one['arrival_airport'].encode("utf-8"), 'zh')
                 flight_info.arrival_city = self.getAirportCity(flight_info.arrival_airport)        
                 flight_info.arrival_airport_building = one['arrival_airport_building']
-                flight_info.plane_model = one['plane_model']
+                flight_info.plane_model = one['plane_model'].encode("utf-8")
                 flight_info.mileage = one['mileage']
                 flight_info.stopover = one['stopover']
                 flight_info.schedule = json.dumps(one['schedule'])
