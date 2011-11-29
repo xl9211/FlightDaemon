@@ -311,6 +311,51 @@ class FlightDaemon:
             self.logger.error(msg)
             
             return json.dumps(None)
+    
+    
+    @cherrypy.expose     
+    def getVersionInfo(self, version = "newest"):
+        try:
+            self.logger.info("get request %s" % (version))
+            if version == "newest":
+                data = self.data_source.getNewestVersionInfo()
+                
+                return json.dumps(data)
+            else:
+                data = self.data_source.getVersionInfo()
+               
+                template = Template(filename = 'templates/VersionInfo.txt')
+                if self.config.debug_mode == 'no':
+                    return template.render(rows = data, ip = "118.194.161.243", port = "28888")
+                else:
+                    return template.render(rows = data, ip = self.config.http_ip, port = self.config.http_port)
+        except:
+            msg = traceback.format_exc()
+            self.logger.error(msg)
+            
+            return json.dumps(None)
+    
+    
+    @cherrypy.expose     
+    def addVersionInfo(self, **kwargs):
+        try:
+            self.logger.info("get request")
+            if len(kwargs) < 3:
+                template = Template(filename = 'templates/AddVersionInfo.txt')
+                if self.config.debug_mode == 'no':
+                    return template.render(ip = "118.194.161.243", port = "28888")
+                else:
+                    return template.render(ip = self.config.http_ip, port = self.config.http_port)
+            else:
+                if kwargs['version'] != "" and kwargs['ipa'] != "" and kwargs['changelog'] != "":
+                    self.data_source.addVersionInfo(kwargs['version'], kwargs['ipa'], kwargs['changelog'])
+                
+                return self.getVersionInfo("all")
+        except:
+            msg = traceback.format_exc()
+            self.logger.error(msg)
+            
+            return json.dumps(None)
         
     
     @cherrypy.expose     

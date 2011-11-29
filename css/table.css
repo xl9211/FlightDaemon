@@ -1,14 +1,28 @@
 table.list { border: 1px solid #e4e4e4; border-collapse: collapse; width: 100%; margin-bottom: 4px; }
 table.list th { background-color:#EEEEEE; padding: 4px; white-space:nowrap; border: 1px solid #888888;}
-table.list th.device_token { width: 35%; text-align: center;}
+
+table.list th.device_token { width: 45%; text-align: center;}
 table.list th.flight { width: 20%; text-align: center;}
 table.list th.push_switch { width: 5%; text-align: center;}
-table.list th.push_info { width: 20%; text-align: center;}
+table.list th.push_info { width: 30%; text-align: center;}
+
+table.list th.id { width: 5%; text-align: center;}
+table.list th.version { width: 15%; text-align: center;}
+table.list th.ipa { width: 40%; text-align: center;}
+table.list th.changelog { width: 40%; text-align: center;}
+
 table.list td { vertical-align: top; border: 1px solid #888888;}
+
 table.list td.device_token { text-align: left;}
 table.list td.flight { text-align: center;}
 table.list td.push_switch { text-align: center;}
 table.list td.push_info { text-align: left;}
+
+table.list td.id { text-align: center;}
+table.list td.version { text-align: center;}
+table.list td.ipa { text-align: left;}
+table.list td.changelog { text-align: left;}
+
 table.list caption { text-align: left; padding: 0.5em 0.5em 0.5em 0; }
 
 table.list tbody tr.group td { padding: 0.8em 0 0.5em 0.3em;

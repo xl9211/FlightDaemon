@@ -1,0 +1,17 @@
+<form action="http://${ip}:${port}/addVersionInfo" method="post" enctype="multipart/form-data">
+
+Version:<br> 
+<input type="text" name="version" size="74" /><br>
+
+IPA:<br>
+<input type="text" name="ipa" size="74" /><br>
+
+Changelog:<br>
+<textarea cols="64" rows="20" name="changelog">
+</textarea>
+<br>
+
+<input type="submit" value="Add" /><br>
+
+</form>
+

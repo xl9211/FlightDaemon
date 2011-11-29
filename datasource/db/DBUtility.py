@@ -15,6 +15,7 @@ from AirlineInfoModel import AirlineInfo
 from CityInfoModel import CityInfo
 from FollowedInfoModel import FollowedInfo
 from PunctualityInfoModel import PunctualityInfo
+from VersionInfoModel import VersionInfo
 
 import traceback
 from tools import LogUtil
@@ -861,6 +862,73 @@ class DB:
             
             return None
     # PunctualityInfo
+    ############################################################################################## 
+    
+    
+    ##############################################################################################
+    # VersionInfo
+    def getVersionInfoList(self):
+        try:
+            ret = VersionInfo.findAll()
+            
+            version_list = []
+            for one in ret:
+                one_hash = {}
+                one_hash['id'] = one.id
+                one_hash['version'] = one.version
+                one_hash['ipa'] = one.ipa
+                one_hash['changelog'] = one.changelog.replace("\n", "<br>")
+                version_list.append(one_hash)
+            
+            return version_list
+        except:
+                msg = traceback.format_exc()
+                self.logger.error(msg)
+                
+                DBBase.Session.rollback()
+                DBBase.Engine.dispose()
+                
+                return None
+            
+    
+    def putVersionInfo(self, version, ipa, changelog):
+        try:
+            info = VersionInfo()
+            
+            info.version = version
+            info.ipa = ipa
+            info.changelog = changelog
+            
+            info.add()
+        except:
+            msg = traceback.format_exc()
+            self.logger.error(msg)
+            
+            DBBase.Session.rollback()
+            DBBase.Engine.dispose()
+            
+            return None
+        
+    
+    def getNewestVersionInfo(self):
+        try:
+            ret = VersionInfo.findNewest()
+            
+            one_hash = {}
+            if ret is not None:
+                one_hash['version'] = ret.version
+                one_hash['ipa'] = ret.ipa
+                one_hash['changelog'] = ret.changelog
+            return one_hash
+        except:
+                msg = traceback.format_exc()
+                self.logger.error(msg)
+                
+                DBBase.Session.rollback()
+                DBBase.Engine.dispose()
+                
+                return None
+    # VersionInfo
     ############################################################################################## 
 
 

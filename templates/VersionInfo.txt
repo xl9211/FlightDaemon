@@ -1,0 +1,46 @@
+<link href="css/table.css" rel="stylesheet" type="text/css" />
+<form action="http://${ip}:${port}/addVersionInfo" method="post" enctype="multipart/form-data">
+<input type="submit" value="Add" />
+</form>
+
+<hr />
+
+<table class="list">
+	<thead>
+		<tr>
+			<th class="id">ID</th>
+			<th class="version">Version</th>
+			<th class="ipa">IPA</th>
+			<th class="changelog">Changelog</th>
+		</tr>
+	</thead>
+	<tbody>
+		<%
+		  i = 0
+		%>
+		% for row in rows:
+			% if i % 2 == 0:
+		<tr class="even">	
+			% else:	
+		<tr class="odd">
+			% endif
+		<%
+			  i += 1
+		%>
+        	<td class="id">
+        	${row['id']}
+        	</td>
+        	<td class="version">
+        	${row['version']}
+        	</td>
+        	<td class="ipa">
+        	${row['ipa']}
+        	</td>
+        	<td class="changelog">
+        	${row['changelog']}
+        	</td>
+        </tr>
+    	% endfor
+	</tbody>
+</table>
+</form>

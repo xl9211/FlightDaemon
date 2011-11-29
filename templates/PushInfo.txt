@@ -2,7 +2,7 @@
 <form action="http://${ip}:${port}/getPushInfo" method="post" enctype="multipart/form-data">
 Device Token: <input type="text" name="device_token" size="64" />
 Push Switch: <input type="text" name="push_switch" />
-<input type="submit" value="Submit" />
+<input type="submit" value="Query" />
 </form>
 
 <hr />

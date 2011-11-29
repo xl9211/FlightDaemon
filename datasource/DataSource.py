@@ -508,6 +508,40 @@ class DataSource:
             
             return None
         
+    
+    def getVersionInfo(self):
+        try:
+            data = self.db_data_source.getVersionInfoList() 
+            
+            return data
+        except:
+            msg = traceback.format_exc()
+            self.logger.error(msg)
+            
+            return None
+        
+    
+    def addVersionInfo(self, version, ipa, changelog):
+        try:
+            self.db_data_source.putVersionInfo(version, ipa, changelog)
+            
+            return 0
+        except:
+            msg = traceback.format_exc()
+            self.logger.error(msg)
+            
+            return None
+        
+    
+    def getNewestVersionInfo(self):
+        try:
+            return self.db_data_source.getNewestVersionInfo()
+        except:
+            msg = traceback.format_exc()
+            self.logger.error(msg)
+            
+            return None
+        
 
     #########################################################################################
     # 一次性使用
