@@ -1,4 +1,4 @@
-table.list { border: 1px solid #e4e4e4; border-collapse: collapse; width: 100%; margin-bottom: 4px; }
+table.list { border: 1px solid #e4e4e4; border-collapse: collapse; width: 100%; margin-bottom: 4px; table-layout: fixed;}
 table.list th { background-color:#EEEEEE; padding: 4px; white-space:nowrap; border: 1px solid #888888;}
 
 table.list th.device_token { width: 45%; text-align: center;}
@@ -20,7 +20,7 @@ table.list td.push_info { text-align: left;}
 
 table.list td.id { text-align: center;}
 table.list td.version { text-align: center;}
-table.list td.ipa { text-align: left;}
+table.list td.ipa { text-align: left; word-wrap: break-word;}
 table.list td.changelog { text-align: left;}
 
 table.list caption { text-align: left; padding: 0.5em 0.5em 0.5em 0; }
