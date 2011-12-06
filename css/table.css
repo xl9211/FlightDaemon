@@ -11,7 +11,7 @@ table.list th.version { width: 15%; text-align: center;}
 table.list th.ipa { width: 40%; text-align: center;}
 table.list th.changelog { width: 40%; text-align: center;}
 
-table.list td { vertical-align: top; border: 1px solid #888888;}
+table.list td { border: 1px solid #888888;}
 
 table.list td.device_token { text-align: left;}
 table.list td.flight { text-align: center;}
