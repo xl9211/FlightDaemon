@@ -38,7 +38,7 @@ class VersionInfo(DBBase.Base):
     @staticmethod    
     def findAll(**kwargs):
         session = DBBase.getSession()
-        key_item = session.query(VersionInfo).filter_by(**kwargs).order_by(VersionInfo.version.desc()).all()
+        key_item = session.query(VersionInfo).filter_by(**kwargs).order_by(VersionInfo.id.desc()).all()
         DBBase.Session.remove()
         return key_item
     
