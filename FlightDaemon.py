@@ -304,9 +304,9 @@ class FlightDaemon:
            
             template = Template(filename = 'templates/PushInfo.txt')
             if self.config.debug_mode == 'no':
-                return template.render(rows = data, ip = "118.194.161.243", port = "28888")
+                return template.render(rows = data, host = "fd.tourbox.me")
             else:
-                return template.render(rows = data, ip = self.config.http_ip, port = self.config.http_port)
+                return template.render(rows = data, host = "%s:%s" % (self.config.http_ip, self.config.http_port))
         except:
             msg = traceback.format_exc()
             self.logger.error(msg)
@@ -327,9 +327,9 @@ class FlightDaemon:
                
                 template = Template(filename = 'templates/VersionInfo.txt')
                 if self.config.debug_mode == 'no':
-                    return template.render(rows = data, ip = "118.194.161.243", port = "28888")
+                    return template.render(rows = data, host = "fd.tourbox.me")
                 else:
-                    return template.render(rows = data, ip = self.config.http_ip, port = self.config.http_port)
+                    return template.render(rows = data, host = "%s:%s" % (self.config.http_ip, self.config.http_port))
         except:
             msg = traceback.format_exc()
             self.logger.error(msg)
@@ -344,9 +344,9 @@ class FlightDaemon:
             if len(kwargs) < 3:
                 template = Template(filename = 'templates/AddVersionInfo.txt')
                 if self.config.debug_mode == 'no':
-                    return template.render(ip = "118.194.161.243", port = "28888")
+                    return template.render(host = "fd.tourbox.me")
                 else:
-                    return template.render(ip = self.config.http_ip, port = self.config.http_port)
+                    return template.render(host = "%s:%s" % (self.config.http_ip, self.config.http_port))
             else:
                 if kwargs['version'] != "" and kwargs['ipa'] != "" and kwargs['changelog'] != "":
                     self.data_source.addVersionInfo(kwargs['version'], kwargs['ipa'], kwargs['changelog'])

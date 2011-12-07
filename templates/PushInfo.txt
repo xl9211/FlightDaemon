@@ -1,5 +1,5 @@
 <link href="css/table.css" rel="stylesheet" type="text/css" />
-<form action="http://${ip}:${port}/getPushInfo" method="post" enctype="multipart/form-data">
+<form action="http://${host}/getPushInfo" method="post" enctype="multipart/form-data">
 Device Token: <input type="text" name="device_token" size="64" />
 Push Switch: <input type="text" name="push_switch" />
 <input type="submit" value="Query" />

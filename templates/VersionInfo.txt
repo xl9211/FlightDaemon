@@ -1,5 +1,5 @@
 <link href="css/table.css" rel="stylesheet" type="text/css" />
-<form action="http://${ip}:${port}/addVersionInfo" method="post" enctype="multipart/form-data">
+<form action="http://${host}/addVersionInfo" method="post" enctype="multipart/form-data">
 <input type="submit" value="Add" />
 </form>
 

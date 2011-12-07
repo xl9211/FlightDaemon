@@ -1,4 +1,4 @@
-<form action="http://${ip}:${port}/addVersionInfo" method="post" enctype="multipart/form-data">
+<form action="http://${host}/addVersionInfo" method="post" enctype="multipart/form-data">
 
 Version:<br> 
 <input type="text" name="version" size="74" /><br>
