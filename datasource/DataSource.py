@@ -66,6 +66,8 @@ class DataSource:
         try:
             self.logger.info("%s %s %s %s" % (takeoff_airport, arrival_airport, schedule_takeoff_date, company))
             
+            self.updateFlightFixInfo(takeoff_airport, arrival_airport)
+            
             flight_list = self.db_data_source.getFlightFixInfoByRoute(takeoff_airport, arrival_airport, company)
             flight_list = self.__checkFixDataValid(flight_list, schedule_takeoff_date)
             
