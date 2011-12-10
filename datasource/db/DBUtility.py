@@ -210,6 +210,7 @@ class DB:
                 flight_info.valid_date_to = one['valid_date_to']
             
                 flight_info.add()
+            self.logger.info("%s rows is added" % (str(len(flight_info_list))))
         except:
             msg = traceback.format_exc()
             self.logger.error(msg)
@@ -222,6 +223,7 @@ class DB:
     
     def deleteRoute(self, takeoff_airport, arrival_airport):
         try:
+            self.logger.info("delete route %s %s" % (takeoff_airport, arrival_airport))
             ret = FlightFixInfo.findDelete(takeoff_airport = takeoff_airport, arrival_airport = arrival_airport)
             self.logger.info("%s rows is deleted" % (str(ret)))
             
