@@ -221,6 +221,33 @@ class DB:
             return None
         
     
+    def checkRouteInfo(self):
+        try:
+            ret = FlightFixInfo.getAllRoute()
+            
+            route_info = []
+            for one in ret:
+                route = {}
+                route["takeoff_airport"] = one.takeoff_airport
+                route["arrival_airport"] = one.arrival_airport
+                count = len(FlightFixInfo.find(takeoff_airport = one.takeoff_airport, arrival_airport = one.arrival_airport))
+                if count == 0:
+                    route["flight_count"] = "ZERO"
+                else:
+                    route["flight_count"] = count
+                route_info.append(route)
+            
+            return route_info
+        except:
+            msg = traceback.format_exc()
+            self.logger.error(msg)
+            
+            DBBase.Session.rollback()
+            DBBase.Engine.dispose()
+            
+            return None
+        
+    
     def deleteRoute(self, takeoff_airport, arrival_airport):
         try:
             self.logger.info("delete route %s %s" % (takeoff_airport, arrival_airport))

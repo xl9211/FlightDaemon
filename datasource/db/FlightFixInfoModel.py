@@ -86,6 +86,14 @@ class FlightFixInfo(DBBase.Base):
         return key_item
     
     
+    @staticmethod
+    def getAllRoute():
+        session = DBBase.getSession()
+        key_item = session.query(FlightFixInfo.takeoff_airport, FlightFixInfo.arrival_airport).distinct().all()
+        DBBase.Session.remove()
+        return key_item
+    
+    
     @staticmethod    
     def count(**kwargs):
         session = DBBase.getSession()

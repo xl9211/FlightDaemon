@@ -11,6 +11,10 @@ table.list th.version { width: 15%; text-align: center;}
 table.list th.ipa { width: 40%; text-align: center;}
 table.list th.changelog { width: 40%; text-align: center;}
 
+table.list th.takeoff_airport { width: 40%; text-align: center;}
+table.list th.arrival_airport { width: 40%; text-align: center;}
+table.list th.flight_count { width: 20%; text-align: center;}
+
 table.list td { border: 1px solid #888888;}
 
 table.list td.device_token { text-align: left;}
@@ -22,6 +26,10 @@ table.list td.id { text-align: center;}
 table.list td.version { text-align: center;}
 table.list td.ipa { text-align: left; word-wrap: break-word;}
 table.list td.changelog { text-align: left;}
+
+table.list td.takeoff_airport { text-align: center;}
+table.list td.arrival_airport { text-align: center;}
+table.list td.flight_count { text-align: center;}
 
 table.list caption { text-align: left; padding: 0.5em 0.5em 0.5em 0; }
 

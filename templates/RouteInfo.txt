@@ -1,0 +1,36 @@
+<link href="css/table.css" rel="stylesheet" type="text/css" />
+<table class="list">
+	<thead>
+		<tr>
+			<th class="takeoff_airport">Takeoff Airport</th>
+			<th class="arrival_airport">Arrival Airport</th>
+			<th class="flight_count">Flight Count</th>
+		</tr>
+	</thead>
+	<tbody>
+		<%
+		  i = 0
+		%>
+		% for row in rows:
+			% if i % 2 == 0:
+		<tr class="even">	
+			% else:	
+		<tr class="odd">
+			% endif
+		<%
+			  i += 1
+		%>
+        	<td class="takeoff_airport">
+        	${row['takeoff_airport']}
+        	</td>
+        	<td class="arrival_airport">
+        	${row['arrival_airport']}
+        	</td>
+        	<td class="flight_count">
+        	${row['flight_count']}
+        	</td>
+        </tr>
+    	% endfor
+	</tbody>
+</table>
+</form>

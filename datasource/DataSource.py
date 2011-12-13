@@ -544,6 +544,14 @@ class DataSource:
             
             return None
         
+    
+    def checkRouteInfo(self):
+        try:
+            return self.db_data_source.checkRouteInfo()
+        except:
+            msg = traceback.format_exc()
+            self.logger.error(msg)
+        
 
     #########################################################################################
     # 一次性使用

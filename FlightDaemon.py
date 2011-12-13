@@ -358,6 +358,22 @@ class FlightDaemon:
             
             return json.dumps(None)
         
+        
+    @cherrypy.expose     
+    def checkRouteInfo(self):
+        try:
+            self.logger.info("get request")
+            
+            data = self.data_source.checkRouteInfo()
+           
+            template = Template(filename = 'templates/RouteInfo.txt')
+            return template.render(rows = data)
+        except:
+            msg = traceback.format_exc()
+            self.logger.error(msg)
+            
+            return json.dumps(None)
+        
     
     @cherrypy.expose     
     def spiderFlightFixInfo(self):
